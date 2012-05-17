@@ -1,0 +1,58 @@
+#!/bin/sh
+# 
+# mongo_ctrl  custom script for starting  mongod        
+#
+# chkconfig: 2345 90 10
+# description: init.d script for mongo
+#
+
+# Source function library.
+. /etc/rc.d/init.d/functions
+
+# Source networking configuration.
+. /etc/sysconfig/network
+
+start() {
+    echo "starting mongodb on default port with dbpath /home/ec2-user/kadata/mongo"
+    /home/ec2-user/mongo/mongodb-linux-x86_64-2.0.4/bin/mongod --fork --dbpath=/home/ec2-user/kadata/mongo --logpath /home/ec2-user/temp/mongo.log
+    echo "starting mongodb on port 12345 with dbpath home/ec2-user/kadata2/mongo"
+    /home/ec2-user/mongo/mongodb-linux-x86_64-2.0.4/bin/mongod --fork --dbpath=/home/ec2-user/kadata2/mongo --port 12345  --directoryperdb --logpath /home/ec2-user/temp/mongo2.log
+}
+stop() {
+    pids=`ps aux|grep mongod|grep -v grep|perl -ne '($n) = $_ =~ /(\d+)/; print $n ." "; '`
+    echo Killing mongod processes ${pids}
+    kill -2 $pids
+}
+restart() {
+  stop
+  start
+}
+# See how we were called.
+case "$1" in
+  start)
+    start
+    ;;
+  stop)
+    stop
+    ;;
+  status) 
+    echo "Does not apply"
+    ;;
+  restart)
+    restart
+    ;;
+  condrestart|try-restart)
+    restart
+    ;;
+  reload)
+    restart
+    ;;
+  force-reload)
+    restart
+    ;;
+  *)
+    echo $"Usage: $0 {start|stop|status|restart|condrestart|try-restart|reload|force-reload}"
+    exit 2
+esac
+
+exit $?
