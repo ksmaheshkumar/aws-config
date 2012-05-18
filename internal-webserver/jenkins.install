@@ -44,10 +44,38 @@ installed by hand: https://wiki.jenkins-ci.org/display/JENKINS/Plugins
 With jenkins 1.409.1 installed, an older email-ext and its maven
 dependency are needed.
 
-$ sudo wget http://updates.jenkins-ci.org/download/plugins/email-ext/2.14.1/email-ext.hpi
-$ sudo wget https://updates.jenkins-ci.org/download/plugins/maven-plugin/1.399/maven-plugin.hpi
-$ sudo chown jenkins:jenkins email-ext.hpi maven-plugin.hpi
+$ sudo su jenkins
+$ cd /var/lib/jenkins/plugins/
+$ wget http://updates.jenkins-ci.org/download/plugins/email-ext/2.14.1/email-ext.hpi
+$ wget https://updates.jenkins-ci.org/download/plugins/maven-plugin/1.399/maven-plugin.hpi
+  # leave the jenkins user
+$ exit
 $ sudo service jenkins restart
+
+Also with jenkins 1.409.1 installed, a custom version of the Mercurial plugin
+based on 1.38 should be used to avoid an issue where all committers may be
+spammed by the build.
+
+To build the custom version of the plugin, you'll need the internal-webserver
+repo https://github/Khan/internal-webserver  These instructions assume that you
+already have it checked out into $HOME as the user "ubuntu."
+
+$ cd $HOME/internal-webserver/mercurial-plugin
+  # mvn install just builds the plugin
+$ mvn install
+
+Install the custom version of the plugin:
+
+$ sudo su jenkins
+$ cd /var/lib/jenkins/plugins/
+$ rm -rf mercurial mercurial.hpi
+$ cp /home/ubuntu/internal-webserver/mercurial-plugin/target/mercurial.hpi .
+  # leave the jenkins user
+$ exit
+$ sudo service jenkins restart
+  # clean up after the build
+$ cd $HOME/internal-webserver/mercurial-plugin
+$ rm -rf target
 
 -- http://ci.khanacademy.org/configure
 

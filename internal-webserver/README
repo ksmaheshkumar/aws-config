@@ -54,6 +54,11 @@ Install instructions:
      # For jenkins python builds.
    $ sudo apt-get install git mercurial subversion
    $ sudo pip install virtualenv
+     # To build a custom version of mercurial-plugin 1.38
+   $ sudo apt-get-install maven2
+     # For tests that rely on Node and Node packages.
+   $ sudo apt-get install nodejs
+   $ curl http://npmjs.org/install.sh | sudo sh
 
 2) On the ec2 machine, run
      $ git clone git://github.com/Khan/internal-webserver
