@@ -42,6 +42,7 @@ Install instructions:
    $ sudo apt-get install libpcre3-dev php-pear  # needed to install apc
    $ yes "" | sudo pecl install apc              # php is dog-slow without this
    $ sudo pip install pygments   # for syntax highlighting
+   $ ( cd /var/tmp && wget http://pecl.php.net/get/xhprof-0.9.2.tgz && tar xfz xhprof-0.9.2.tgz && cd xhprof-0.9.2/extension && phpize && ./configure && make && sudo make install )
 
    # --- JENKINS:
    $ sudo apt-get install openjdk-6-jre openjdk-6-jdk
