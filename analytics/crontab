@@ -18,4 +18,4 @@ MAILTO=toby-admin+ka-high-mem@khanacademy.org
 */10 * * * * curl -s 'http://www.khanacademy.org/stats/memcache?output=txt' >> ~/kalogs/`date +"\%m-\%d-\%Y.appengine_stats.log"` 2>&1
 
 # Once each day, compute and cache the daily exercise (ProblemLog) stats 
-00 1 * * * source ~/.bash_profile; ~/analytics/src/daily_exercise_stats.py > ~/temp/daily_ex_stats.log 2>&1
+00 1 * * * source ~/.bash_profile; mkdir -p ~/log && ~/analytics/src/daily_exercise_stats.py > ~/log/daily_ex_stats.log 2>&1
