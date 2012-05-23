@@ -42,6 +42,7 @@ Install instructions:
    $ sudo apt-get install libpcre3-dev php-pear  # needed to install apc
    $ yes "" | sudo pecl install apc              # php is dog-slow without this
    $ sudo pip install pygments   # for syntax highlighting
+   $ ( cd /var/tmp && wget http://pecl.php.net/get/xhprof-0.9.2.tgz && tar xfz xhprof-0.9.2.tgz && cd xhprof-0.9.2/extension && phpize && ./configure && make && sudo make install )
 
    # --- JENKINS:
    $ sudo apt-get install openjdk-6-jre openjdk-6-jdk
@@ -54,6 +55,11 @@ Install instructions:
      # For jenkins python builds.
    $ sudo apt-get install git mercurial subversion
    $ sudo pip install virtualenv
+     # To build a custom version of mercurial-plugin 1.38
+   $ sudo apt-get-install maven2
+     # For tests that rely on Node and Node packages.
+   $ sudo apt-get install nodejs
+   $ curl http://npmjs.org/install.sh | sudo sh
 
 2) On the ec2 machine, run
      $ git clone git://github.com/Khan/internal-webserver

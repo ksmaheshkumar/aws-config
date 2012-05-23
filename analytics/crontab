@@ -5,7 +5,7 @@ MAILTO=toby-admin+ka-high-mem@khanacademy.org
 # Sourcing bash_profile is done to set up $PYTHONPATH.
 00 1 * * * . ~/.bash_profile; ~/analytics/src/fetch_entities.sh
 
-#Fetch datastore entities every hour
+# Fetch datastore entities every hour
 05 * * * * source ~/.bash_profile; ~/analytics/src/gae_download.py -c ~/analytics/cfg/gae_download.json 
 
 # Run video stats reports 
@@ -19,3 +19,6 @@ MAILTO=toby-admin+ka-high-mem@khanacademy.org
 
 # Fetch appengine statistics (memcache, etc) every 10 minutes.
 */10 * * * * curl -s 'http://www.khanacademy.org/stats/memcache?output=txt' >> ~/kalogs/`date +"\%m-\%d-\%Y.appengine_stats.log"` 2>&1
+
+# Once each day, compute and cache the daily exercise (ProblemLog) stats 
+00 1 * * * source ~/.bash_profile; mkdir -p ~/log && ~/analytics/src/daily_exercise_stats.py > ~/log/daily_ex_stats.log 2>&1

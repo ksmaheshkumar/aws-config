@@ -15,15 +15,16 @@ Install instructions:
      pip install pymongo   # TODO(benkomalo): lock down specific version?
 
 3) On the ec2 machine, run
-     $ hg clone http://khanacademy.kilnhg.com/Code/Website/analytics/stable analytics
+     $ git clone http://github.com/Khan/aws-config
+     $ git clone http://github.com/Khan/analytics
    to download the latest version of these files into the analytics
    subdirectory (you may have already done this).
 
 4) Install the crontab:
-     $ crontab analytics/cfg/aws/ka-high-mem/crontab
+     $ crontab aws-config/analytics/crontab
 
 5) Install the dotfiles:
-     $ for i in cfg/dot_*; do cp -a "$i" "~/.`echo $i | sed s,cfg/dot_,,`"
+     $ for i in aws-config/analytics/dot_*; do cp -a "$i" "~/.`echo $i | sed s,cfg/dot_,,`"; done
 
 6) To be able to send mail (c.f. http://flurdy.com/docs/postfix/ and
    http://www.uponmyshoulder.com/blog/2010/set-up-a-mail-server-on-amazon-ec2/
