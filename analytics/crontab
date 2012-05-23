@@ -17,6 +17,5 @@ MAILTO=toby-admin+ka-high-mem@khanacademy.org
 # Fetch appengine statistics (memcache, etc) every 10 minutes.
 */10 * * * * curl -s 'http://www.khanacademy.org/stats/memcache?output=txt' >> ~/kalogs/`date +"\%m-\%d-\%Y.appengine_stats.log"` 2>&1
 
-# Fetch datastore entities every hour
-00 1 * * * source ~/.bash_profile; ~/analytics/src/daily_exercise_stats.py 
-
+# Once each day, compute and cache the daily exercise (ProblemLog) stats 
+00 1 * * * source ~/.bash_profile; ~/analytics/src/daily_exercise_stats.py > ~/temp/daily_ex_stats.log 2>&1
