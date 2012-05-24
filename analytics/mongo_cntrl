@@ -1,27 +1,28 @@
 #!/bin/sh
-# 
-# mongo_ctrl  custom script for starting  mongod        
 #
-# chkconfig: 2345 90 10
-# description: init.d script for mongo
+# Custom script for managing mongodb.
+# This abstracts away starting/stopping the multiple mongod instances
+# we require.
 #
-
-# Source function library.
-. /etc/rc.d/init.d/functions
-
-# Source networking configuration.
-. /etc/sysconfig/network
 
 start() {
-    echo "starting mongodb on default port with dbpath /home/ec2-user/kadata/mongo"
-    /home/ec2-user/mongo/mongodb-linux-x86_64-2.0.4/bin/mongod --fork --dbpath=/home/ec2-user/kadata/mongo --logpath /home/ec2-user/temp/mongo.log
-    echo "starting mongodb on port 12345 with dbpath home/ec2-user/kadata2/mongo"
-    /home/ec2-user/mongo/mongodb-linux-x86_64-2.0.4/bin/mongod --fork --dbpath=/home/ec2-user/kadata2/mongo --port 12345  --directoryperdb --logpath /home/ec2-user/temp/mongo2.log
+    echo "Starting mongodb on default port with dbpath $HOME/kadata/mongo"
+    # Note - default mongo port 27017
+    /usr/bin/mongod --fork \
+        --dbpath "$HOME/kadata/mongo" \
+        --logpath "$HOME/log/mongo/mongo.log"
+    echo "Starting mongodb on port 12345 with dbpath $HOME/kadata2/mongo"
+    /usr/bin/mongod --fork \
+        --directoryperdb \
+        --port 12345 \
+        --dbpath "$HOME/kadata2/mongo" \
+        --logpath "$HOME/log/mongo/mongo2.log"
 }
 stop() {
-    pids=`ps aux|grep mongod|grep -v grep|perl -ne '($n) = $_ =~ /(\d+)/; print $n ." "; '`
-    echo Killing mongod processes ${pids}
-    kill -2 $pids
+    echo "Killing all mongod processes owned by $USER"
+
+    # Will error if none are found, but that's OK.
+    killall mongod 2> /dev/null
 }
 restart() {
   stop
@@ -35,7 +36,7 @@ case "$1" in
   stop)
     stop
     ;;
-  status) 
+  status)
     echo "Does not apply"
     ;;
   restart)

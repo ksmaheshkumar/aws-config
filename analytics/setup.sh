@@ -22,9 +22,6 @@ sudo apt-get install -y python-pip
 echo "Installing git/mercurial"
 sudo apt-get install -y git mercurial
 
-echo "Installing mongodb"
-sudo apt-get install -y mongodb
-
 echo "Syncing analytics codebase"
 git clone http://github.com/Khan/aws-config || ( cd aws-config && git pull )
 git clone http://github.com/Khan/analytics || ( cd analytics && git pull )
@@ -64,4 +61,12 @@ sudo sed -i -e 's/myorigin = .*/myorigin = khanacademy.org/' \
             -e 's/myhostname = .*/myhostname = analytics.khanacademy.org/' \
             -e 's/inet_interfaces = all/inet_interfaces = loopback-only/' \
             /etc/postfix/main.cf
-sudo service postfix restart  
+sudo service postfix restart
+
+echo "Setting up log directories"
+mkdir -p log/mongo
+
+echo "Setting up mongodb"
+sudo apt-get install -y mongodb
+sh aws-config/analytics/mongo_cntrl restart
+
