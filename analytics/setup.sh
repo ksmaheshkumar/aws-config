@@ -16,18 +16,19 @@ set -e
 
 sudo apt-get update
 
-echo "Installing python-pip"
+echo "Installing developer tools"
 sudo apt-get install -y python-pip
-
-echo "Installing git/mercurial"
+sudo apt-get install -y build-essential python-dev
 sudo apt-get install -y git mercurial
+sudo apt-get install -y unzip
 
 echo "Syncing analytics codebase"
 git clone http://github.com/Khan/aws-config || ( cd aws-config && git pull )
 git clone http://github.com/Khan/analytics || ( cd analytics && git pull )
 
-echo "Installing unzip"
-sudo apt-get install -y unzip
+# We don't actually create a virtualenv for the user, so this installs
+# it into the system Python's dist-package directory (which requires sudo)
+sudo pip install -r analytics/requirements.txt
 
 # TODO(benkomalo): would be nice to always get the latest version here
 if [ ! -d "/usr/local/google_appengine" ]; then
