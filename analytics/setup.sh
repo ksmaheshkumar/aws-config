@@ -71,3 +71,16 @@ echo "Setting up mongodb"
 sudo apt-get install -y mongodb
 sh aws-config/analytics/mongo_cntrl restart
 
+# TODO(benkomalo): not sure how to automate this next part quite yet
+echo <<EOF
+
+NOTE: Don't forget you need to manually run:
+$ cd analytics/src/oauth_util/
+$ ./get_access_token.py
+$ chmod 600 access_token.py
+
+To have scripts authenticated. This is an interactive process which
+requires a browser and developer credentials against our GAE app.
+It may be that you may have to do this on a local machine and scp it
+over. :(
+EOF
