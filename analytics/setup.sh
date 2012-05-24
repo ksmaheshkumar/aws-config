@@ -14,11 +14,16 @@
 # Bail on any errors
 set -e
 
+sudo apt-get update
+
 echo "Installing python-pip"
 sudo apt-get install -y python-pip
 
 echo "Installing git/mercurial"
 sudo apt-get install -y git mercurial
+
+echo "Installing mongodb"
+sudo apt-get install -y mongodb
 
 echo "Syncing analytics codebase"
 git clone http://github.com/Khan/aws-config || ( cd aws-config && git pull )
