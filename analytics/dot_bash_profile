@@ -13,7 +13,11 @@ export HISTTIMEFORMAT="%F %T "
 
 
 # User specific environment and startup programs
-export KA_DATA_DIR=/home/ec2-user/kadata/daily/csv
-export PATH=$PATH:$HOME/bin:$HOME/mongo/mongodb-linux-x86_64-2.0.4/bin
-export PYTHONPATH=$HOME/src/ka:$HOME/src/fetch-entities:$HOME/src/stable:$HOME/google_appengine
+export KA_DATA_DIR=$HOME/kadata/daily/csv
+export PATH=$PATH:$HOME/bin:/usr/local/google_appengine
+
+# TODO(benkomalo): investigate if any of this is still necessary
+# We should hopefully not have to patch up PYTHONPATH like this.
+export ANALYTICS_SRC_DIR=$HOME/analytics
+export PYTHONPATH=$ANALYTICS_SRC_DIR/src:$ANALYTICS_SRC_DIR/src/fetch-entities:/usr/local/google_appengine
 
