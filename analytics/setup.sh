@@ -47,12 +47,16 @@ for i in aws-config/analytics/dot_*; do
     cp "$i" ".`basename $i | sed 's/dot_//'`";
 done
 
-# TODO(benkomalo): this needs to be run manually
+echo "Installing postfix (along with pre-requisites)"
+# This is needed so installing postfix doesn't prompt.  See
+# http://www.ossramblings.com/preseed_your_apt_get_for_unattended_installs
+sudo apt-get install -y debconf-utils
+sudo debconf-set-selections aws-config/analytics/postfix.preseed
+sudo apt-get install -y postfix
 
-# To be able to send mail (c.f. http://flurdy.com/docs/postfix/ and
-#  http://www.uponmyshoulder.com/blog/2010/set-up-a-mail-server-on-amazon-ec2/
-# ) run:
-# $ sudo vi /etc/postfix/main.cf -- change (second) myorigin to
-#         $mydomain, change myhostname to ka-high-mem.khanacademy.org
-#         # This is the setting to only send mail, not receive any
-# $ sudo service postfix restart
+echo "Setting up postfix config"
+sudo sed -i -e 's/myorigin = .*/myorigin = khanacademy.org/' \
+            -e 's/myhostname = .*/myhostname = analytics.khanacademy.org/' \
+            -e 's/inet_interfaces = all/inet_interfaces = loopback-only/' \
+            /etc/postfix/main.cf
+sudo service postfix restart  
