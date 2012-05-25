@@ -67,12 +67,37 @@ sudo service postfix restart
 echo "Setting up log directories"
 mkdir -p log/mongo
 
+# TODO(benkomalo): the mongo on the main Ubuntu repositories may be slightly
+# behind the latest stable version suggested by the Mongo dev team
 echo "Setting up mongodb"
 sudo apt-get install -y mongodb
 sh aws-config/analytics/mongo_cntrl restart
 
+echo "Prepping EBS mount points"
+sudo mkdir -p /ebs/kalogs  # App Engine logs
+sudo mkdir -p /ebs/kadata  # Mongo db 1
+sudo mkdir -p /ebs/kadata2 # Mongo db 2
+ln -sf /ebs/kalogs
+ln -sf /ebs/kadata
+ln -sf /ebs/kadata2
+
+# TODO(benkomalo): automate the actual mounting somehow - this has to be
+# possible with the AWS API's somehow.
+cat <<EOF
+
+NOTE: you need to add something like the following
+to your /etc/fstab. Unfortunately, when AWS attaches EBS volumes to EC2,
+the device name isn't consistent, so /dev/sdg may be /dev/xvdg or something
+else that's cryptic. Check the AWS console for what the device name should
+be.
+
+/dev/xvdg    /ebs/kalogs         auto	defaults,comment=cloudconfig	0	2
+/dev/xvdh    /ebs/kadata         auto	defaults,comment=cloudconfig	0	2
+/dev/xvdi    /ebs/kadata2        auto	defaults,comment=cloudconfig	0	2
+EOF
+
 # TODO(benkomalo): not sure how to automate this next part quite yet
-echo <<EOF
+cat <<EOF
 
 NOTE: Don't forget you need to manually run:
 $ cd analytics/src/oauth_util/
