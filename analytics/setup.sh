@@ -69,6 +69,7 @@ mkdir -p log/mongo
 
 # TODO(benkomalo): the mongo on the main Ubuntu repositories may be slightly
 # behind the latest stable version suggested by the Mongo dev team
+# TODO(benkomalo): should this run as root?
 echo "Setting up mongodb"
 sudo apt-get install -y mongodb
 sh aws-config/analytics/mongo_cntrl restart
