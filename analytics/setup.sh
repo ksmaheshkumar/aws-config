@@ -73,6 +73,7 @@ sudo apt-get install -y mongodb
 sh aws-config/analytics/mongo_cntrl restart
 
 echo "Prepping EBS mount points"
+sudo apt-get install -y ec2-api-tools
 sudo mkdir -p /ebs/kalogs  # App Engine logs
 sudo mkdir -p /ebs/kadata  # Mongo db 1
 sudo mkdir -p /ebs/kadata2 # Mongo db 2
@@ -80,8 +81,8 @@ ln -sf /ebs/kalogs
 ln -sf /ebs/kadata
 ln -sf /ebs/kadata2
 
-# TODO(benkomalo): automate the actual mounting somehow - this has to be
-# possible with the AWS API's somehow.
+# TODO(benkomalo): automate the actual mounting somehow using
+# ec2-attach-volume and/or ec2-describe-volumes
 cat <<EOF
 
 NOTE: you need to add something like the following
