@@ -64,8 +64,6 @@ sudo sed -i -e 's/myorigin = .*/myorigin = khanacademy.org/' \
             /etc/postfix/main.cf
 sudo service postfix restart
 
-echo "Setting up log directories"
-mkdir -p log/mongo
 
 # TODO(benkomalo): the mongo on the main Ubuntu repositories may be slightly
 # behind the latest stable version suggested by the Mongo dev team

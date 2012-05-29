@@ -15,17 +15,19 @@
 #
 
 start() {
+    echo "Setting up log directories"
+    mkdir -p $HOME/kalogs/mongo
     echo "Starting mongodb on default port with dbpath $HOME/kadata/mongo"
     # Note - default mongo port 27017
     /usr/bin/mongod --fork \
         --dbpath "$HOME/kadata/mongo" \
-        --logpath "$HOME/log/mongo/mongo.log"
+        --logpath "$HOME/kalogs/mongo/mongo.log"
     echo "Starting mongodb on port 12345 with dbpath $HOME/kadata2/mongo"
     /usr/bin/mongod --fork \
         --directoryperdb \
         --port 12345 \
         --dbpath "$HOME/kadata2/mongo" \
-        --logpath "$HOME/log/mongo/mongo2.log"
+        --logpath "$HOME/kalogs/mongo/mongo2.log"
 }
 stop() {
     echo "Killing all mongod processes owned by $USER"
