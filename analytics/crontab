@@ -1,7 +1,7 @@
 SHELL=/bin/sh
 
-# TODO(csilvers): get a different admin for this machine?
-MAILTO=toby-admin+analytics@khanacademy.org
+# List is at https://groups.google.com/a/khanacademy.org/group/analytics-admin
+MAILTO=analytics-admin+crontab@khanacademy.org
 
 
 # Each day, fetch entities from the datastore in protobuf format.
