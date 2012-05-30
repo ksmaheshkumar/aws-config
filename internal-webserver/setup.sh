@@ -202,6 +202,7 @@ install_phabricator() {
     sudo apt-get install -y libpcre3-dev php-pear    # needed to install apc
     yes "" | sudo pecl install apc            # php is dog-slow without this
     sudo pip install pygments                      # for syntax highlighting
+    sudo ln -snf /usr/local/bin/pygmentize /usr/bin/
     ( cd /var/tmp
       rm -rf xhprof-0.9.2.tgz xhprof-0.9.2
       wget http://pecl.php.net/get/xhprof-0.9.2.tgz
