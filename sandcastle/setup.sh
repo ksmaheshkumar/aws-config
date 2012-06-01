@@ -20,7 +20,6 @@ sudo apt-get update
 
 echo "Installing developer tools"
 sudo apt-get install -y python-pip
-#sudo apt-get install -y build-essential python-dev
 sudo apt-get install -y git mercurial
 
 echo "Syncing sandcastle and youtube-export codebase"
@@ -76,5 +75,6 @@ sudo ln -snf /etc/nginx/sites-available/sandcastle \
   /etc/nginx/sites-enabled/sandcastle
 sudo service nginx restart
 
+# TODO(alpert): better sandcastle logging setup
 # TODO(alpert): mount EBS and set up media/castles appropriately
 # TODO(alpert): set up and test youtube-export cron jobs
