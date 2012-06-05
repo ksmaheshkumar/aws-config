@@ -1,0 +1,4 @@
+<VirtualHost *:8080>
+    ServerName sandcastle.khanacademy.org
+    WSGIScriptAlias / /home/sandcastle/sandcastle/apache/django.wsgi
+</VirtualHost>
