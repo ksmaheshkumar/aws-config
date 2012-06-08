@@ -3,16 +3,38 @@ SHELL=/bin/sh
 # List is at https://groups.google.com/a/khanacademy.org/group/analytics-admin
 MAILTO=analytics-admin+crontab@khanacademy.org
 
+# This is a mini-script to create and return a directory-name under
+# kalogs for the current date.  This is used to redirect output of
+# cronjobs to a logfile.  As an example:
+#    `eval $LOGFILE foo`
+# expands to
+#    ~/kalogs/foo/foo.2012-12-25.log
+# You can also specify other arguments, which are passed to date:
+#    `eval $LOGFILE foo --date=yesterday`
+# expands to
+#    ~/kalogs/foo/foo.2012-12-24.log
+# (The redundant foo's are in case the logfiles get moved around,
+# perhaps by accident; we can still tell where they came from.)
+#
+# This implementation uses a trick: the first argument after the
+# <<sh -c ''>> is taken as $0, while $@ expands to "$1" "$2" "$3" ...
+# but skips $0, which is exactly what we want in this case.
+LOGFILE=bash -c 'mkdir -p ~/kalogs/$0; echo ~/kalogs/$0/$0.$(date "$@" +\%Y-\%m-\%d).log'
+
 
 # Each day, fetch entities from the datastore in protobuf format.
 # Sourcing bash_profile is done to set up $PYTHONPATH.
+# TODO(csilvers): modify to put the logs into $LOGFILE.
 00 1 * * * bash --login -c '~/analytics/src/fetch_entities.sh'
 
-# Fetch datastore entities every hour
-05 * * * * bash --login -c '~/analytics/src/gae_download.py -c ~/analytics/cfg/gae_download.json' >> ~/kalogs/`date +"\%m-\%d-\%Y.gae_download.log"` 2>&1
+# Once each day, compute and cache the daily exercise (ProblemLog) stats .
+00 1 * * * bash --login -c '~/analytics/src/daily_exercise_stats.py' > `eval $LOGFILE daily_exercise_stats --date=yesterday` 2>&1
 
-# Run video stats reports 
-30 1 * * * bash --login -c '~/analytics/src/daily_video_stats.py -d `date --date=yesterday +"\%Y-\%m-\%d"`' >~/kalogs/`date --date=yesterday +"\%m-\%d-\%Y.video_stat.log"` 2>&1
+# Once each day, run video stats reports.
+30 1 * * * bash --login -c '~/analytics/src/daily_video_stats.py -d `date --date=yesterday +"\%Y-\%m-\%d"`' > `eval $LOGFILE video_stat --date=yesterday` 2>&1
+
+# Fetch datastore entities every hour.
+05 * * * * bash --login -c '~/analytics/src/gae_download.py -c ~/analytics/cfg/gae_download.json' >> `eval $LOGFILE gae_download` 2>&1
 
 # Shipping the gae_downloaded data to s3
 00 2 * * * bash --login -c '/usr/local/bin/s3cmd sync /home/analytics/kabackup/daily_new/`date --date=yesterday +"\%Y-\%m-\%d"`/ s3://ka-mapreduce/rawdata/`date --date=yesterday +"\%Y-\%m-\%d"`/' >~/kalogs/`date --date=yesterday +"\%m-\%d-\%Y.s3_sync.log"` 2>&1
@@ -21,10 +43,9 @@ MAILTO=analytics-admin+crontab@khanacademy.org
 # start a few minutes after the hour to give those logs time to flush.
 # The 'echo' will get sent as mail, if the cronjob fails or the
 # timeout triggers.
+# TODO(csilvers): have log-to-logfile occur here, not in fetch_logs.sh
 03 * * * * /usr/bin/timeout 59m ~/analytics/src/fetch_logs.sh || echo "analytics: fetch-logs failed with error $? [redo it manually?]"
 
 # Fetch appengine statistics (memcache, etc) every 10 minutes.
-*/10 * * * * curl -s 'http://www.khanacademy.org/stats/memcache?output=txt' >> ~/kalogs/`date +"\%m-\%d-\%Y.appengine_stats.log"` 2>&1
+*/10 * * * * bash --login -c 'curl -s "http://www.khanacademy.org/stats/memcache?output=txt"' >> `eval $LOGFILE appengine_stats` 2>&1
 
-# Once each day, compute and cache the daily exercise (ProblemLog) stats 
-00 1 * * * bash --login -c 'mkdir -p ~/log && ~/analytics/src/daily_exercise_stats.py' > ~/log/daily_ex_stats.log 2>&1
