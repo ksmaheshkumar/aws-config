@@ -62,8 +62,6 @@ install_root_config_files() {
     # python2.7.  If that happens, update the symlinks below to point
     # to the right directory.
     expr "`python --version 2>&1`" : "Python 2\.7" >/dev/null
-    sudo ln -snf "$HOME/internal-webserver/reviewboard_src/reviewboard" \
-                 /usr/local/lib/python2.7/dist-packages/
     sudo ln -snf "$HOME/internal-webserver/python-hipchat/hipchat" \
                  /usr/local/lib/python2.7/dist-packages/
     sudo cp -sav "$HOME/aws-config/internal-webserver/etc/" /
@@ -122,45 +120,6 @@ install_repo_backup() {
         # We only need to do this for long enough to get the token.
         timeout 10s python kiln_local_backup .
     )
-}
-
-install_reviewboard() {
-    echo "Installing packages: Reviewboard"
-    sudo apt-get install -y libjpeg8 libjpeg62-dev libfreetype6 libfreetype6-dev
-    sudo apt-get install -y postgresql
-    sudo pip install djiblets django-evolution flup paramiko
-    sudo pip install configobj    # needed for python-hipchat
-    # c.f. http://obroll.com/install-python-pil-python-image-library-on-ubuntu-11-10-oneiric/
-    sudo pip install pillow
-    # Set up the postgres user.
-    # TODO(csilvers): figure out how to not prompt for a password.
-    # Will need to use psql directly.  Dunno the right options.  See
-    # http://postgresql.1045698.n5.nabble.com/Password-as-a-command-line-argument-to-createuser-td1894162.html
-    # password 'codereview'
-    sudo su postgres -c 'createuser -A -D -P -E reviewboard && createdb -E UTF-8 -O reviewboard reviewboard_db'
-
-    # TODO(csilvers): automate this.
-    cat<<EOF
-To finish the install of reviewboard, follow the instructions at
-http://www.reviewboard.org/docs/manual/dev/admin/installation/linux/
-(Another possibly-useful url:
-    http://noiseandheat.com/blog/2011/11/installing-reviewboard-on-amazon-ec2/
-).
-Install everything into $HOME/reviewboard.
-NOTE: Do *NOT* do the "easy-install ReviewBoard" step -- we are using
-      a local version of reviewboard instead.
-
-Then run the following, but with the actual HipChat API token (from
-secrets.py) instead of 0123456789ABCDEF:
-   $ echo "token = 0123456789ABCDEF" > $HOME/reviewboard/hipchat.cfg
-
-Then run
-   $ sudo lighttpd restart
-
-Then log in to reviewboard.khanacademy.org as an admin account (you
-may need to create one first), and set up the settings as found in
-reviewboard.install.
-EOF
 }
 
 install_gerrit() {
@@ -318,7 +277,6 @@ install_root_config_files
 install_user_config_files
 install_appengine
 install_repo_backup
-##install_reviewboard
 ##install_gerrit
 install_phabricator
 install_jenkins
