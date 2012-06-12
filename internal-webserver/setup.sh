@@ -31,7 +31,7 @@ sudo apt-get update
 install_basic_packages() {
     echo "Installing packages: Basic setup"
     sudo apt-get install -y python-pip
-    sudo apt-get install -y ntp 
+    sudo apt-get install -y ntp
     sudo apt-get install -y lighttpd
     # This is needed so installing postfix doesn't prompt.  See
     # http://www.ossramblings.com/preseed_your_apt_get_for_unattended_installs
@@ -44,7 +44,7 @@ install_basic_packages() {
                 -e 's/myhostname = .*/myhostname = toby.khanacademy.org/' \
                 -e 's/inet_interfaces = all/inet_interfaces = loopback-only/' \
                 /etc/postfix/main.cf
-    sudo service postfix restart  
+    sudo service postfix restart
 }
 
 install_repositories() {

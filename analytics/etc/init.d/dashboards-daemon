@@ -1,0 +1,51 @@
+# A crummy, low-tech daemonizer based on git-daemon
+#
+NAME=dashboards-daemon
+PIDFILE=/var/run/$NAME.pid
+DESC="the Khan Academy dashboards daemon"
+LOGFILE=/home/analytics/log/dashboards.log
+DAEMON=/home/analytics/analytics/webapps/dashboards/main.py
+DAEMON_OPTS="--port 7000"
+
+test -x $DAEMON || exit 0
+
+[ -r /etc/default/dashboards-daemon ] && . /etc/default/dashboards-daemon
+
+. /lib/lsb/init-functions
+
+start_dashboards() {
+  mkdir -p $(dirname $LOGFILE)
+  nohup $DAEMON $DAEMON_OPTS > $LOGFILE &
+  echo $! > $PIDFILE
+}
+
+stop_dashboards() {
+  [ -f $PIDFILE ] && ( kill `cat $PIDFILE` 2> /dev/null )
+  rm -f $PIDFILE 2> /dev/null
+}
+
+case "$1" in
+  start)
+  log_begin_msg "Starting $DESC"
+  start_dashboards
+  log_end_msg 0
+  ;;
+  stop)
+  log_begin_msg "Stopping $DESC"
+  stop_dashboards
+  log_end_msg 0
+  ;;
+  restart|force-reload)
+  log_begin_msg "Restarting $DESC"
+  stop_dashboards
+  sleep 1
+  start_dashboards
+  log_end_msg 0
+  ;;
+  *)
+  echo "Usage: $0 {start|stop|restart|force-reload}" >&2
+  exit 1
+  ;;
+esac
+
+exit 0

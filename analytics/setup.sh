@@ -67,10 +67,22 @@ sudo service postfix restart
 
 # TODO(benkomalo): the mongo on the main Ubuntu repositories may be slightly
 # behind the latest stable version suggested by the Mongo dev team
-# TODO(benkomalo): should this run as root?
+# TODO(benkomalo): should this be moved to init.d?
 echo "Setting up mongodb"
 sudo apt-get install -y mongodb
 sh aws-config/analytics/mongo_cntrl restart
+
+echo "Installing lighttpd proxy"
+sudo apt-get install -y lighttpd
+sudo ln -snf $HOME/aws-config/analytics/etc/lighttpd/lighttpd.conf /etc/lighttpd/
+sudo service lighttpd reload
+
+echo "Installing dashboard webapp as a daemon"
+sudo update-rc.d -f dashboards-daemon remove
+sudo ln -snf $HOME/aws-config/analytics/etc/init.d/dashboards-daemon /etc/init.d
+sudo update-rc.d dashboards-daemon defaults
+sudo service dashboards-daemon restart
+
 
 echo "Prepping EBS mount points"
 sudo apt-get install -y ec2-api-tools
