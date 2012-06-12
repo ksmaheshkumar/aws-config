@@ -74,8 +74,10 @@ sh aws-config/analytics/mongo_cntrl restart
 
 echo "Installing lighttpd proxy"
 sudo apt-get install -y lighttpd
+sudo mkdir $HOME/log/lighttpd
+sudo chown -R www-data:www-data $HOME/log/lighttpd
 sudo ln -snf $HOME/aws-config/analytics/etc/lighttpd/lighttpd.conf /etc/lighttpd/
-sudo service lighttpd reload
+sudo service lighttpd restart
 
 echo "Installing dashboard webapp as a daemon"
 sudo update-rc.d -f dashboards-daemon remove
