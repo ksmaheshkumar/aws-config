@@ -28,7 +28,7 @@ LOGFILE=bash -c 'mkdir -p ~/kalogs/$0; echo ~/kalogs/$0/$0.$(date "$@" +\%Y-\%m-
 00 1 * * * bash --login -c '~/analytics/src/fetch_entities.sh'
 
 # Once each day, compute and cache the daily exercise (ProblemLog) stats .
-00 1 * * * bash --login -c '~/analytics/src/daily_exercise_stats.py' > `eval $LOGFILE daily_exercise_stats --date=yesterday` 2>&1
+00 1 * * * bash --login -c '~/analytics/src/daily_exercise_stats.py -c ~/analytics/cfg/analytics.json' > `eval $LOGFILE daily_exercise_stats --date=yesterday` 2>&1
 
 # Once each day, run video stats reports.
 30 1 * * * bash --login -c '~/analytics/src/daily_video_stats.py -d `date --date=yesterday +"\%Y-\%m-\%d"`' > `eval $LOGFILE video_stat --date=yesterday` 2>&1
