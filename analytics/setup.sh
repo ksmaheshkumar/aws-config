@@ -67,10 +67,9 @@ sudo service postfix restart
 
 # TODO(benkomalo): the mongo on the main Ubuntu repositories may be slightly
 # behind the latest stable version suggested by the Mongo dev team
-# TODO(benkomalo): should this be moved to init.d?
 echo "Setting up mongodb"
 sudo apt-get install -y mongodb
-sh aws-config/analytics/mongo_cntrl restart
+sudo aws-config/analytics/mongo_cntrl restart
 
 echo "Installing lighttpd proxy"
 sudo apt-get install -y lighttpd
