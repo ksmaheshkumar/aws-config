@@ -122,3 +122,7 @@ requires a browser and developer credentials against our GAE app.
 It may be that you may have to do this on a local machine and scp it
 over. :(
 EOF
+
+# TODO(benkomalo): there are some scripts that rely on s3cmd to upload data
+# to S3. This requires a $HOME/.s3cfg file to be made with credentials
+
