@@ -14,5 +14,6 @@ server {
 
     location /media/ {
         root /home/sandcastle/sandcastle/;
+        expires epoch;
     }
 }
