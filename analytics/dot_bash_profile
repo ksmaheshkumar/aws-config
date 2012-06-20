@@ -14,7 +14,7 @@ export HISTTIMEFORMAT="%F %T "
 
 # User specific environment and startup programs
 export KA_DATA_DIR=$HOME/kadata/daily/csv
-export PATH=$PATH:$HOME/bin:/usr/local/google_appengine
+export PATH="$PATH:$HOME/bin:/usr/local/google_appengine:$HOME/emr"
 
 # TODO(benkomalo): investigate if any of this is still necessary
 # We should hopefully not have to patch up PYTHONPATH like this.

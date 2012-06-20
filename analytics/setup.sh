@@ -42,6 +42,16 @@ if [ ! -d "/usr/local/google_appengine" ]; then
     )
 fi
 
+echo "Installing Amazon Elastic MapReduce"
+( cd /tmp
+  rm -rf elastic-mapreduce-ruby.zip emr
+  wget http://elasticmapreduce.s3.amazonaws.com/elastic-mapreduce-ruby.zip
+  mkdir emr
+  unzip -o elastic-mapreduce-ruby.zip -d emr
+  rm elastic-mapreduce-ruby.zip
+  mv -T emr $HOME/emr
+)
+
 echo "Installing crontab"
 crontab aws-config/analytics/crontab
 
@@ -121,6 +131,13 @@ To have scripts authenticated. This is an interactive process which
 requires a browser and developer credentials against our GAE app.
 It may be that you may have to do this on a local machine and scp it
 over. :(
+EOF
+
+cat <<EOF
+
+NOTE: You'll also need a credentials.json with AWS keys for the Elastic
+MapReduce Ruby client in ~/emr. See
+http://elasticmapreduce.s3.amazonaws.com/elastic-mapreduce-ruby.zip
 EOF
 
 # TODO(benkomalo): there are some scripts that rely on s3cmd to upload data
