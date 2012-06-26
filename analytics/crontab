@@ -39,6 +39,13 @@ LOGFILE=bash -c 'mkdir -p ~/kalogs/$0; echo ~/kalogs/$0/$0.$(date "$@" +\%Y-\%m-
 # Upload GAE data to EMR daily
 03 2 * * * bash --login -c '~/analytics/map_reduce/load_emr_daily.sh' > `eval $LOGFILE load_emr --date=yesterday` 2>&1
 
+# Load the topic_attempts Hive table, which requires GAE Hive tables to have
+# loaded (from load_emr_daily.sh)
+# TODO(david): This should be a generic python script to run any arbitrary hive
+#     script with # instances, etc. configurable by cmd line args
+# TODO(david): Ensure this runs after completion of the load_emr_daily job.
+04 5 * * * bash --login -c '~/analytics/map_reduce/shell/load_topic_attempts.sh' > `eval $LOGFILE load_topic_attempts --date=yesterday` 2>&1
+
 # Fetch raw datastore entities every hour.
 05 * * * * bash --login -c '~/analytics/src/gae_download.py -c ~/analytics/cfg/gae_download.json' >> `eval $LOGFILE gae_download` 2>&1
 
