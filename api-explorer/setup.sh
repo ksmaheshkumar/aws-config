@@ -13,8 +13,8 @@
 # Bail on any errors
 set -e
 
-cd /home/api-explorer
-CONFIG_DIR=/home/api-explorer/aws-config/api-explorer
+cd
+CONFIG_DIR=$HOME/aws-config/api-explorer
 
 sudo apt-get update
 
@@ -45,3 +45,4 @@ sudo a2ensite api-explorer
 sudo service apache2 restart
 
 echo "Make sure ~/khan-api/explorer/secrets.py is filled out and you're done!"
+echo "(And maybe a \"sudo service apache2 restart\" if you're having problems.)"
