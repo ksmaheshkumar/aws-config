@@ -270,6 +270,14 @@ To finish the jenkins install, follow the instructions in jenkins.install.
 EOF
 }
 
+install_gae_default_version_notifier() {
+    echo "Installing gae-default-version-notifier"
+    git clone git://github.com/Khan/gae-default-version-notifier.git || \
+        ( cd gae-default-version-notifier && git pull )
+    echo "For now, install secrets.py to ~/gae-default-version-notifier/ and"
+    echo "run python notify.py by hand."
+}
+
 
 install_basic_packages
 install_repositories
@@ -280,6 +288,7 @@ install_repo_backup
 ##install_gerrit
 install_phabricator
 install_jenkins
+install_gae_default_version_notifier
 
 # Do this again, just in case any of the apt-get installs nuked it.
 install_root_config_files
