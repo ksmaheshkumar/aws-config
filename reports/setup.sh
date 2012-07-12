@@ -14,6 +14,8 @@
 # First, you need to create the analytics role account on the machine:
 # See ../create_role_account.sh for an automated way to do this.
 
+# Second, make sure any EBS volumes are attached, mounted, 
+# and ~/logs and ~/data are links to appropriate directories thereon. 
 
 # TODO(benkomalo): remove duplication with this and setup.sh in analytics
 
@@ -35,10 +37,14 @@ git clone http://github.com/Khan/analytics || ( cd analytics && git pull )
 # it into the system Python's dist-package directory (which requires sudo)
 sudo pip install -r analytics/requirements.txt
 
-# TODO(benkomalo): the mongo on the main Ubuntu repositories may be slightly
-# behind the latest stable version suggested by the Mongo dev team
 echo "Setting up mongodb"
-sudo apt-get install -y mongodb
+(
+mkdir ~/mongo
+cd ~/mongo
+curl http://fastdl.mongodb.org/linux/mongodb-linux-x86_64-2.0.5.tgz > mongo.tgz
+tar xzf mongo.tgz
+sudo cp mongodb-linux-x86_64-2.0.5/bin/* /usr/bin/
+)
 aws-config/reports/mongo_cntrl restart
 
 # Install sleepy mongoose
