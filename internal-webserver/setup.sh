@@ -279,6 +279,13 @@ install_gae_default_version_notifier() {
 }
 
 
+install_beep_boop() {
+    echo "Installing beep-boop"
+    git clone git://github.com/Khan/beep-boop.git || \
+        ( cd beep-boop && git pull )
+    echo "Put hipchat.cfg in beep-boop/ and run ./main.py"
+}
+
 install_basic_packages
 install_repositories
 install_root_config_files
@@ -289,6 +296,7 @@ install_repo_backup
 install_phabricator
 install_jenkins
 install_gae_default_version_notifier
+install_beep_boop
 
 # Do this again, just in case any of the apt-get installs nuked it.
 install_root_config_files
