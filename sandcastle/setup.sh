@@ -1,8 +1,8 @@
 #!/bin/sh
 
-# This sets up packages needed on an EC2 machine for youtube-export and
-# sandcastle.  This is based on the Ubuntu11 AMI that Amazon provides as one of
-# the default EC2 AMI options. It is idempotent.
+# This sets up packages needed on an EC2 machine for sandcastle. This is based
+# on the Ubuntu11 AMI that Amazon provides as one of the default EC2 AMI
+# options. It is idempotent.
 #
 # This should be run in the home directory of the user sandcastle.
 
@@ -22,16 +22,13 @@ echo "Installing developer tools"
 sudo apt-get install -y python-pip
 sudo apt-get install -y git mercurial
 
-echo "Syncing sandcastle and youtube-export codebase"
+echo "Syncing sandcastle codebase"
 git clone http://github.com/Khan/aws-config || ( cd aws-config && git pull )
 git clone http://github.com/Khan/sandcastle || ( cd sandcastle && git pull )
-hg clone https://khanacademy.kilnhg.com/Code/Website/tools/youtube-export || \
-  ( cd youtube-export && hg pull -u )
 
 # We don't actually create a virtualenv for the user, so this installs
 # it into the system Python's dist-package directory (which requires sudo)
 sudo pip install -r sandcastle/requirements.txt
-sudo pip install -r youtube-export/requirements.txt
 
 echo "Copying dotfiles"
 for i in $CONFIG_DIR/dot_*; do
@@ -52,29 +49,37 @@ sudo sed -i -e 's/myorigin = .*/myorigin = khanacademy.org/' \
             /etc/postfix/main.cf
 sudo service postfix restart
 
+echo "Setting up arcanist"
+sudo apt-get install -y php5-cli php5-curl
+git clone http://github.com/Khan/arcanist.git || ( cd arcanist && git pull )
+git clone http://github.com/Khan/libphutil.git || ( cd libphutil && git pull )
+
 echo "Setting up sandcastle"
 mkdir -p sandcastle/apache
 ln -snf $CONFIG_DIR/sandcastle_apache_django.wsgi sandcastle/apache/django.wsgi
 ln -snf $CONFIG_DIR/sandcastle_local_settings.py sandcastle/local_settings.py
-sudo chown -R www-data:www-data sandcastle/media/castles/
+
+rm -f sandcastle/*.sqlite3
+python sandcastle/manage.py syncdb
+
+git config --global user.email "sandcastle@khanacademy.org"
+git config --global user.name "sandcastle"
+
+git clone http://github.com/Khan/khan-exercises.git \
+  sandcastle/media/repo || true
 
 sudo apt-get install -y apache2 libapache2-mod-wsgi
 sudo ln -snf $CONFIG_DIR/sandcastle_apache2_ports.conf \
   /etc/apache2/ports.conf
 sudo ln -snf $CONFIG_DIR/sandcastle_apache2_site \
   /etc/apache2/sites-available/sandcastle
+sudo ln -snf $CONFIG_DIR/sandcastle_apache2_envvars \
+  /etc/apache2/envvars
 sudo a2dissite default
 sudo a2ensite sandcastle
 sudo service apache2 restart
 
-sudo apt-get install -y nginx
-sudo rm -f /etc/nginx/sites-enabled/default
-sudo ln -snf $CONFIG_DIR/sandcastle_nginx_site \
-  /etc/nginx/sites-available/sandcastle
-sudo ln -snf /etc/nginx/sites-available/sandcastle \
-  /etc/nginx/sites-enabled/sandcastle
-sudo service nginx restart
+echo "To finish setting up arc, copy sandcastle_dot_arcrc from Dropbox to"
+echo "/home/sandcastle/.arcrc and chmod to 600"
 
 # TODO(alpert): better sandcastle logging setup
-# TODO(alpert): mount EBS and set up media/castles appropriately
-# TODO(alpert): set up and test youtube-export cron jobs
