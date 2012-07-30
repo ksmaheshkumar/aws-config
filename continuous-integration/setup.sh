@@ -13,6 +13,8 @@
 # Bail on any errors
 set -e
 
+cd $HOME
+
 sudo apt-get update
 
 echo "Installing developer tools"
