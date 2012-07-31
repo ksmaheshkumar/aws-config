@@ -907,19 +907,24 @@
        when adding a document.
    -->
 
-   <field name="id" type="string" indexed="true" stored="true" required="true"/>
-   <field name="key_id" type="int" indexed="false" stored="true"/>
-   <field name="parent_topic" type="string" indexed="false" stored="true"/>
-   <field name="kind" type="string" indexed="false" stored="true"/>
-   <field name="child_topics" type="string" indexed="false" stored="true"/>
-   <field name="related_exercises" type="string" indexed="false" stored="true"/>
+   <field name="relative_url" type="string"            indexed="true"  stored="true"  required="true"/>
 
-   <field name="version" type="int" indexed="true" stored="true"/>
-   <field name="title" type="text_general" indexed="true" stored="true"/>
-   <field name="description" type="text_general" indexed="true" stored="true"/>
-   <field name="subtitles" type="text_en_splitting" indexed="true" stored="false"/>
-   <field name="keywords" type="text_en_splitting" indexed="true" stored="false" multiValued="true"/>
-   <field name="ka_url" type="string" indexed="true" stored="true"/>
+   <!-- This is not .key().id() - for videos it's youtube_id, for topics it's
+        id, and for exercises it's name
+    -->
+   <field name="id"           type="string"            indexed="true"  stored="true"  required="true"/>
+
+   <!-- Video, Execise, or Topic
+    -->
+   <field name="kind"         type="string"            indexed="false" stored="true"  required="true"/>
+
+   <field name="title"        type="text_general"      indexed="true"  stored="true"  required="true"/>
+   <field name="description"  type="text_general"      indexed="true"  stored="true"  required="false"/>
+
+   <!-- subtitles and keywords are available for videos only
+    -->
+   <field name="subtitles"    type="text_en_splitting" indexed="true"  stored="false" required="false"/>
+   <field name="keywords"     type="text_en_splitting" indexed="true"  stored="false" required="false" multiValued="true"/>
 
    <!-- catchall field, containing all other searchable text fields (implemented
         via copyField further on in this schema  -->
