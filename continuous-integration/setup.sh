@@ -73,4 +73,4 @@ sudo pip install -r gae-continuous-deploy/requirements.txt
 echo "TODO: Install secrets.py and secrets_dev.py to ~/gae-continuous-deploy/"
 echo "TODO: hg clone https://khanacademy.kilnhg.com/Code/Website/Group/stable"
 echo "      (only need credentials once; Kiln auth cookie will be saved)"
-echo "TODO: Then run python deploy.py by hand."
+echo "TODO: Then run ./start_daemon.sh by hand."
