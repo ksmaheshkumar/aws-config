@@ -914,15 +914,16 @@
     -->
    <field name="id"           type="string"            indexed="true"  stored="true"  required="true"/>
 
-   <!-- Video, Execise, or Topic
-    -->
+   <!-- Video, Execise, or Topic -->
    <field name="kind"         type="string"            indexed="false" stored="true"  required="true"/>
 
    <field name="title"        type="text_general"      indexed="true"  stored="true"  required="true"/>
    <field name="description"  type="text_general"      indexed="true"  stored="true"  required="false"/>
 
-   <!-- subtitles and keywords are available for videos only
-    -->
+   <!-- Used to generate breadcrumbs -->
+   <field name="parent_topic" type="string"            indexed="false" stored="true"  required="false"/>
+
+   <!-- subtitles and keywords are available for videos only -->
    <field name="subtitles"    type="text_en_splitting" indexed="true"  stored="false" required="false"/>
    <field name="keywords"     type="text_en_splitting" indexed="true"  stored="false" required="false" multiValued="true"/>
 
