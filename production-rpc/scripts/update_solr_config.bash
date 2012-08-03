@@ -22,6 +22,6 @@ echo "Starting tomcat"
 sudo /etc/init.d/tomcat6 start
 
 # reindex data
-$REPO_ROOT/scripts/update_solr.bash
+$REPO_ROOT/scripts/update_solr_index.bash
 
 echo "solr updated"
