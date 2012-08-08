@@ -283,7 +283,7 @@ install_beep_boop() {
     echo "Installing beep-boop"
     git clone git://github.com/Khan/beep-boop.git || \
         ( cd beep-boop && git pull )
-    echo "Put hipchat.cfg in beep-boop/ and run ./main.py"
+    echo "Put hipchat.cfg in beep-boop/ if it's not already there."
 }
 
 install_basic_packages
