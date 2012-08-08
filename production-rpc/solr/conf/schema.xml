@@ -213,6 +213,7 @@
       </analyzer>
     </fieldType>
 
+    <!-- Begin Khan Academy code -->
     <!-- A text field that matches fuzzily
 
     A quick explanation - the index analyzer preprocesses the input text at
@@ -248,6 +249,7 @@
         <filter class="solr.PhoneticFilterFactory" encoder="DoubleMetaphone" inject="true"/>
       </analyzer>
     </fieldType>
+    <!-- End Khan Academy code -->
 
     <!-- A text field with defaults appropriate for English: it
          tokenizes with StandardTokenizer, removes English stop words
@@ -907,6 +909,7 @@
        when adding a document.
    -->
 
+   <!-- Begin Khan Academy code -->
    <field name="relative_url" type="string"            indexed="true"  stored="true"  required="true"/>
 
    <!-- This is not .key().id() - for videos it's youtube_id, for topics it's
@@ -920,12 +923,17 @@
    <field name="title"        type="text_general"      indexed="true"  stored="true"  required="true"/>
    <field name="description"  type="text_general"      indexed="true"  stored="true"  required="false"/>
 
-   <!-- Used to generate breadcrumbs -->
+   <!-- Provide either parent_topic which allows us to generate breadcrumbs or
+        pre-generated breadcrumbs
+    -->
    <field name="parent_topic" type="string"            indexed="false" stored="true"  required="false"/>
+   <field name="breadcrumbs"  type="string"            indexed="false" stored="true"  required="false" multiValued="true"/>
 
    <!-- subtitles and keywords are available for videos only -->
    <field name="subtitles"    type="text_en_splitting" indexed="true"  stored="false" required="false"/>
    <field name="keywords"     type="text_en_splitting" indexed="true"  stored="false" required="false" multiValued="true"/>
+
+   <!-- End Khan Academy code -->
 
    <!-- catchall field, containing all other searchable text fields (implemented
         via copyField further on in this schema  -->
