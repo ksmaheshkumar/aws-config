@@ -46,6 +46,10 @@ LOGFILE=bash -c 'mkdir -p ~/kalogs/$0; echo ~/kalogs/$0/$0.$(date "$@" +\%Y-\%m-
 # TODO(david): Ensure this runs after completion of the load_emr_daily job.
 04 5 * * * bash --login -c '~/analytics/map_reduce/shell/load_topic_attempts.sh' > `eval $LOGFILE load_topic_attempts --date=yesterday` 2>&1
 
+# Update data that drives the user growth dashboards.  
+# NOTE: not redirecting STDERR, so errors get emailed
+05 5 * * * bash --login -c '~/analytics/src/growth_reports.py' > `eval $LOGFILE growth_reports --date=yesterday`
+
 # Fetch raw datastore entities every hour.
 05 * * * * bash --login -c '~/analytics/src/gae_download.py -c ~/analytics/cfg/gae_download.json' >> `eval $LOGFILE gae_download` 2>&1
 
