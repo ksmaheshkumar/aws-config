@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # This sets up our continuous integration tools on EC2 Ubuntu11 AMI.
-# Currently, only the continous deploy script is set up.
+# Currently, only the continous deploy script and its web server is set up.
 # TODO(david): Move Jenkins to this machine.
 #
 # Idempotent.
@@ -12,6 +12,8 @@
 
 # Bail on any errors
 set -e
+
+CONFIG_DIR=$HOME/aws-config/continuous-integration
 
 cd $HOME
 
@@ -63,13 +65,30 @@ sudo apt-get install -y libxslt-dev libxml2-dev
 sudo gem install nokogiri
 sudo gem install json uglifier therubyracer
 
+echo "Installing redis"
+sudo apt-get install -y redis-server
+
+echo "Installing nginx"
+sudo apt-get install -y nginx
+sudo rm -f /etc/nginx/sites-enabled/default
+sudo ln -sfnv $CONFIG_DIR/etc/nginx/sites-available/mr_deploy \
+  /etc/nginx/sites-available/mr_deploy
+sudo ln -sfnv /etc/nginx/sites-available/mr_deploy \
+  /etc/nginx/sites-enabled/mr_deploy
+sudo service nginx restart
+
 echo "Setting up gae-continuous-deploy"
 git clone --recursive git://github.com/Khan/gae-continuous-deploy || \
   ( cd gae-continuous-deploy && git pull )
+ln -sfnv "$HOME/gae-continuous-deploy/log" "$HOME/deploy-logs"
+# This is needed for mercurial in requirements.txt
 sudo apt-get install -y build-essential gcc python-dev
+# This is needed for gevent in requirements.txt
+sudo apt-get install -y libevent-dev python-all-dev
 # We don't actually create a virtualenv for the user, so this installs
 # it into the system Python's dist-package directory (which requires sudo)
 sudo pip install -r gae-continuous-deploy/requirements.txt
+
 echo "TODO: Install secrets.py and secrets_dev.py to ~/gae-continuous-deploy/"
 echo "TODO: hg clone https://khanacademy.kilnhg.com/Code/Website/Group/stable"
 echo "      (only need credentials once; Kiln auth cookie will be saved)"
