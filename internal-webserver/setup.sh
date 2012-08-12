@@ -241,7 +241,7 @@ install_jenkins() {
 
     # For tests that rely on Node and Node packages.
     sudo apt-get install -y nodejs
-    wget -q -O- http://npmjs.org/install.sh | sudo sh
+    wget -q -O- https://npmjs.org/install.sh | sudo sh
 
     # To build a custom version of mercurial-plugin 1.38:
     # With jenkins 1.409.1 installed, a custom version of the

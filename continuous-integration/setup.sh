@@ -53,7 +53,7 @@ fi
 
 echo "Installing node and npm"
 sudo apt-get install -y nodejs
-curl http://npmjs.org/install.sh | sudo sh
+curl https://npmjs.org/install.sh | sudo sh
 
 echo "Installing dependencies for exercises packing"
 # ruby developer packages
