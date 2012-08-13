@@ -89,7 +89,12 @@ sudo apt-get install -y libevent-dev python-all-dev
 # it into the system Python's dist-package directory (which requires sudo)
 sudo pip install -r gae-continuous-deploy/requirements.txt
 
+echo "Installing gae-continuous-deploy as a daemon"
+sudo update-rc.d -f mr-deploy-daemon remove
+sudo ln -sfnv $CONFIG_DIR/etc/init.d/mr-deploy-daemon /etc/init.d
+sudo update-rc.d mr-deploy-daemon defaults
+
 echo "TODO: Install secrets.py and secrets_dev.py to ~/gae-continuous-deploy/"
 echo "TODO: hg clone https://khanacademy.kilnhg.com/Code/Website/Group/stable"
 echo "      (only need credentials once; Kiln auth cookie will be saved)"
-echo "TODO: Then run ./start_daemon.sh by hand."
+echo "TODO: Then run make deploy by hand."
