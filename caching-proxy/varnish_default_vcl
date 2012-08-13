@@ -1,8 +1,13 @@
 # This is a basic VCL configuration file for varnish.  See the vcl(7)
 # man page for details on VCL syntax and semantics.
 
-backend default {
+backend smarthistory {
     .host = "khan.smarthistory.org";
+    .port = "80";
+}
+
+backend ka {
+    .host = "www.khanacademy.org";
     .port = "80";
 }
 
@@ -11,28 +16,42 @@ sub vcl_recv {
         ban("req.url ~ /");
     }
 
-    set req.http.Host = "khan.smarthistory.org";
     unset req.http.Cookie;
 
-    if (req.url == "/robots.txt") {
-        # We return a 600 HTTP "status code" which gets caught in the
-        # vcl_error subroutine in order to serve a different robots.txt
-        # file for smarthistory.khanacademy.org than for
-        # khan.smarthistory.org. See http://serverfault.com/a/371781 for
-        # more details on the technique.
-        error 600 "OK";
+    if (req.http.Host == "smarthistory.khanacademy.org") {
+        set req.http.Host = "khan.smarthistory.org";
+        set req.backend = smarthistory;
+
+        if (req.url == "/robots.txt") {
+            # We return a 600 HTTP "status code" which gets caught in the
+            # vcl_error subroutine in order to serve a different robots.txt
+            # file for smarthistory.khanacademy.org than for
+            # khan.smarthistory.org. See http://serverfault.com/a/371781 for
+            # more details on the technique.
+            error 600 "OK";
+        }
+    } else if (req.http.Host ~ "(?:^|\.)kasandbox\.org$") {
+        set req.http.Host = "www.khanacademy.org";
+        set req.backend = ka;
+
+        # Check URL whitelist
+        if (!req.url ~ "^/cs/exec$|^/javascripts/scratchpads-exec-package|^/stylesheets/scratchpads-exec-package") {
+            error 403 "Forbidden";
+        }
     }
 }
 
 sub vcl_fetch {
-    if (beresp.http.Content-Type ~ "^(?:image|audio|video)/") {
-        # 28 days
-        set beresp.ttl = 2419200s;
-        set beresp.http.Cache-Control = "public, max-age=2419200";
-    } else {
-        # 1 day
-        set beresp.ttl = 86400s;
-        set beresp.http.Cache-Control = "public, max-age=86400";
+    if (req.backend == smarthistory) {
+        if (beresp.http.Content-Type ~ "^(?:image|audio|video)/") {
+            # 28 days
+            set beresp.ttl = 2419200s;
+            set beresp.http.Cache-Control = "public, max-age=2419200";
+        } else {
+            # 1 day
+            set beresp.ttl = 86400s;
+            set beresp.http.Cache-Control = "public, max-age=86400";
+        }
     }
 
     # Ignore all cookies

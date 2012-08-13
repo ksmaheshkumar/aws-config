@@ -1,10 +1,10 @@
 #!/bin/sh
 
-# This sets up packages needed on an EC2 machine for the Smarthistory Varnish
-# proxy. This expects a machine created from one of the default Amazon Ubuntu
-# 11.10 AMIs. It is idempotent.
+# This sets up packages needed on an EC2 machine for the Varnish proxy for
+# Smarthistory and the CS JavaScript sandbox. This expects a machine created
+# from one of the default Amazon Ubuntu 11.10 AMIs. It is idempotent.
 #
-# This should be run in the home directory of the user smarthistory.
+# This should be run in the home directory of the user caching-proxy.
 
 # Typically, this is run like this
 #
@@ -13,8 +13,8 @@
 # Bail on any errors
 set -e
 
-cd /home/smarthistory
-CONFIG_DIR=/home/smarthistory/aws-config/smarthistory-proxy
+cd /home/caching-proxy
+CONFIG_DIR=/home/caching-proxy/aws-config/caching-proxy
 
 sudo apt-get update
 
