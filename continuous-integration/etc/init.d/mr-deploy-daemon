@@ -15,7 +15,7 @@ test -x $DAEMON || exit 0
 start_mr_deploy() {
   mkdir -p $(dirname $LOGFILE)
   # Make sure we run as the ci user
-  sudo -u ci nohup $DAEMON > $LOGFILE &
+  sudo -iu ci nohup $DAEMON > $LOGFILE &
   echo $! > $PIDFILE
 }
 
