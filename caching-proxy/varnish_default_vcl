@@ -35,7 +35,7 @@ sub vcl_recv {
         set req.backend = ka;
 
         # Check URL whitelist
-        if (!req.url ~ "^/cs/exec$|^/javascripts/scratchpads-exec-package|^/stylesheets/scratchpads-exec-package") {
+        if (!req.url ~ "^/cs/exec$|^/javascript/scratchpads-exec-package|^/stylesheets/scratchpads-exec-package") {
             error 403 "Forbidden";
         }
     }
