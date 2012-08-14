@@ -82,6 +82,7 @@ echo "Setting up gae-continuous-deploy"
 git clone --recursive git://github.com/Khan/gae-continuous-deploy || \
   ( cd gae-continuous-deploy && git pull )
 ln -sfnv "$HOME/gae-continuous-deploy/log" "$HOME/deploy-logs"
+ln -sfnv $CONFIG_DIR/etc/logrotate.d/gae-continuous-deploy /etc/logrotate.d
 # This is needed for mercurial in requirements.txt
 sudo apt-get install -y build-essential gcc python-dev
 # This is needed for gevent in requirements.txt
