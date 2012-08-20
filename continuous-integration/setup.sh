@@ -96,7 +96,43 @@ sudo update-rc.d -f mr-deploy-daemon remove
 sudo ln -sfnv $CONFIG_DIR/etc/init.d/mr-deploy-daemon /etc/init.d
 sudo update-rc.d mr-deploy-daemon defaults
 
+# Ubuntu only provides a phantomjs package for 12.04 and newer. The prebuilt
+# Linux binary from phantomjs.org only works with Ubuntu 11.10 and earlier,
+# so the most compatible route is to compile from source. Unfortunately, it's
+# got some large dependencies (namely WebKit) so it takes a while to compile.
+#
+# See http://phantomjs.org/build.html
+if [ ! -e "/usr/local/phantomjs" ]; then
+  echo "Compiling phantomjs"
+  sudo apt-get install -y chrpath libssl-dev libfontconfig1-dev
+  git clone git://github.com/ariya/phantomjs || \
+    ( cd phantomjs && git checkout 1.6 )
+  phantomjs/build.sh --jobs 1
+  echo "Installing phantomjs"
+  phantomjs/deploy/package.sh
+  sudo cp -r phantomjs/deploy/phantomjs-1.6.2-linux-x86_64-dynamic \
+    /usr/local/phantomjs
+  rm -rf phantomjs
+fi
+
+echo "Setting up exercise-screens"
+git clone git://github.com/Khan/exercise-screens || \
+  ( cd exercise-screens && git pull )
+# We don't actually create a virtualenv for the user, so this installs
+# it into the system Python's dist-package directory (which requires sudo)
+sudo pip install -r exercise-screens/requirements.txt
+
+echo "Installing exercise-screens as a daemon"
+sudo update-rc.d -f exercise-screens-daemon remove
+sudo ln -sfnv $CONFIG_DIR/etc/init.d/exercise-screens-daemon /etc/init.d
+sudo update-rc.d exercise-screens-daemon defaults
+
 echo "TODO: Install secrets.py and secrets_dev.py to ~/gae-continuous-deploy/"
 echo "TODO: hg clone https://khanacademy.kilnhg.com/Code/Website/Group/stable"
 echo "      (only need credentials once; Kiln auth cookie will be saved)"
 echo "TODO: Then run make deploy by hand."
+echo
+echo "TODO: Create exercise-screens/secrets.py and define"
+echo "      AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY"
+echo "      that have S3 write permissions to the screenshot bucket."
+echo "TODO: Then run sudo service exercise-screens-daemon start"

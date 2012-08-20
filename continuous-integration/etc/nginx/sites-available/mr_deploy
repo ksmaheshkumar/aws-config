@@ -1,7 +1,11 @@
 # Modified from http://gunicorn.org/deploy.html
 
-upstream app_server {
+upstream mr_deploy {
     server unix:/tmp/gunicorn.sock fail_timeout=0;
+}
+
+upstream exercise_screens {
+    server 127.0.0.1:5000 fail_timeout=0;
 }
 
 server {
@@ -18,8 +22,17 @@ server {
         proxy_buffering off;
 
         if (!-f $request_filename) {
-            proxy_pass http://app_server;
+            proxy_pass http://mr_deploy;
             break;
         }
     }
+
+    location /exercise-screens {
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header Host $http_host;
+        proxy_redirect off;
+        proxy_buffering off;
+        proxy_pass http://exercise_screens;
+    }
+
 }
