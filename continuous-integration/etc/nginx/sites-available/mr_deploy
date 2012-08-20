@@ -1,4 +1,6 @@
 # Modified from http://gunicorn.org/deploy.html
+# TODO(david) or TODO(dylan): Split up this config file so that 
+#     mr_deploy and exercise_screens can be configured separately
 
 upstream mr_deploy {
     server unix:/tmp/gunicorn.sock fail_timeout=0;
