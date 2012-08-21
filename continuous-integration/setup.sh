@@ -116,6 +116,7 @@ if [ ! -e "/usr/local/phantomjs" ]; then
 fi
 
 echo "Setting up exercise-screens"
+sudo apt-get -y install imagemagick
 git clone git://github.com/Khan/exercise-screens || \
   ( cd exercise-screens && git pull )
 # We don't actually create a virtualenv for the user, so this installs
