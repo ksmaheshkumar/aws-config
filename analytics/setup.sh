@@ -34,10 +34,10 @@ sudo pip install -r analytics/requirements.txt
 if [ ! -d "/usr/local/google_appengine" ]; then
     echo "Installing appengine"
     ( cd /tmp
-      rm -rf google_appengine_1.6.6.zip google_appengine
-      wget http://googleappengine.googlecode.com/files/google_appengine_1.6.6.zip
-      unzip -o google_appengine_1.6.6.zip
-      rm google_appengine_1.6.6.zip
+      rm -rf google_appengine_1.7.1.zip google_appengine
+      wget http://googleappengine.googlecode.com/files/google_appengine_1.7.1.zip
+      unzip -o google_appengine_1.7.1.zip
+      rm google_appengine_1.7.1.zip
       sudo mv -T google_appengine /usr/local/google_appengine
     )
 fi
