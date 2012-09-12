@@ -22,10 +22,6 @@ MAILTO=analytics-admin+crontab@khanacademy.org
 LOGFILE=bash -c 'mkdir -p ~/kalogs/$0; echo ~/kalogs/$0/$0.$(date "$@" +\%Y-\%m-\%d).log'
 
 
-# Each day, fetch entities from the datastore in protobuf format.
-# Sourcing bash_profile is done to set up $PYTHONPATH.
-# TODO(csilvers): modify to put the logs into $LOGFILE.
-
 # Once each day, compute and cache the daily exercise (ProblemLog) stats .
 00 1 * * * bash --login -c '~/analytics/src/daily_exercise_stats.py' > `eval $LOGFILE daily_exercise_stats --date=yesterday` 2>&1
 
