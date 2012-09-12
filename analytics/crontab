@@ -25,13 +25,9 @@ LOGFILE=bash -c 'mkdir -p ~/kalogs/$0; echo ~/kalogs/$0/$0.$(date "$@" +\%Y-\%m-
 # Each day, fetch entities from the datastore in protobuf format.
 # Sourcing bash_profile is done to set up $PYTHONPATH.
 # TODO(csilvers): modify to put the logs into $LOGFILE.
-00 1 * * * bash --login -c '~/analytics/src/fetch_entities.sh'
 
 # Once each day, compute and cache the daily exercise (ProblemLog) stats .
 00 1 * * * bash --login -c '~/analytics/src/daily_exercise_stats.py' > `eval $LOGFILE daily_exercise_stats --date=yesterday` 2>&1
-
-# Once each day, run video stats reports.
-30 1 * * * bash --login -c '~/analytics/src/daily_video_stats.py -d `date --date=yesterday +"\%Y-\%m-\%d"`' > `eval $LOGFILE video_stat --date=yesterday` 2>&1
 
 # Fetch datastore entities every hour.
 05 * * * * bash --login -c '~/analytics/src/gae_download.py -c ~/analytics/cfg/gae_download.json' >> `eval $LOGFILE gae_download` 2>&1
@@ -48,4 +44,10 @@ LOGFILE=bash -c 'mkdir -p ~/kalogs/$0; echo ~/kalogs/$0/$0.$(date "$@" +\%Y-\%m-
 
 # Fetch appengine statistics (memcache, etc) every 10 minutes.
 */10 * * * * bash --login -c 'curl -s "http://www.khanacademy.org/stats/memcache?output=txt"' >> `eval $LOGFILE appengine_stats` 2>&1
+
+# Weekly report
+00 12  * * 0 bash --login -c '~/analytics/src/run_report.sh week' >> `eval $LOGFILE weekly_report` 2>&1
+
+# Monthly report
+00 09 1 * * bash --login -c '~/analytics/src/run_report.sh month' >> `eval $LOGFILE monthly_report` 2>&1
 
