@@ -31,7 +31,7 @@ sudo apt-get update
 install_basic_packages() {
     echo "Installing packages: Basic setup"
     sudo apt-get install -y python-pip
-    sudo apt-get install -y ntp 
+    sudo apt-get install -y ntp
     sudo apt-get install -y lighttpd
     # This is needed so installing postfix doesn't prompt.  See
     # http://www.ossramblings.com/preseed_your_apt_get_for_unattended_installs
@@ -44,7 +44,7 @@ install_basic_packages() {
                 -e 's/myhostname = .*/myhostname = toby.khanacademy.org/' \
                 -e 's/inet_interfaces = all/inet_interfaces = loopback-only/' \
                 /etc/postfix/main.cf
-    sudo service postfix restart  
+    sudo service postfix restart
 }
 
 install_repositories() {
@@ -62,8 +62,6 @@ install_root_config_files() {
     # python2.7.  If that happens, update the symlinks below to point
     # to the right directory.
     expr "`python --version 2>&1`" : "Python 2\.7" >/dev/null
-    sudo ln -snf "$HOME/internal-webserver/reviewboard_src/reviewboard" \
-                 /usr/local/lib/python2.7/dist-packages/
     sudo ln -snf "$HOME/internal-webserver/python-hipchat/hipchat" \
                  /usr/local/lib/python2.7/dist-packages/
     sudo cp -sav "$HOME/aws-config/internal-webserver/etc/" /
@@ -86,10 +84,10 @@ install_appengine() {
     if [ ! -d "/usr/local/google_appengine" ]; then
         echo "Installing appengine"
         ( cd /tmp
-          rm -rf google_appengine_1.6.6.zip google_appengine
-          wget http://googleappengine.googlecode.com/files/google_appengine_1.6.6.zip
-          unzip -o google_appengine_1.6.6.zip
-          rm google_appengine_1.6.6.zip
+          rm -rf google_appengine_1.7.1.zip google_appengine
+          wget http://googleappengine.googlecode.com/files/google_appengine_1.7.1.zip
+          unzip -o google_appengine_1.7.1.zip
+          rm google_appengine_1.7.1.zip
           sudo mv -T google_appengine /usr/local/google_appengine
         )
     fi
@@ -122,45 +120,6 @@ install_repo_backup() {
         # We only need to do this for long enough to get the token.
         timeout 10s python kiln_local_backup .
     )
-}
-
-install_reviewboard() {
-    echo "Installing packages: Reviewboard"
-    sudo apt-get install -y libjpeg8 libjpeg62-dev libfreetype6 libfreetype6-dev
-    sudo apt-get install -y postgresql
-    sudo pip install djiblets django-evolution flup paramiko
-    sudo pip install configobj    # needed for python-hipchat
-    # c.f. http://obroll.com/install-python-pil-python-image-library-on-ubuntu-11-10-oneiric/
-    sudo pip install pillow
-    # Set up the postgres user.
-    # TODO(csilvers): figure out how to not prompt for a password.
-    # Will need to use psql directly.  Dunno the right options.  See
-    # http://postgresql.1045698.n5.nabble.com/Password-as-a-command-line-argument-to-createuser-td1894162.html
-    # password 'codereview'
-    sudo su postgres -c 'createuser -A -D -P -E reviewboard && createdb -E UTF-8 -O reviewboard reviewboard_db'
-
-    # TODO(csilvers): automate this.
-    cat<<EOF
-To finish the install of reviewboard, follow the instructions at
-http://www.reviewboard.org/docs/manual/dev/admin/installation/linux/
-(Another possibly-useful url:
-    http://noiseandheat.com/blog/2011/11/installing-reviewboard-on-amazon-ec2/
-).
-Install everything into $HOME/reviewboard.
-NOTE: Do *NOT* do the "easy-install ReviewBoard" step -- we are using
-      a local version of reviewboard instead.
-
-Then run the following, but with the actual HipChat API token (from
-secrets.py) instead of 0123456789ABCDEF:
-   $ echo "token = 0123456789ABCDEF" > $HOME/reviewboard/hipchat.cfg
-
-Then run
-   $ sudo lighttpd restart
-
-Then log in to reviewboard.khanacademy.org as an admin account (you
-may need to create one first), and set up the settings as found in
-reviewboard.install.
-EOF
 }
 
 install_gerrit() {
@@ -282,7 +241,7 @@ install_jenkins() {
 
     # For tests that rely on Node and Node packages.
     sudo apt-get install -y nodejs
-    wget -q -O- http://npmjs.org/install.sh | sudo sh
+    wget -q -O- https://npmjs.org/install.sh | sudo sh
 
     # To build a custom version of mercurial-plugin 1.38:
     # With jenkins 1.409.1 installed, a custom version of the
@@ -311,6 +270,22 @@ To finish the jenkins install, follow the instructions in jenkins.install.
 EOF
 }
 
+install_gae_default_version_notifier() {
+    echo "Installing gae-default-version-notifier"
+    git clone git://github.com/Khan/gae-default-version-notifier.git || \
+        ( cd gae-default-version-notifier && git pull )
+    echo "For now, install secrets.py to ~/gae-default-version-notifier/ and"
+    echo "run python notify.py by hand."
+}
+
+
+install_beep_boop() {
+    echo "Installing beep-boop"
+    git clone git://github.com/Khan/beep-boop.git || \
+        ( cd beep-boop && git pull )
+    sudo pip install -r beep-boop/requirements.txt
+    echo "Put hipchat.cfg in beep-boop/ if it's not already there."
+}
 
 install_basic_packages
 install_repositories
@@ -318,10 +293,11 @@ install_root_config_files
 install_user_config_files
 install_appengine
 install_repo_backup
-##install_reviewboard
 ##install_gerrit
 install_phabricator
 install_jenkins
+install_gae_default_version_notifier
+install_beep_boop
 
 # Do this again, just in case any of the apt-get installs nuked it.
 install_root_config_files

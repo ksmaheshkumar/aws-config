@@ -1,0 +1,50 @@
+# A crummy daemonizer based on mr-deploy-daemon with modifications
+
+NAME=exercise-screens-daemon
+PIDFILE=/var/run/$NAME.pid
+DESC="Utility for auto-generating screenshots for exercises"
+DAEMON=/home/ci/exercise-screens/exercise-screens.py
+
+test -x $DAEMON || exit 0
+
+[ -r /etc/default/exercise-screens-daemon ] && . /etc/default/exercise-screens-daemon
+
+. /lib/lsb/init-functions
+
+start_exercise_screens() {
+  # Make sure we run as the ci user
+  sudo -iu ci nohup $DAEMON &
+  echo $! > $PIDFILE
+}
+
+stop_exercise_screens() {
+  [ -f $PIDFILE ] && ( kill `cat $PIDFILE` 2> /dev/null )
+  rm -f $PIDFILE 2> /dev/null
+}
+
+case "$1" in
+  start)
+  log_begin_msg "Starting $DESC"
+  start_exercise_screens
+  log_end_msg 0
+  ;;
+  stop)
+  log_begin_msg "Stopping $DESC"
+  stop_exercise_screens
+  log_end_msg 0
+  ;;
+  restart|force-reload)
+  log_begin_msg "Restarting $DESC"
+  stop_exercise_screens
+  sleep 2
+  start_exercise_screens
+  log_end_msg 0
+  ;;
+  *)
+  echo "Usage: $0 {start|stop|restart|force-reload}" >&2
+  exit 1
+  ;;
+esac
+
+exit 0
+

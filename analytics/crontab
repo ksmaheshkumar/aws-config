@@ -23,13 +23,27 @@ LOGFILE=bash -c 'mkdir -p ~/kalogs/$0; echo ~/kalogs/$0/$0.$(date "$@" +\%Y-\%m-
 
 
 # Once each day, compute and cache the daily exercise (ProblemLog) stats .
-00 1 * * * bash --login -c '~/analytics/src/daily_exercise_stats.py' > `eval $LOGFILE daily_exercise_stats --date=yesterday` 2>&1
+00 1 * * * bash --login -c '~/analytics/src/daily_exercise_stats.py -c ~/analytics/cfg/analytics.json' > `eval $LOGFILE daily_exercise_stats --date=yesterday` 2>&1
 
-# Fetch datastore entities every hour.
-05 * * * * bash --login -c '~/analytics/src/gae_download.py -c ~/analytics/cfg/gae_download.json' >> `eval $LOGFILE gae_download` 2>&1
+# Fetch topic tree and versions every day
+00 2 * * * bash --login -c '~/analytics/src/fetch_topic_tree.py' > `eval $LOGFILE fetch_topic_tree --date=yesterday` 2>&1
 
 # Upload GAE data to EMR daily
-00 2 * * * bash --login -c '~/analytics/map_reduce/load_emr_daily.sh' > `eval $LOGFILE load_emr --date=yesterday` 2>&1
+03 2 * * * bash --login -c '~/analytics/map_reduce/load_emr_daily.sh' > `eval $LOGFILE load_emr --date=yesterday` 2>&1
+
+# Load the topic_attempts Hive table, which requires GAE Hive tables to have
+# loaded (from load_emr_daily.sh)
+# TODO(david): This should be a generic python script to run any arbitrary hive
+#     script with # instances, etc. configurable by cmd line args
+# TODO(david): Ensure this runs after completion of the load_emr_daily job.
+04 5 * * * bash --login -c '~/analytics/map_reduce/shell/load_topic_attempts.sh' > `eval $LOGFILE load_topic_attempts --date=yesterday` 2>&1
+
+# Update data that drives the user growth dashboards.  
+# NOTE: not redirecting STDERR, so errors get emailed
+05 5 * * * bash --login -c '~/analytics/src/growth_reports.py' > `eval $LOGFILE growth_reports --date=yesterday`
+
+# Fetch raw datastore entities every hour.
+05 * * * * bash --login -c '~/analytics/src/gae_download.py -c ~/analytics/cfg/gae_download.json' >> `eval $LOGFILE gae_download` 2>&1
 
 # Fetch logs every hour.  We fetch the previous hour by default, so
 # start a few minutes after the hour to give those logs time to flush.

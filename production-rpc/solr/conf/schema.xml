@@ -213,27 +213,43 @@
       </analyzer>
     </fieldType>
 
-    <!-- A general text field that has reasonable, generic
-         cross-language defaults: it tokenizes with StandardTokenizer,
-	 removes stop words from case-insensitive "stopwords.txt"
-	 (empty by default), and down cases.  At query time only, it
-	 also applies synonyms. -->
+    <!-- Begin Khan Academy code -->
+    <!-- A text field that matches fuzzily
+
+    A quick explanation - the index analyzer preprocesses the input text at
+    input time while the query analyzer processes the query text at search
+    time. The text is processed one step at a time from top to bottom. The
+    index anlyzer does the following:
+
+        1. tokenize the input
+        2. lowercase everything
+        3. discard common words (a, the, of, etc)
+        4. create n-grams; e.g. ro, ros, rose, roset, rosett, rosetta
+        5. generate phonetically similar tokens to thwart misspellings
+
+    The query text is similarly transformed. So "teh chem" matches "Chemistry"
+    and "Roseta" matches "Rosetta Stone". Unfortunately the Rosetta Stone video
+    isn't the first result for "Roseta" so there is still some room for
+    improvement.
+    -->
     <fieldType name="text_general" class="solr.TextField" positionIncrementGap="100">
       <analyzer type="index">
         <tokenizer class="solr.StandardTokenizerFactory"/>
-        <filter class="solr.StopFilterFactory" ignoreCase="true" words="stopwords.txt" enablePositionIncrements="true" />
-        <!-- in this example, we will only use synonyms at query time
-        <filter class="solr.SynonymFilterFactory" synonyms="index_synonyms.txt" ignoreCase="true" expand="false"/>
-        -->
+        <filter class="solr.StandardFilterFactory"/>
         <filter class="solr.LowerCaseFilterFactory"/>
+        <filter class="solr.StopFilterFactory"/>
+        <filter class="solr.EdgeNGramFilterFactory" minGramSize="2" maxGramSize="15"/>
+        <filter class="solr.PhoneticFilterFactory" encoder="DoubleMetaphone" inject="true"/>
       </analyzer>
       <analyzer type="query">
         <tokenizer class="solr.StandardTokenizerFactory"/>
-        <filter class="solr.StopFilterFactory" ignoreCase="true" words="stopwords.txt" enablePositionIncrements="true" />
-        <filter class="solr.SynonymFilterFactory" synonyms="synonyms.txt" ignoreCase="true" expand="true"/>
+        <filter class="solr.StandardFilterFactory"/>
         <filter class="solr.LowerCaseFilterFactory"/>
+        <filter class="solr.StopFilterFactory"/>
+        <filter class="solr.PhoneticFilterFactory" encoder="DoubleMetaphone" inject="true"/>
       </analyzer>
     </fieldType>
+    <!-- End Khan Academy code -->
 
     <!-- A text field with defaults appropriate for English: it
          tokenizes with StandardTokenizer, removes English stop words
@@ -893,19 +909,31 @@
        when adding a document.
    -->
 
-   <field name="id" type="string" indexed="true" stored="true" required="true"/>
-   <field name="key_id" type="int" indexed="false" stored="true"/>
-   <field name="parent_topic" type="string" indexed="false" stored="true"/>
-   <field name="kind" type="string" indexed="false" stored="true"/>
-   <field name="child_topics" type="string" indexed="false" stored="true"/>
-   <field name="related_exercises" type="string" indexed="false" stored="true"/>
+   <!-- Begin Khan Academy code -->
+   <field name="relative_url" type="string"            indexed="true"  stored="true"  required="true"/>
 
-   <field name="version" type="int" indexed="true" stored="true"/>
-   <field name="title" type="text_general" indexed="true" stored="true"/>
-   <field name="description" type="text_general" indexed="true" stored="true"/>
-   <field name="subtitles" type="text_en_splitting" indexed="true" stored="false"/>
-   <field name="keywords" type="text_en_splitting" indexed="true" stored="false" multiValued="true"/>
-   <field name="ka_url" type="string" indexed="true" stored="true"/>
+   <!-- This is not .key().id() - for videos it's youtube_id, for topics it's
+        id, and for exercises it's name
+    -->
+   <field name="id"           type="string"            indexed="true"  stored="true"  required="true"/>
+
+   <!-- Video, Execise, or Topic -->
+   <field name="kind"         type="string"            indexed="false" stored="true"  required="true"/>
+
+   <field name="title"        type="text_general"      indexed="true"  stored="true"  required="true"/>
+   <field name="description"  type="text_general"      indexed="true"  stored="true"  required="false"/>
+
+   <!-- Provide either parent_topic which allows us to generate breadcrumbs or
+        pre-generated breadcrumbs
+    -->
+   <field name="parent_topic" type="string"            indexed="false" stored="true"  required="false"/>
+   <field name="breadcrumbs"  type="string"            indexed="false" stored="true"  required="false" multiValued="true"/>
+
+   <!-- subtitles and keywords are available for videos only -->
+   <field name="subtitles"    type="text_en_splitting" indexed="true"  stored="false" required="false"/>
+   <field name="keywords"     type="text_en_splitting" indexed="true"  stored="false" required="false" multiValued="true"/>
+
+   <!-- End Khan Academy code -->
 
    <!-- catchall field, containing all other searchable text fields (implemented
         via copyField further on in this schema  -->

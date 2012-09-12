@@ -8,5 +8,3 @@ fi
 export HISTFILESIZE=2000
 # show timestamps with history command
 export HISTTIMEFORMAT="%F %T "
-
-export PATH=~/arcanist/bin:$PATH

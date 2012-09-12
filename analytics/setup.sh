@@ -34,13 +34,23 @@ sudo pip install -r analytics/requirements.txt
 if [ ! -d "/usr/local/google_appengine" ]; then
     echo "Installing appengine"
     ( cd /tmp
-      rm -rf google_appengine_1.6.6.zip google_appengine
-      wget http://googleappengine.googlecode.com/files/google_appengine_1.6.6.zip
-      unzip -o google_appengine_1.6.6.zip
-      rm google_appengine_1.6.6.zip
+      rm -rf google_appengine_1.7.1.zip google_appengine
+      wget http://googleappengine.googlecode.com/files/google_appengine_1.7.1.zip
+      unzip -o google_appengine_1.7.1.zip
+      rm google_appengine_1.7.1.zip
       sudo mv -T google_appengine /usr/local/google_appengine
     )
 fi
+
+echo "Installing Amazon Elastic MapReduce"
+( cd /tmp
+  rm -rf elastic-mapreduce-ruby.zip emr
+  wget http://elasticmapreduce.s3.amazonaws.com/elastic-mapreduce-ruby.zip
+  mkdir emr
+  unzip -o elastic-mapreduce-ruby.zip -d emr
+  rm elastic-mapreduce-ruby.zip
+  mv -T emr $HOME/emr
+)
 
 echo "Installing crontab"
 crontab aws-config/analytics/crontab
@@ -67,10 +77,23 @@ sudo service postfix restart
 
 # TODO(benkomalo): the mongo on the main Ubuntu repositories may be slightly
 # behind the latest stable version suggested by the Mongo dev team
-# TODO(benkomalo): should this run as root?
 echo "Setting up mongodb"
 sudo apt-get install -y mongodb
-sh aws-config/analytics/mongo_cntrl restart
+sudo aws-config/analytics/mongo_cntrl restart
+
+echo "Installing lighttpd proxy"
+sudo apt-get install -y lighttpd
+sudo mkdir $HOME/log/lighttpd
+sudo chown -R www-data:www-data $HOME/log/lighttpd
+sudo ln -snf $HOME/aws-config/analytics/etc/lighttpd/lighttpd.conf /etc/lighttpd/
+sudo service lighttpd restart
+
+echo "Installing dashboard webapp as a daemon"
+sudo update-rc.d -f dashboards-daemon remove
+sudo ln -snf $HOME/aws-config/analytics/etc/init.d/dashboards-daemon /etc/init.d
+sudo update-rc.d dashboards-daemon defaults
+sudo service dashboards-daemon restart
+
 
 echo "Prepping EBS mount points"
 sudo apt-get install -y ec2-api-tools
@@ -109,3 +132,14 @@ requires a browser and developer credentials against our GAE app.
 It may be that you may have to do this on a local machine and scp it
 over. :(
 EOF
+
+cat <<EOF
+
+NOTE: You'll also need a credentials.json with AWS keys for the Elastic
+MapReduce Ruby client in ~/emr. See
+http://elasticmapreduce.s3.amazonaws.com/elastic-mapreduce-ruby.zip
+EOF
+
+# TODO(benkomalo): there are some scripts that rely on s3cmd to upload data
+# to S3. This requires a $HOME/.s3cfg file to be made with credentials
+

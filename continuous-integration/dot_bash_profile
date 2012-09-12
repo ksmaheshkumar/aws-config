@@ -2,11 +2,11 @@
 
 # Get the aliases and functions
 if [ -f ~/.bashrc ]; then
-	. ~/.bashrc
+  . ~/.bashrc
 fi
 
-export HISTFILESIZE=2000
+export HISTFILESIZE=20000
 # show timestamps with history command
 export HISTTIMEFORMAT="%F %T "
 
-export PATH=~/arcanist/bin:$PATH
+export PATH="$PATH:/usr/local/google_appengine:/usr/local/phantomjs/bin"
