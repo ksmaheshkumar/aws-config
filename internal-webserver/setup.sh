@@ -287,6 +287,14 @@ install_beep_boop() {
     echo "Put hipchat.cfg in beep-boop/ if it's not already there."
 }
 
+install_publish_notifier() {
+    echo "Installing publish-notifier"
+    git clone git://github.com/beneater/publish-notifier.git || \
+        ( cd publish-notifier && git pull )
+    echo "For now, install secrets.py to ~/publish-notifier/ and"
+    echo "run python notify.py by hand."
+}
+
 install_basic_packages
 install_repositories
 install_root_config_files
@@ -298,6 +306,7 @@ install_phabricator
 install_jenkins
 install_gae_default_version_notifier
 install_beep_boop
+install_publish_notifier
 
 # Do this again, just in case any of the apt-get installs nuked it.
 install_root_config_files
