@@ -35,6 +35,9 @@ for i in aws-config/continuous-integration/dot_*; do
     cp "$i" ".`basename $i | sed 's/dot_//'`";
 done
 
+echo "Copying usr to /usr"
+sudo cp -sav "$HOME/aws-config/continuous-integration/usr/" /
+
 # TODO(benkomalo): would be nice to always get the latest version here
 if [ ! -d "/usr/local/google_appengine" ]; then
     echo "Installing appengine"
