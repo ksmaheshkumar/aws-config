@@ -923,11 +923,8 @@
    <field name="title"        type="text_general"      indexed="true"  stored="true"  required="true"/>
    <field name="description"  type="text_general"      indexed="true"  stored="true"  required="false"/>
 
-   <!-- Provide either parent_topic which allows us to generate breadcrumbs or
-        pre-generated breadcrumbs
-    -->
-   <field name="parent_topic" type="string"            indexed="false" stored="true"  required="false"/>
-   <field name="breadcrumbs"  type="string"            indexed="false" stored="true"  required="false" multiValued="true"/>
+   <!-- Shown as breadcrumbs for a result -->
+   <field name="parent_topics" type="string"            indexed="false" stored="true"  required="false"/>
 
    <!-- subtitles and keywords are available for videos only -->
    <field name="subtitles"    type="text_en_splitting" indexed="true"  stored="false" required="false"/>
