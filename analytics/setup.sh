@@ -22,6 +22,7 @@ sudo apt-get install -y build-essential python-dev
 sudo apt-get install -y git mercurial
 sudo apt-get install -y unzip
 sudo apt-get install -y libatlas-base-dev gfortran  # needed for scipy
+sudo apt-get install -y libxml2-dev libxslt1-dev  # needed for lxml.py
 
 echo "Syncing analytics codebase"
 git clone http://github.com/Khan/aws-config || ( cd aws-config && git pull )
