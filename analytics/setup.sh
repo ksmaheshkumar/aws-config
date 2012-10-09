@@ -107,6 +107,12 @@ ln -sf /ebs/kalogs
 ln -sf /ebs/kadata
 ln -sf /ebs/kadata2
 
+cat <<EOF
+
+NOTE: You will need to copy the value of sleep_secret from secrets.py
+and put it in $HOME/sleep_secret.  This is needed for load_emr_daily.sh
+EOF
+
 # TODO(benkomalo): automate the actual mounting somehow using
 # ec2-attach-volume and/or ec2-describe-volumes
 cat <<EOF
