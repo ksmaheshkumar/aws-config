@@ -25,8 +25,9 @@ LOGFILE=bash -c 'mkdir -p ~/kalogs/$0; echo ~/kalogs/$0/$0.$(date "$@" +\%Y-\%m-
 # Fetch topic tree and versions every day
 00 2 * * * bash --login -c '~/analytics/src/fetch_topic_tree.py' > `eval $LOGFILE fetch_topic_tree --date=yesterday` 2>&1
 
-# Fetch GAE usage reports every day.
-00 2 * * * bash --login -c '~/analytics/src/gae_dashboard/fetch_usage.sh' > `eval $LOGFILE gae_dashboard_usage --date=yesterday` 2>&1
+# Fetch GAE usage reports every day. Reports are generated at about 1430 PST
+# which is 2130 UTC, and we allow for a bit of wiggle room.
+00 22 * * * bash --login -c '~/analytics/src/gae_dashboard/fetch_usage.sh' > `eval $LOGFILE gae_dashboard_usage --date=yesterday` 2>&1
 
 # Load the topic_attempts Hive table, which requires GAE Hive tables to have
 # loaded (from load_emr_daily.sh)
