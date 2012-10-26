@@ -52,7 +52,7 @@ LOGFILE=bash -c 'mkdir -p ~/kalogs/$0; echo ~/kalogs/$0/$0.$(date "$@" +\%Y-\%m-
 # The 'echo' will get sent as mail, if the cronjob fails or the
 # timeout triggers.
 # TODO(csilvers): have log-to-logfile occur here, not in fetch_logs.sh
-03 * * * * /usr/bin/timeout 59m ~/analytics/src/fetch_logs.sh || echo "analytics: fetch-logs failed with error $? [redo it manually?]"
+03 * * * * /usr/bin/timeout 120m ~/analytics/src/fetch_logs.sh || echo "analytics: fetch-logs failed with error $? [redo it manually?]"
 
 # Fetch appengine statistics (memcache, etc) every 10 minutes.
 */10 * * * * bash --login -c 'curl -s "http://www.khanacademy.org/stats/memcache?output=txt"' >> `eval $LOGFILE appengine_stats` 2>&1
