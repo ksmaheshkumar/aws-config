@@ -1,6 +1,8 @@
 SHELL=/bin/sh
 
 # List is at https://groups.google.com/a/khanacademy.org/group/analytics-admin
+# NOTE: make sure the google group is set up to have root@khanacademy.org
+#       as a member, or this mail will bounce!
 MAILTO=analytics-admin+crontab@khanacademy.org
 
 # This is a mini-script to create and return a directory-name under

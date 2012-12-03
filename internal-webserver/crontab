@@ -1,15 +1,16 @@
-# TODO(csilvers): send mail if the timeout ... command fails for any reason
+# NOTE: make sure the google group is set up to have root@khanacademy.org
+#       as a member, or this mail will bounce!
 MAILTO = toby-admin+crontab@khanacademy.org
 PATH = /usr/local/bin:/usr/bin:/bin
 
 # We can serve as a git mirror for these.
-  */5 *  *   *   *     sh -c 'cd git_mirrors && /usr/bin/timeout 4m ./update_mirrors.sh >>cron.log'
+  */5 *  *   *   *     sh -c 'cd git_mirrors && /usr/bin/timeout 4m ./update_mirrors.sh >>cron.log' || echo "Failed to update git mirrors"
 
-# Check for new repositories, and check up on daemons, every 5 minutes
-  */5 *  *   *   *     sh -c '/usr/bin/timeout 4m python internal-webserver/update_phabricator_repositories.py $HOME/phabricator/repositories'
+# Check for new repositories, and check up on daemons, every 5 minutes.
+  */5 *  *   *   *     sh -c '/usr/bin/timeout 4m python internal-webserver/update_phabricator_repositories.py $HOME/phabricator/repositories' || echo "Failed to update phabricator's repository-list"
 
-# Check for elevated issue rates on Google Code
-  10 *  *   *   *     sh -c 'python $HOME/beep-boop/google_code_reports.py >> $HOME/beep-boop/gcode.log'
+# Check for elevated issue rates on Google Code.
+  10 *  *   *   *     sh -c 'python $HOME/beep-boop/google_code_reports.py >> $HOME/beep-boop/gcode.log' || echo "Failed to run beep-boop for google-code"
 
-# Check for elevated issue rates on Github
-  16 *  *   *   *     sh -c 'python $HOME/beep-boop/github_reports.py >> $HOME/beep-boop/github.log'
+# Check for elevated issue rates on Github.
+  16 *  *   *   *     sh -c 'python $HOME/beep-boop/github_reports.py >> $HOME/beep-boop/github.log' || echo "Failed to run beep-boop for github"
