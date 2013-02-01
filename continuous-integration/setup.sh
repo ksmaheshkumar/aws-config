@@ -56,8 +56,10 @@ if [ ! -e "$HOME/kiln_extensions/kilnauth.py" ]; then
 fi
 
 echo "Installing node and npm"
-sudo apt-get install -y nodejs
-curl https://npmjs.org/install.sh | sudo sh
+# see https://github.com/joyent/node/wiki/Installing-Node.js-via-package-managerwww
+sudo add-apt-repository ppa:chris-lea/node.js
+sudo apt-get update
+sudo apt-get install -y nodejs npm
 
 echo "Installing dependencies for exercises packing"
 # ruby developer packages
