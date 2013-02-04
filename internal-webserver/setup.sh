@@ -11,10 +11,15 @@
 # This should be run in the home directory of the role account
 # of the user that is to run the internal webserver/etc.  That user
 # should be able to sudo to root.
+#
+# NOTE: This script, along with some of the data files in this
+# directory (notably etc/fstab), assume that a 'data' disk has been
+# attached to this ec2 instance as sdf (aka xvdf), and that's it's
+# been formatted with xfs.
 
 # Typically, this is run like this
 #
-# $ cat setup.sh | ssh <hostname of EC2 machine> sh
+# $ cat setup.sh | ssh <hostname of EC2 machine> bash
 #
 # WARNING: We've never actually tried to run this script all the way
 # through!  Even if it works perfectly, it still has many manual
@@ -35,6 +40,7 @@ install_basic_packages() {
     sudo apt-get install -y lighttpd
     # This is needed so installing postfix doesn't prompt.  See
     # http://www.ossramblings.com/preseed_your_apt_get_for_unattended_installs
+    # If it prompts anyway, type in the stuff from postfix.preseed manually.
     sudo apt-get install -y debconf-utils
     sudo debconf-set-selections aws-config/internal-webserver/postfix.preseed
     sudo apt-get install -y postfix
@@ -64,30 +70,45 @@ install_root_config_files() {
     expr "`python --version 2>&1`" : "Python 2\.7" >/dev/null
     sudo ln -snf "$HOME/internal-webserver/python-hipchat/hipchat" \
                  /usr/local/lib/python2.7/dist-packages/
-    sudo cp -sav "$HOME/aws-config/internal-webserver/etc/" /
+
+    sudo cp -sav --backup=numbered "$HOME/aws-config/internal-webserver/etc/" /
+    sudo chown root:root /etc
+    # Make sure that we've added the info we need to the fstab.
+    # ('tee -a' is the way to do '>>' that works with sudo.)
+    grep -xqf /etc/fstab.extra /etc/fstab || \
+        cat /etc/fstab.extra | sudo tee -a /etc/fstab >/dev/null
+
+    # Make sure all the disks in the fstab are mounted.
+    sudo mount -a
 }
 
 install_user_config_files() {
     echo "Updating dotfiles (using symlinks)"
-    cp -sav "$HOME"/internal-webserver/{.hgrc,git-mirrors,hg-mirrors} "$HOME"
+    cp -sav --backup=numbered "$HOME"/internal-webserver/.hgrc "$HOME"
+    # We want the mirrors to live on ephemeral disk: they're easy to
+    # re-create if there's need.  And this data is big!
+    sudo cp -sav --backup=numbered "$HOME"/internal-webserver/*_mirrors \
+        /mnt
+    ln -snf /mnt/git_mirrors "$HOME/git_mirrors"
+    ln -snf /mnt/hg_mirrors "$HOME/hg_mirrors"
 
     echo "Creating logs directory (for webserver logs)"
-    mkdir -p logs && chmod 755 logs && sudo chown www-data.www-data logs
-
-    echo "Installing the crontab"
-    crontab aws-config/internal-webserver/crontab
-
+    sudo mkdir -p /opt/logs
+    sudo chmod 755 /opt/logs
+    sudo chown www-data.www-data /opt/logs
+    ln -snf /opt/logs "$HOME/logs"
 }
 
 install_appengine() {
     # TODO(benkomalo): would be nice to always get the latest version here
+    sudo apt-get install -y zip
     if [ ! -d "/usr/local/google_appengine" ]; then
         echo "Installing appengine"
         ( cd /tmp
-          rm -rf google_appengine_1.7.1.zip google_appengine
-          wget http://googleappengine.googlecode.com/files/google_appengine_1.7.1.zip
-          unzip -o google_appengine_1.7.1.zip
-          rm google_appengine_1.7.1.zip
+          rm -rf google_appengine_1.7.4.zip google_appengine
+          wget http://googleappengine.googlecode.com/files/google_appengine_1.7.4.zip
+          unzip -o google_appengine_1.7.4.zip
+          rm google_appengine_1.7.4.zip
           sudo mv -T google_appengine /usr/local/google_appengine
         )
     fi
@@ -115,10 +136,15 @@ install_repo_backup() {
         hg clone --noupdate \
              https://khanacademy.kilnhg.com/Code/Mobile-Apps/Group/android \
              /tmp/test_repo
-        echo "This is the token to type in if kiln-local-backup asks:"
-        find ~/.hgcookies | xargs grep fbToken
-        # We only need to do this for long enough to get the token.
-        timeout 10s python kiln_local_backup .
+        # If this doesn't work, make sure there's only one token here.
+        token=`find ~/.hgcookies -print0 | xargs -0 grep -h -o 'fbToken.*' \
+               | tail -n1 | cut -f2`
+        echo "Using kiln token $token"
+        # We only need to do this for long enough to cache the token,
+        # so future runs of kiln_local_backup.py don't need --token.
+        timeout 10s python kiln_local_backup.py \
+            --token="$token" --server="khanacademy.kilnhg.com" . \
+            || true
     )
 }
 
@@ -152,74 +178,100 @@ install_gerrit() {
 
 install_phabricator() {
     echo "Installing packages: Phabricator"
-    mkdir -p mysql_data
+    sudo mkdir -p /opt/mysql_data
+    ln -snf /opt/mysql_data "$HOME/mysql_data"
     sudo apt-get install -y git mercurial
+    sudo apt-get install -y make
     # The envvar here keeps apt-get from prompting for a password.
     # TODO(csilvers): should we give the root mysql user a password?
     sudo env DEBIAN_FRONTEND=noninteractive apt-get install -y mysql-server
     sudo apt-get install -y php5 php5-mysql php5-cgi php5-gd php5-curl
     sudo apt-get install -y libpcre3-dev php-pear    # needed to install apc
-    yes "" | sudo pecl install apc            # php is dog-slow without this
+    # php is dog-slow without APC
+    pecl list | grep -q APC || yes "" | sudo pecl install apc
     sudo pip install pygments                      # for syntax highlighting
     sudo ln -snf /usr/local/bin/pygmentize /usr/bin/
-    ( cd /var/tmp
-      rm -rf xhprof-0.9.2.tgz xhprof-0.9.2
-      wget http://pecl.php.net/get/xhprof-0.9.2.tgz
-      tar xfz xhprof-0.9.2.tgz
-      rm xhprof-0.9.2.tgz
-      cd xhprof-0.9.2/extension
-      phpize
-      ./configure
-      make
-      sudo make install
-    )
-    echo "CREATE USER 'phabricator'@'localhost' IDENTIFIED BY 'codereview'; GRANT ALL PRIVILEGES ON *.* TO 'phabricator'@'localhost' WITH GRANT OPTION;" \
+    if [ ! -s "/usr/lib/php5/20090626/xhprof.so"]; then
+        ( cd /var/tmp
+          rm -rf xhprof-0.9.2.tgz xhprof-0.9.2
+          wget http://pecl.php.net/get/xhprof-0.9.2.tgz
+          tar xfz xhprof-0.9.2.tgz
+          rm xhprof-0.9.2.tgz
+          cd xhprof-0.9.2/extension
+          phpize
+          ./configure
+          make
+          sudo make install
+        )
+    fi
+    echo "SELECT User FROM mysql.user" \
+        | mysql --user=root mysql \
+        | grep -q phabricator \
+    || echo "CREATE USER 'phabricator'@'localhost' IDENTIFIED BY 'codereview'; GRANT ALL PRIVILEGES ON *.* TO 'phabricator'@'localhost' WITH GRANT OPTION;" \
         | mysql --user=root mysql
+
+    echo "Follow the directions at"
+    echo "  internal-webserver/phabricator/conf/khan-google.conf.php.template"
+    echo "Then hit enter to continue"
+    read prompt
+
+    # Just in case phabricator is already runnin (we want to be idempotent!)
+    PHABRICATOR_ENV=khan "$HOME/internal-webserver/phabricator/bin/phd" stop
+    sudo /etc/init.d/lighttpd stop
 
     env PHABRICATOR_ENV=khan \
         internal-webserver/phabricator/bin/storage --force upgrade
-    sed -i s,//setup,, internal-webserver/phabricator/conf/khan.conf.php
-    sudo service lighttpd reload
-    # TODO(csilvers): automate this somehow?
-    echo "Visit phabricator.khanacademy.org and make sure everything is ok."
-    echo "Then hit enter to continue"
-    read prompt
-    ( cd internal-webserver && git checkout phabricator/conf/khan.conf.php )
-    sudo service lighttpd reload
 
     # TODO(csilvers): automate entering this info:
-    #   username: admin
-    #   real name: Admin Admin
-    #   email: toby-admin+phabricator@khanacademy.org
-    #   password: <see secrets.py>
-    #   admin: y
+    cat <<EOF
+Enter this info:
+    * username: admin
+    * real name: Admin Admin
+    * email: toby-admin+phabricator@khanacademy.org
+    * password: <see secrets.py>
+    * system agent: n
+    * admin: y
+EOF
     env PHABRICATOR_ENV=khan internal-webserver/phabricator/bin/accountadmin
 
-    # Start the daemons.
-    mkdir -p "$HOME/phabricator/repositories"
+    # Set up the security token
+    "$HOME/internal-webserver/arcanist/bin/arc" install-certificate \
+        http://phabricator.khanacademy.org/api/
+
+    # We store the repositories on ephemeral disk since they're easy
+    # to re-create if need be.
+    sudo mkdir -p /mnt/phabricator/repositories
+    sudo chmod -R a+rX /mnt/phabricator
+    sudo chown -R ubuntu /mnt/phabricator
+    ln -snf /mnt/phabricator/repositories "$HOME/phabricator/repositories"
     # TODO(csilvers): this may ask for an hg password to set up the cookie
     rm -rf /tmp/test_repo
     hg clone --noupdate \
         https://khanacademy.kilnhg.com/Code/Mobile-Apps/Group/android \
         /tmp/test_repo
     echo "Here is the token you may need for the next step:"
-    find ~/.hgcookies | xargs grep fbToken
-    python internal-webserver/update_phabricator_repositories.py -v \
+    find ~/.hgcookies | xargs grep -h -o 'fbToken.*'
+    python "$HOME/internal-webserver/update_phabricator_repositories.py" -v \
         "$HOME/phabricator/repositories"
+
+    # Start the daemons.
+    sudo mkdir -p /var/tmp/phd/log
+    sudo chown -R ubuntu /var/tmp/phd
+    sudo service lighttpd start
+    PHABRICATOR_ENV=khan "$HOME/internal-webserver/phabricator/bin/phd" start
 
     # TODO(csilvers): automate this.
     cat <<EOF
 To finish phabricator installation:
-1) Follow the instructions at
-      internal-webserver/phabricator/conf/custom/khan-google.conf.php
-   You should edit this file on the ec2 machine (but not in git!)
-2) Visit http://phabricator.khanacademy.org, sign in via oauth,
+1) Visit http://phabricator.khanacademy.org, sign in via oauth,
    create a new account for yourself, sign out, sign in as admin,
    and visit http://phabricator.khanacademy.org/people/edit/2/role/
    to make yourself an admin.
-3) On AWS's route53 (or whatever), add phabricator-files.khanacademy.org
+2) On AWS's route53 (or whatever), add phabricator-files.khanacademy.org
    as a CNAME to phabricator.khanacademy.org.
 EOF
+echo "Hit enter when this is done:"
+read prompt
 }
 
 install_jenkins() {
@@ -274,8 +326,12 @@ install_gae_default_version_notifier() {
     echo "Installing gae-default-version-notifier"
     git clone git://github.com/Khan/gae-default-version-notifier.git || \
         ( cd gae-default-version-notifier && git pull )
-    echo "For now, install secrets.py to ~/gae-default-version-notifier/ and"
-    echo "run python notify.py by hand."
+    echo "For now, set up ~/gae-default-version-notifier/secrets.py based"
+    echo "on secrets.py.example and the 'real' secrets.py."
+    # TODO(csilvers): instead, control this via monit(1).
+    echo "Then run: nohup python notify.py </dev/null >/dev/null 2>&1 &"
+    echo "Hit <enter> when this is done:"
+    read prompt
 }
 
 
@@ -285,16 +341,25 @@ install_beep_boop() {
         ( cd beep-boop && git pull )
     sudo pip install -r beep-boop/requirements.txt
     echo "Put hipchat.cfg in beep-boop/ if it's not already there."
+    echo "This is a file with the contents 'token = <hipchat id>',"
+    echo "where the hipchat id comes from secrets.py."
+    echo "Hit <enter> when this is done:"
+    read prompt
 }
 
 install_publish_notifier() {
     echo "Installing publish-notifier"
-    git clone git://github.com/beneater/publish-notifier.git || \
+    git clone git://github.com/Khan/publish-notifier.git || \
         ( cd publish-notifier && git pull )
-    echo "For now, install secrets.py to ~/publish-notifier/ and"
-    echo "run python notify.py by hand."
+    echo "For now, set up ~/publish-notifier/secrets.py based"
+    echo "on secrets.py.example and the 'real' secrets.py."
+    # TODO(csilvers): instead, control this via monit(1).
+    echo "Then run: nohup python notify.py </dev/null >/dev/null 2>&1 &"
+    echo "Hit <enter> when this is done:"
+    read prompt
 }
 
+cd "$HOME"
 install_basic_packages
 install_repositories
 install_root_config_files
@@ -303,10 +368,14 @@ install_appengine
 install_repo_backup
 ##install_gerrit
 install_phabricator
-install_jenkins
+##install_jenkins
 install_gae_default_version_notifier
 install_beep_boop
 install_publish_notifier
 
 # Do this again, just in case any of the apt-get installs nuked it.
 install_root_config_files
+
+# Finally, we can start the crontab!
+echo "Installing the crontab"
+crontab "$HOME/aws-config/internal-webserver/crontab"
