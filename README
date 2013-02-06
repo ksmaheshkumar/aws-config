@@ -2,3 +2,6 @@ Config files for Amazon Web Services go here.
 
 For instance, all the files used to set up and populate the different
 classes of ec2 machines that we have.
+
+There is also the 'aws-tools' directory, which has scripts and
+programs that manage AWS, and may be useful for all of our machines.

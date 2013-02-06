@@ -14,3 +14,7 @@ PATH = /usr/local/bin:/usr/bin:/bin
 
 # Check for elevated issue rates on Github.
   16 *  *   *   *     sh -c 'python $HOME/beep-boop/github_reports.py >> $HOME/beep-boop/github.log' || echo "Failed to run beep-boop for github"
+
+# Do a backup every day.
+# We freeze the xfs volume to get a consistent snapshot.
+  0  4  *   *   *     sh -c '$HOME/aws-config/internal-webserver/snapshot_toby.sh' || echo "Failed to snapshot toby's data"

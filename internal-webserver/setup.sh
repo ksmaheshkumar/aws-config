@@ -31,6 +31,9 @@
 # Bail on any errors
 set -e
 
+# Activate the multiverse!  Needed for ec2-api-tools
+sudo perl -pi.orig -e 'next if /-backports/; s/^# (deb .* multiverse)$/$1/' \
+    /etc/apt/sources.list
 sudo apt-get update
 
 install_basic_packages() {
@@ -51,6 +54,18 @@ install_basic_packages() {
                 -e 's/inet_interfaces = all/inet_interfaces = loopback-only/' \
                 /etc/postfix/main.cf
     sudo service postfix restart
+}
+
+install_ec2_tools() {
+    sudo apt-get install -y ec2-api-tools
+    mkdir -p "$HOME/aws"
+    echo "Copy the pk-backup-role-account.pem and cert-backup-role-account.pem"
+    echo "files from dropbox to $HOME/aws:"
+    echo "   https://www.dropbox.com/home/Khan%20Academy%20All%20Staff/Secrets"
+    echo "Also, make sure there is an IAM user called 'backup-role-account"
+    echo "with permissions from 'backup-role-account-permissions'."
+    echo "Then hit enter to continue"
+    read prompt
 }
 
 install_repositories() {
@@ -361,6 +376,7 @@ install_publish_notifier() {
 
 cd "$HOME"
 install_basic_packages
+install_ec2_tools
 install_repositories
 install_root_config_files
 install_user_config_files
