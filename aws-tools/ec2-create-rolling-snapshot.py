@@ -41,7 +41,7 @@ def create_snapshot(volume, description, freezedir, ec2_arglist, dry_run):
     # At the very least, sync to try to make the disk consistent.
     subprocess.call(['/bin/sync'])    # best-effort
     if freezedir:
-        subprocess.check_call(['/sbin/fsfreeze', '-f', freezedir])
+        subprocess.check_call(['sudo', '/sbin/fsfreeze', '-f', freezedir])
 
     try:
         output = subprocess.check_output(['ec2-create-snapshot',
@@ -56,7 +56,7 @@ def create_snapshot(volume, description, freezedir, ec2_arglist, dry_run):
         print 'Created %s from %s' % (output.split('\t')[1], volume)
     finally:
         if freezedir:
-            subprocess.check_call(['/sbin/fsfreeze', '-u', freezedir])
+            subprocess.check_call(['sudo' '/sbin/fsfreeze', '-u', freezedir])
 
 
 def delete_snapshot(snapshot_id, snapshot_date, ec2_arglist, dry_run):
@@ -199,7 +199,8 @@ if __name__ == '__main__':
                               ' max_snapshots / 4'))
     parser.add_argument('--freezedir',
                         help=('If specified, call /sbin/fsfreeze on this'
-                              ' volume while snapshotting it'))
+                              ' volume while snapshotting it.  You must'
+                              ' be able to sudo to root to use this.'))
     # max_daily_snapshots is always max_snapshots - weekly - monthly.
     ec2_args = ('-K', '-C', '-U', '--region')
     for ec2_arg in ec2_args:
