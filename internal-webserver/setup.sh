@@ -57,6 +57,7 @@ install_basic_packages() {
 }
 
 install_ec2_tools() {
+    # TODO(csilvers): pip install boto instead.
     sudo apt-get install -y ec2-api-tools
     mkdir -p "$HOME/aws"
     echo "Copy the pk-backup-role-account.pem and cert-backup-role-account.pem"
