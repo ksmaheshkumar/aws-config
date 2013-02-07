@@ -7,6 +7,7 @@ most recent n/2 daily snapshots, the most recent n/4 weekly snapshots,
 and the most recent n/4 monthly snapshots.
 
 NOTE: the ec2-* binaries must be on the path!
+TODO(csilvers): use http://docs.pythonboto.org instead
 
 Inspired by http://www.geekytidbits.com/rolling-snapshots-ec2/.
 """
@@ -32,20 +33,30 @@ def all_snapshots(volume, description, ec2_arglist, today, dry_run):
             yield (snapshot_id, date)
 
 
-def create_snapshot(volume, description, ec2_arglist, dry_run):
+def create_snapshot(volume, description, freezedir, ec2_arglist, dry_run):
     if dry_run:
         print '[DRY RUN] Created snap-TBD for %s' % volume
         return
 
-    output = subprocess.check_output(['ec2-create_snapshot', '-d', description]
-                                     + ec2_arglist + [volume])
-    # Output is, e.g.
-    # SNAPSHOT\tsnap-e1cc35a1\tvol-06f30e77\tpending\t\
-    #    2013-02-05T00:08:06+0000759597320137\t100\ttest snapshot
-    if output.split()[3] not in ('pending', 'completed'):
-        raise RuntimeError('Snapshot state not pending or completed: "%s"'
-                           % output)
-    print 'Created %s from %s' % (output.split()[1], volume)   # snapshot-id
+    # At the very least, sync to try to make the disk consistent.
+    subprocess.call(['/bin/sync'])    # best-effort
+    if freezedir:
+        subprocess.check_call(['/sbin/fsfreeze', '-f', freezedir])
+
+    try:
+        output = subprocess.check_output(['ec2-create-snapshot',
+                                          '-d', description]
+                                         + ec2_arglist + [volume])
+        # Output is, e.g.
+        # SNAPSHOT\tsnap-e1cc35a1\tvol-06f30e77\tpending\t\
+        #    2013-02-05T00:08:06+0000759597320137\t100\ttest snapshot
+        if output.split('\t')[3] not in ('pending', 'completed'):
+            raise RuntimeError('Snapshot state not pending or completed: "%s"'
+                               % output)
+        print 'Created %s from %s' % (output.split('\t')[1], volume)
+    finally:
+        if freezedir:
+            subprocess.check_call(['/sbin/fsfreeze', '-u', freezedir])
 
 
 def delete_snapshot(snapshot_id, snapshot_date, ec2_arglist, dry_run):
@@ -61,7 +72,7 @@ def delete_snapshot(snapshot_id, snapshot_date, ec2_arglist, dry_run):
         raise RuntimeError('Unexpected output from ec2-delete-snapshot: "%s"'
                            % output)
     print 'Deleted %s (%s)' % (snapshot_id, snapshot_date)
-  
+
 
 def calculate_good_snapshots(num_daily, num_weekly, num_monthly, today):
     """Calculate the date-prefix for snapshots we should keep.
@@ -118,7 +129,7 @@ def delete_old_snapshots(all_snapshots,
 
 
 def main(volume, description, max_snapshots,
-         num_daily, num_weekly, num_monthly, ec2_arglist, dry_run,
+         num_daily, num_weekly, num_monthly, freezedir, ec2_arglist, dry_run,
          today=datetime.date.today()):
     """Delete 'old' snapshots matching 'description' on the given volume.
 
@@ -136,6 +147,9 @@ def main(volume, description, max_snapshots,
           max_snapshots / 4
         num_monthly: how many monthly snapshots to keep.  If None, make it
           max_snapshots / 4
+        freezedir: if not None, call fsfreeze on this directory while
+          snapshotting.  This causes the disk to be frozen for writes,
+          yielding a more-likely-consistent snapshot.
         ec2_arglist: a list like ['-K', 'foo', '-C', 'foo'].  It is passed
           directly to the ec2 snapshot commands.
         dry_run: if True, just say what we'd do, but don't do it.
@@ -156,7 +170,7 @@ def main(volume, description, max_snapshots,
                          '  (daily=%s, weekly=%s, monthly=%s)'
                          % (num_daily, num_weekly, num_monthly))
 
-    create_snapshot(volume, description, ec2_arglist, dry_run)
+    create_snapshot(volume, description, freezedir, ec2_arglist, dry_run)
     delete_old_snapshots(snapshots, num_daily, num_weekly, num_monthly, today,
                          ec2_arglist, dry_run)
 
@@ -183,6 +197,9 @@ if __name__ == '__main__':
                         help=('How many monthly snapshots to take.  Must be'
                               ' less than --max_snapshots.  Default is'
                               ' max_snapshots / 4'))
+    parser.add_argument('--freezedir',
+                        help=('If specified, call /sbin/fsfreeze on this'
+                              ' volume while snapshotting it'))
     # max_daily_snapshots is always max_snapshots - weekly - monthly.
     ec2_args = ('-K', '-C', '-U', '--region')
     for ec2_arg in ec2_args:
@@ -198,4 +215,4 @@ if __name__ == '__main__':
 
     main(args.volume, args.description, args.max_snapshots,
          None, args.max_weekly_snapshots, args.max_monthly_snapshots,
-         ec2_arglist, args.dry_run)
+         args.freezedir, ec2_arglist, args.dry_run)
