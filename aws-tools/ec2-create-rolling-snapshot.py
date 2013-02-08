@@ -56,7 +56,7 @@ def create_snapshot(volume, description, freezedir, ec2_arglist, dry_run):
         print 'Created %s from %s' % (output.split('\t')[1], volume)
     finally:
         if freezedir:
-            subprocess.check_call(['sudo' '/sbin/fsfreeze', '-u', freezedir])
+            subprocess.check_call(['sudo', '/sbin/fsfreeze', '-u', freezedir])
 
 
 def delete_snapshot(snapshot_id, snapshot_date, ec2_arglist, dry_run):
