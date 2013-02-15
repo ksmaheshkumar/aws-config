@@ -68,7 +68,7 @@ def delete_snapshot(snapshot_id, snapshot_date, ec2_arglist, dry_run):
                                      + ec2_arglist + [snapshot_id])
     # Output is, e.g.
     # SNAPSHOT\tsnap-e1cc35a1
-    if output != 'SNAPSHOT\t%s' % snapshot_id:
+    if output != 'SNAPSHOT\t%s\n' % snapshot_id:
         raise RuntimeError('Unexpected output from ec2-delete-snapshot: "%s"'
                            % output)
     print 'Deleted %s (%s)' % (snapshot_id, snapshot_date)
