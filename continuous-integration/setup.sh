@@ -129,7 +129,8 @@ git clone git://github.com/Khan/exercise-screens || \
 sudo pip install -r exercise-screens/requirements.txt
 
 echo "Installing exercise-screens as a daemon"
-sudo ln -sfnv $CONFIG_DIR/etc/init/exercise-screens-daemon /etc/init
+# Symlinks are not allowed for upstart jobs by design, so make a copy.
+sudo cp -afv $CONFIG_DIR/etc/init/exercise-screens-daemon.conf /etc/init
 
 echo "TODO: Install secrets.py and secrets_dev.py to ~/gae-continuous-deploy/"
 echo "TODO: hg clone https://khanacademy.kilnhg.com/Code/Website/Group/stable"
