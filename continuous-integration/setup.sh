@@ -129,9 +129,7 @@ git clone git://github.com/Khan/exercise-screens || \
 sudo pip install -r exercise-screens/requirements.txt
 
 echo "Installing exercise-screens as a daemon"
-sudo update-rc.d -f exercise-screens-daemon remove
-sudo ln -sfnv $CONFIG_DIR/etc/init.d/exercise-screens-daemon /etc/init.d
-sudo update-rc.d exercise-screens-daemon defaults
+sudo ln -sfnv $CONFIG_DIR/etc/init/exercise-screens-daemon /etc/init
 
 echo "TODO: Install secrets.py and secrets_dev.py to ~/gae-continuous-deploy/"
 echo "TODO: hg clone https://khanacademy.kilnhg.com/Code/Website/Group/stable"
