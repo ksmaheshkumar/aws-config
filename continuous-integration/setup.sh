@@ -97,9 +97,7 @@ sudo apt-get install -y libevent-dev python-all-dev
 sudo pip install -r gae-continuous-deploy/requirements.txt
 
 echo "Installing gae-continuous-deploy as a daemon"
-sudo update-rc.d -f mr-deploy-daemon remove
-sudo ln -sfnv $CONFIG_DIR/etc/init.d/mr-deploy-daemon /etc/init.d
-sudo update-rc.d mr-deploy-daemon defaults
+sudo ln -sfnv $CONFIG_DIR/etc/init/mr-deploy-daemon.conf /etc/init
 
 # Ubuntu only provides a phantomjs package for 12.04 and newer. The prebuilt
 # Linux binary from phantomjs.org only works with Ubuntu 11.10 and earlier,
