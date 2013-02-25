@@ -24,6 +24,9 @@ MAILTO=analytics-admin+crontab@khanacademy.org
 LOGFILE=bash -c 'mkdir -p ~/kalogs/$0; echo ~/kalogs/$0/$0.$(date "$@" +\%Y-\%m-\%d).log'
 
 
+# Monitor the free disk space hourly on this machine. Send alerts if too low.
+1 * * * * python ~/analytics/src/monitor_disk_space.py analytics 90 > /dev/null 2>&1
+
 # Fetch topic tree and versions every day
 00 2 * * * bash --login -c '~/analytics/src/fetch_topic_tree.py' > `eval $LOGFILE fetch_topic_tree --date=yesterday` 2>&1
 
