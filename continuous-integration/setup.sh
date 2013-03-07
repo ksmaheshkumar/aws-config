@@ -106,6 +106,11 @@ sudo ln -sfnv $CONFIG_DIR/etc/init/mr-deploy-daemon.conf /etc/init
 #
 # See http://phantomjs.org/build.html
 #
+# Note: Point releases of PhantomJS should be tested before adoption because
+# they often introduce API changes that might break rasterize.js in
+# exercise-screens. The last tested verison of PhantomJS was (as of
+# 2013-03-07), 1.6.2.
+#
 # TODO(cbhl): Consider swtiching to using the phantomjs package in 14.04. (The
 # phantomjs package that ships with 12.04 is version 1.4, which depends on a
 # running X server. Phantomjs became truely headless in 1.5.)
