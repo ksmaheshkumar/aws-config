@@ -105,6 +105,10 @@ sudo ln -sfnv $CONFIG_DIR/etc/init/mr-deploy-daemon.conf /etc/init
 # got some large dependencies (namely WebKit) so it takes a while to compile.
 #
 # See http://phantomjs.org/build.html
+#
+# TODO(cbhl): Consider swtiching to using the phantomjs package in 14.04. (The
+# phantomjs package that ships with 12.04 is version 1.4, which depends on a
+# running X server. Phantomjs became truely headless in 1.5.)
 if [ ! -e "/usr/local/phantomjs" ]; then
   echo "Compiling phantomjs"
   sudo apt-get install -y chrpath libssl-dev libfontconfig1-dev
