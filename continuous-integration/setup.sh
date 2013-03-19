@@ -86,7 +86,11 @@ echo "Installing node and npm"
 sudo apt-get install python-software-properties python g++ make
 sudo add-apt-repository ppa:chris-lea/node.js
 sudo apt-get update
-sudo apt-get install -y nodejs npm
+sudo apt-get install -y nodejs
+# If npm is not installed, log in to the CI machine and run this command:
+# TODO(mattfaus): Automate this (ran into problems with /dev/tty)
+# wget -q -O- https://npmjs.org/install.sh | sudo sh
+sudo npm update
 
 echo "Installing dependencies for exercises packing"
 # ruby developer packages
