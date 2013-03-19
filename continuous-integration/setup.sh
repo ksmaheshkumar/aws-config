@@ -28,7 +28,11 @@ sudo apt-get install -y ruby rubygems
 sudo REALLY_GEM_UPDATE_SYSTEM=1 gem update --system
 
 echo "Syncing aws-config codebase"
-git clone git://github.com/Khan/aws-config || ( cd aws-config && git pull )
+if [ ! -d aws-config ]; then
+    git clone git://github.com/Khan/aws-config
+fi
+
+( cd aws-config && git pull )
 
 echo "Copying dotfiles"
 for i in aws-config/continuous-integration/dot_*; do
@@ -36,17 +40,39 @@ for i in aws-config/continuous-integration/dot_*; do
 done
 
 echo "Copying usr to /usr"
-sudo cp -sav "$HOME/aws-config/continuous-integration/usr/" /
+sudo cp -savf "$HOME/aws-config/continuous-integration/usr/" /
 
-# TODO(benkomalo): would be nice to always get the latest version here
-if [ ! -d "/usr/local/google_appengine" ]; then
+# TODO(benkomalo): Would be nice to always get the latest version here.
+# See http://stackoverflow.com/questions/15487357/how-to-get-the-current-dev-appserver-version/15489674
+# See https://developers.google.com/appengine/downloads to find the most recent
+# version.  You should be able to simply bump $LATESTVERSION and the rest will work.
+LATESTVERSION="1.7.5"
+GAEFILENAME="google_appengine_$LATESTVERSION.zip"
+GAEDOWNLOADLINK="http://googleappengine.googlecode.com/files/$GAEFILENAME"
+INSTALLGAE="false"
+INSTALLDIR="/usr/local/google_appengine"
+
+if [ ! -d $INSTALLDIR ]; then
+    INSTALLGAE="true"
+fi
+
+if [ $INSTALLGAE != "true" ]; then
+    INSTALLEDVERSION=`cat $INSTALLDIR/VERSION | grep release | cut -d: -f 2 | cut -d\" -f 2`
+    if [ $INSTALLEDVERSION != $LATESTVERSION ]; then
+        INSTALLGAE="true"
+    fi
+fi
+
+if [ $INSTALLGAE = "true" ]; then
     echo "Installing appengine"
     ( cd /tmp
-      rm -rf google_appengine_1.7.1.zip google_appengine
-      wget http://googleappengine.googlecode.com/files/google_appengine_1.7.1.zip
-      unzip -o google_appengine_1.7.1.zip
-      rm google_appengine_1.7.1.zip
-      sudo mv -T google_appengine /usr/local/google_appengine
+      rm -rf $GAEFILENAME google_appengine
+      rm -rf $INSTALLDIR
+      mkdir $INSTALLDIR
+      wget $GAEDOWNLOADLINK
+      unzip -o $GAEFILENAME
+      rm $GAEFILENAME
+      sudo mv -T google_appengine $INSTALLDIR
     )
 fi
 
@@ -56,7 +82,8 @@ if [ ! -e "$HOME/kiln_extensions/kilnauth.py" ]; then
 fi
 
 echo "Installing node and npm"
-# see https://github.com/joyent/node/wiki/Installing-Node.js-via-package-managerwww
+# see https://github.com/joyent/node/wiki/Installing-Node.js-via-package-manager
+sudo apt-get install python-software-properties python g++ make
 sudo add-apt-repository ppa:chris-lea/node.js
 sudo apt-get update
 sudo apt-get install -y nodejs npm
