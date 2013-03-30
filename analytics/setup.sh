@@ -123,9 +123,9 @@ the device name isn't consistent, so /dev/sdg may be /dev/xvdg or something
 else that's cryptic. Check the AWS console for what the device name should
 be.
 
-/dev/xvdg    /ebs/kalogs         auto	defaults,comment=cloudconfig	0	2
-/dev/xvdh    /ebs/kadata         auto	defaults,comment=cloudconfig	0	2
-/dev/xvdi    /ebs/kadata2        auto	defaults,comment=cloudconfig	0	2
+/dev/xvdg    /ebs/kalogs         auto	defaults,nobootwait,comment=cloudconfig	0	2
+/dev/xvdh    /ebs/kadata         auto	defaults,nobootwait,comment=cloudconfig	0	2
+/dev/xvdi    /ebs/kadata2        auto	defaults,nobootwait,comment=cloudconfig	0	2
 EOF
 
 # TODO(benkomalo): not sure how to automate this next part quite yet
