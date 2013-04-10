@@ -21,7 +21,7 @@ fi
 PATH="$PATH":/usr/bin       # for ec2-*.
 
 "$HOME/aws-config/aws-tools/ec2-create-rolling-snapshot.py" \
-    -m 16 \
+    -m 64 \
     -d 'backup of toby data' \
     -v "$VOLUME" \
     --freezedir=/opt \

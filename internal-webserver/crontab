@@ -16,5 +16,4 @@ PATH = /usr/local/bin:/usr/bin:/bin
   16 *  *   *   *     sh -c 'python $HOME/beep-boop/github_reports.py >> $HOME/beep-boop/github.log' || echo "Failed to run beep-boop for github"
 
 # Do a backup every day.  (12:00 UTC is 4am PST)
-# We freeze the xfs volume to get a consistent snapshot.
-  0  12  *   *   *     sh -c '$HOME/aws-config/internal-webserver/snapshot_toby.sh' || echo "Failed to snapshot toby's data"
+  0  12  *   *   *     sh -c '$HOME/aws-config/internal-webserver/snapshot_toby.sh >> $HOME/aws/snapshot.log' || echo "Failed to snapshot toby's data"
