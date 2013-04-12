@@ -34,6 +34,10 @@ sub vcl_recv {
         set req.http.Host = "www.khanacademy.org";
         set req.backend = ka;
 
+        # We unset User-Agent so that our ssl_for_spdy decorator doesn't
+        # redirect to HTTPS, which Varnish would subsequently cache.
+        unset req.http.User-Agent;
+
         # Check URL whitelist
         if (!req.url ~ "^/cs/exec$|^/javascript/scratchpads-exec-package|^/stylesheets/scratchpads-exec-package") {
             error 403 "Forbidden";

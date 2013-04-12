@@ -34,3 +34,10 @@ sudo apt-get install -y varnish
 sudo ln -snf $CONFIG_DIR/varnish_default_vcl /etc/varnish/default.vcl
 sudo ln -snf $CONFIG_DIR/default_varnish /etc/default/varnish
 sudo /etc/init.d/varnish restart
+
+echo "Installing nginx"
+sudo apt-get install -y nginx
+sudo ln -snf $CONFIG_DIR/nginx_conf /etc/nginx/nginx.conf
+sudo /etc/init.d/nginx restart
+
+echo "Install the ssl certificate and key in /etc/nginx/ssl."
