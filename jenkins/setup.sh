@@ -12,6 +12,7 @@
 set -e
 
 CONFIG_DIR="$HOME"/aws-config/jenkins
+JENKINS_HOME=/var/lib/jenkins
 
 cd "$HOME"
 
@@ -114,7 +115,6 @@ install_jenkins() {
     sudo apt-get install -y openjdk-6-jre openjdk-6-jdk
     sudo ln -snf /usr/lib/jvm/java-6-openjdk /usr/lib/jvm/default-java
 
-    jenkins_home=/var/lib/jenkins
     jenkins_cli_jar="${HOME}"/bin/jenkins-cli.jar
     jenkins_plugin_url=http://updates.jenkins-ci.org/download/plugins
 
@@ -131,10 +131,10 @@ install_jenkins() {
     # gets entered at the auth prompt. There should be a read-only
     # account for accessing the kiln repos.
     sudo -u jenkins sh -c "echo \"[extensions]
-kilnauth = ${HOME}/kiln_extensions/kilnauth.py\" > \"${jenkins_home}\"/.hgrc"
+kilnauth = ${HOME}/kiln_extensions/kilnauth.py\" > \"${JENKINS_HOME}\"/.hgrc"
 
     # Ensure plugins directory exists.
-    sudo -u jenkins mkdir -p "${jenkins_home}"/plugins
+    sudo -u jenkins mkdir -p "${JENKINS_HOME}"/plugins
 
     # Install plugins (versions initially chosen for Jenkins v1.512).
     for plugin in \
@@ -148,12 +148,13 @@ kilnauth = ${HOME}/kiln_extensions/kilnauth.py\" > \"${jenkins_home}\"/.hgrc"
         "htmlpublisher/1.2/htmlpublisher.hpi" \
         "mercurial/1.45/mercurial.hpi" \
         "openid/1.6/openid.hpi" \
+        "simple-theme-plugin/0.3/simple-theme-plugin.hpi" \
         ;
     do
         plugin_url="${jenkins_plugin_url}/${plugin}"
         plugin_file=`basename "${plugin}"`
         plugin_dir=`echo "${plugin_file}" | sed 's/\.hpi//'`
-        sudo -u jenkins sh -c "cd \"${jenkins_home}\"/plugins && rm -rf \"${plugin_file}\" \"${plugin_dir}\" && wget \"${plugin_url}\""
+        sudo -u jenkins sh -c "cd \"${JENKINS_HOME}\"/plugins && rm -rf \"${plugin_file}\" \"${plugin_dir}\" && wget \"${plugin_url}\""
     done
 
     # Start the daemon
@@ -181,3 +182,4 @@ echo
 echo "TODO: hg identify https://khanacademy.kilnhg.com/Code/Website/Group/stable"
 echo "      (only need credentials once; Kiln auth cookie will be saved)"
 echo "TODO: configure Jenkins as described in jenkins.install"
+echo "TODO: copy files from jenkins_home/ to ${JENKINS_HOME}"
