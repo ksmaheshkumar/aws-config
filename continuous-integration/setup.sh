@@ -2,7 +2,6 @@
 
 # This sets up our continuous integration tools on EC2 Ubuntu11 AMI.
 # Currently, only the continous deploy script and its web server is set up.
-# TODO(david): Move Jenkins to this machine.
 #
 # Idempotent.
 #
