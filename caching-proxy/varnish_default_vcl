@@ -39,7 +39,7 @@ sub vcl_recv {
         unset req.http.User-Agent;
 
         # Check URL whitelist
-        if (!req.url ~ "^/cs/exec$|^/javascript/scratchpads-exec-package|^/stylesheets/scratchpads-exec-package") {
+        if (!req.url ~ "^/cs/exec($|\?)|^/javascript/scratchpads-exec-package|^/stylesheets/scratchpads-exec-package") {
             error 403 "Forbidden";
         }
     }
