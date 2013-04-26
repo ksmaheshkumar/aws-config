@@ -161,11 +161,21 @@ kilnauth = ${HOME}/kiln_extensions/kilnauth.py\" > \"${jenkins_home}\"/.hgrc"
     sudo service jenkins restart || sudo service jenkins start
 }
 
+install_nginx() {
+    echo "Installing nginx"
+    sudo apt-get install -y nginx
+    sudo rm -f /etc/nginx/sites-enabled/default
+    sudo ln -sfnv "${CONFIG_DIR}"/nginx_site_jenkins /etc/nginx/sites-available/jenkins
+    sudo ln -sfnv /etc/nginx/sites-available/jenkins /etc/nginx/sites-enabled/jenkins
+    sudo service nginx restart
+}
+
 update_aws_config_env
 install_developer_tools
 install_build_deps
 install_google_app_engine
 install_jenkins
+install_nginx
 
 echo
 echo "TODO: hg identify https://khanacademy.kilnhg.com/Code/Website/Group/stable"
