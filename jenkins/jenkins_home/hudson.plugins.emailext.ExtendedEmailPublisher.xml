@@ -1,0 +1,22 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<hudson.plugins.emailext.ExtendedEmailPublisherDescriptor plugin="email-ext@2.28">
+  <hudsonUrl>http://jenkins.khanacademy.org/</hudsonUrl>
+  <adminAddress>&quot;Build Bot&quot; &lt;jenkins-admin@khanacademy.org&gt;</adminAddress>
+  <useSsl>false</useSsl>
+  <defaultContentType>text/plain</defaultContentType>
+  <defaultSubject>$PROJECT_NAME - Build # $BUILD_NUMBER - $BUILD_STATUS!</defaultSubject>
+  <defaultBody>$PROJECT_NAME - Build # $BUILD_NUMBER - $BUILD_STATUS:&#xd;
+&#xd;
+Check console output at $BUILD_URL to view the results.&#xd;
+&#xd;
+Partial log output:&#xd;
+&#xd;
+${BUILD_LOG, maxLines=100}</defaultBody>
+  <maxAttachmentSize>-1</maxAttachmentSize>
+  <recipientList>jenkins-admin+builds@khanacademy.org</recipientList>
+  <defaultReplyTo></defaultReplyTo>
+  <overrideGlobalSettings>false</overrideGlobalSettings>
+  <precedenceBulk>false</precedenceBulk>
+  <debugMode>false</debugMode>
+  <enableSecurity>false</enableSecurity>
+</hudson.plugins.emailext.ExtendedEmailPublisherDescriptor>

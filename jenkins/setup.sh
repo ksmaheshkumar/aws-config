@@ -32,6 +32,7 @@ install_developer_tools() {
     echo "Installing developer tools"
     sudo apt-get install -y curl
     sudo apt-get install -y python-pip
+    sudo apt-get install -y python-dev  # for numpy
     sudo apt-get install -y git mercurial subversion
     sudo apt-get install -y unzip
     sudo apt-get install -y ruby rubygems
@@ -181,5 +182,6 @@ install_nginx
 echo
 echo "TODO: hg identify https://khanacademy.kilnhg.com/Code/Website/Group/stable"
 echo "      (only need credentials once; Kiln auth cookie will be saved)"
-echo "TODO: configure Jenkins as described in jenkins.install"
+echo "TODO: generate an SSH key pair for Jenkins, register the public key with "
+echo "      Kiln for SSH access, and copy the key pair to ${JENKINS_HOME}/.ssh/"
 echo "TODO: copy files from jenkins_home/ to ${JENKINS_HOME}"

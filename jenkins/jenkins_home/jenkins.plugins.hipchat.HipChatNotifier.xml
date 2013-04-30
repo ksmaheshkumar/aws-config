@@ -1,0 +1,6 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<jenkins.plugins.hipchat.HipChatNotifier_-DescriptorImpl plugin="hipchat@0.1.4">
+  <token>ENTER_HIPCHAT_TOKEN_HERE</token>
+  <room>HipChat Tests</room>
+  <jenkinsUrl>http://jenkins.khanacademy.org/</jenkinsUrl>
+</jenkins.plugins.hipchat.HipChatNotifier_-DescriptorImpl>
