@@ -28,8 +28,8 @@ update_aws_config_env() {
     ( cd aws-config && git pull )
 }
 
-install_developer_tools() {
-    echo "Installing developer tools"
+install_basic_packages() {
+    echo "Installing basic packages"
     sudo apt-get install -y curl
     sudo apt-get install -y python-pip
     sudo apt-get install -y python-dev  # for numpy
@@ -37,6 +37,19 @@ install_developer_tools() {
     sudo apt-get install -y unzip
     sudo apt-get install -y ruby rubygems
     sudo REALLY_GEM_UPDATE_SYSTEM=1 gem update --system
+
+    # This is needed so installing postfix doesn't prompt.  See
+    # http://www.ossramblings.com/preseed_your_apt_get_for_unattended_installs
+    # If it prompts anyway, type in the stuff from postfix.preseed manually.
+    sudo apt-get install -y debconf-utils
+    sudo debconf-set-selections "${CONFIG_DIR}"/postfix.preseed
+    sudo apt-get install -y postfix
+    echo "(Finishing up postfix config)"
+    sudo sed -i -e 's/myorigin = .*/myorigin = khanacademy.org/' \
+                -e 's/myhostname = .*/myhostname = jenkins.khanacademy.org/' \
+                -e 's/inet_interfaces = all/inet_interfaces = loopback-only/' \
+                /etc/postfix/main.cf
+    sudo service postfix restart
 }
 
 install_build_deps() {
@@ -173,7 +186,7 @@ install_nginx() {
 }
 
 update_aws_config_env
-install_developer_tools
+install_basic_packages
 install_build_deps
 install_google_app_engine
 install_jenkins
