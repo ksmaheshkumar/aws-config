@@ -162,6 +162,17 @@ install_repo_backup() {
             --token="$token" --server="khanacademy.kilnhg.com" . \
             || true
     )
+
+    # TODO(csilvers): figure out some way to make sure the user does this...
+    echo "Getting permissions for the git repository"
+    # Make sure we have a ssh key
+    mkdir -p ~/.ssh
+    if [ ! -e ~/.ssh/id_rsa ]; then
+        ssh-keygen -q -N "" -t rsa -f ~/.ssh/id_rsa
+    fi
+    echo "Visit https://khanacademy.kilnhg.com/Keys"
+    echo "Log in, click 'Add a New Key', paste the contents of ~/.ssh/id_ra"
+    echo "   into the box, and hit 'Save key'"
 }
 
 install_gerrit() {
