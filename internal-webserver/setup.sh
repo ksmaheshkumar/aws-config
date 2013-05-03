@@ -170,6 +170,8 @@ install_repo_backup() {
     if [ ! -e ~/.ssh/id_rsa ]; then
         ssh-keygen -q -N "" -t rsa -f ~/.ssh/id_rsa
     fi
+    # Add khanacademy.kilnhg.com to knownhosts so ssh doesn't prompt.
+    ssh -oStrictHostKeyChecking=no khanacademy.kilnhg.com >/dev/null 2>&1 || true
     echo "Visit https://khanacademy.kilnhg.com/Keys"
     echo "Log in, click 'Add a New Key', paste the contents of ~/.ssh/id_ra"
     echo "   into the box, and hit 'Save key'"
