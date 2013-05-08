@@ -917,9 +917,13 @@
     -->
    <field name="id"           type="string"            indexed="true"  stored="true"  required="true"/>
 
+   <!-- What language tht title and description are in -->
+   <field name="language_tag" type="string"            indexed="true"  stored="true"  required="true"/>
+
    <!-- Video, Execise, or Topic -->
    <field name="kind"         type="string"            indexed="false" stored="true"  required="true"/>
 
+   <!-- TODO(csilvers): should this be text_en? -->
    <field name="title"        type="text_general"      indexed="true"  stored="true"  required="true"/>
    <field name="description"  type="text_general"      indexed="true"  stored="true"  required="false"/>
 
