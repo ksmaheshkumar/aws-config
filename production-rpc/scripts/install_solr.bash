@@ -3,6 +3,15 @@
 # This script installs Tomcat and Solr/Lucene for search indexing of the
 # KhanAcademy.org content.
 
+if [ ! -f /etc/lighttpd/khan-secret.conf ]; then
+  # The 'sudo tee' trick is the easiest way to redirect output to a file under sudo.
+  echo 'Cannot install SOLR without the shared secret. Run'
+  echo '  echo '\''var.secret = "<solr_secret>"'\'' | sudo tee -a /etc/lighttpd/khan-secret.conf > /dev/null'
+  echo "Where <solr_secret> is taken from secrets.py"
+  exit 0
+fi
+
+
 # This script assumes an Ubuntu 11.10 or 12.04 server.
 # This git repository should be cloned into $HOME/aws-config.
 export REPO_ROOT=$HOME/aws-config/production-rpc
@@ -47,12 +56,3 @@ sudo cp $REPO_ROOT/config/lighttpd.conf /etc/lighttpd/lighttpd.conf
 
 # Restart lighttpd to pick up our changes
 sudo /etc/init.d/lighttpd restart
-
-# Initialize the search index with the latest data
-$SCRIPT_ROOT/update_solr.bash
-
-# Create a local user crontab
-cat <<EOF | crontab -
-MAILTO=production-rpc-admin+search-cron@khanacademy.org
-0 * * * * $SCRIPT_ROOT/cronic.bash $SCRIPT_ROOT/update_solr.bash
-EOF
