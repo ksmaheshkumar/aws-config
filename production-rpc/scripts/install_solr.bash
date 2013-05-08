@@ -3,14 +3,13 @@
 # This script installs Tomcat and Solr/Lucene for search indexing of the
 # KhanAcademy.org content.
 
-if [ ! -f /etc/lighttpd/khan-secret.conf ]; then
+if [ ! -s /etc/lighttpd/khan-secret.conf ]; then
   # The 'sudo tee' trick is the easiest way to redirect output to a file under sudo.
   echo 'Cannot install SOLR without the shared secret. Run'
   echo '  echo '\''var.secret = "<solr_secret>"'\'' | sudo tee -a /etc/lighttpd/khan-secret.conf > /dev/null'
-  echo "Where <solr_secret> is taken from secrets.py"
-  exit 0
+  echo "Where <solr_secret> is taken from secrets.py, and run this script again."
+  exit 1
 fi
-
 
 # This script assumes an Ubuntu 11.10 or 12.04 server.
 # This git repository should be cloned into $HOME/aws-config.
