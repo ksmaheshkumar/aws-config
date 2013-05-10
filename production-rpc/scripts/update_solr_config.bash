@@ -21,7 +21,4 @@ sudo cp $REPO_ROOT/config/lighttpd.conf /etc/lighttpd/lighttpd.conf
 echo "Starting tomcat"
 sudo /etc/init.d/tomcat6 start
 
-# reindex data
-$REPO_ROOT/scripts/update_solr_index.bash
-
 echo "solr updated"
