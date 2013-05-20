@@ -103,9 +103,11 @@ sudo apt-get install -y ec2-api-tools
 sudo mkdir -p /ebs/kalogs  # App Engine logs
 sudo mkdir -p /ebs/kadata  # Mongo db 1
 sudo mkdir -p /ebs/kadata2 # Mongo db 2
+sudo mkdir -p /ebs/modeling # temp space for model training 
 ln -sf /ebs/kalogs
 ln -sf /ebs/kadata
 ln -sf /ebs/kadata2
+ln -sf /ebs/modeling
 
 cat <<EOF
 
@@ -126,6 +128,7 @@ be.
 /dev/xvdg    /ebs/kalogs         auto	defaults,nobootwait,comment=cloudconfig	0	2
 /dev/xvdh    /ebs/kadata         auto	defaults,nobootwait,comment=cloudconfig	0	2
 /dev/xvdi    /ebs/kadata2        auto	defaults,nobootwait,comment=cloudconfig	0	2
+/dev/xvdf    /ebs/modeling       auto	defaults,nobootwait,comment=cloudconfig	0	2
 EOF
 
 # TODO(benkomalo): not sure how to automate this next part quite yet
