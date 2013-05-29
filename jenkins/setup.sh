@@ -92,7 +92,7 @@ install_google_app_engine() {
     # See https://developers.google.com/appengine/downloads to find the most
     # recent version.  You should be able to simply bump $LATESTVERSION and the
     # rest will work.
-    LATESTVERSION="1.7.5"
+    LATESTVERSION="1.8.0"
     GAEFILENAME="google_appengine_${LATESTVERSION}.zip"
     GAEDOWNLOADLINK="http://googleappengine.googlecode.com/files/${GAEFILENAME}"
     INSTALLGAE="false"

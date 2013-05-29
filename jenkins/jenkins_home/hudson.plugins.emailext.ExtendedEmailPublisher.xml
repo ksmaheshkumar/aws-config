@@ -5,17 +5,20 @@
   <useSsl>false</useSsl>
   <defaultContentType>text/plain</defaultContentType>
   <defaultSubject>$PROJECT_NAME - Build # $BUILD_NUMBER - $BUILD_STATUS!</defaultSubject>
-  <defaultBody>$PROJECT_NAME - Build # $BUILD_NUMBER - $BUILD_STATUS:&#xd;
+  <defaultBody>$PROJECT_NAME - Build # $BUILD_NUMBER - $BUILD_STATUS: See $BUILD_URL for full details.&#xd;
 &#xd;
-Check console output at $BUILD_URL to view the results.&#xd;
+${CHANGES_SINCE_LAST_SUCCESS}&#xd;
 &#xd;
-Partial log output:&#xd;
 &#xd;
-${BUILD_LOG, maxLines=100}</defaultBody>
+Below is the tail of the build log. If there&apos;s a failure it is probably near the bottom!&#xd;
+&#xd;
+✄-----------------------------------------------------------------------&#xd;
+&#xd;
+${BUILD_LOG, maxLines=50}</defaultBody>
   <maxAttachmentSize>-1</maxAttachmentSize>
   <recipientList>jenkins-admin+builds@khanacademy.org</recipientList>
   <defaultReplyTo></defaultReplyTo>
-  <overrideGlobalSettings>false</overrideGlobalSettings>
+  <overrideGlobalSettings>true</overrideGlobalSettings>
   <precedenceBulk>false</precedenceBulk>
   <debugMode>false</debugMode>
   <enableSecurity>false</enableSecurity>
