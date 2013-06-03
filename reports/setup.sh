@@ -38,13 +38,12 @@ git clone http://github.com/Khan/analytics || ( cd analytics && git pull )
 sudo pip install -r analytics/requirements.txt
 
 echo "Setting up mongodb"
-(
-mkdir ~/mongo
-cd ~/mongo
-curl http://fastdl.mongodb.org/linux/mongodb-linux-x86_64-2.0.5.tgz > mongo.tgz
-tar xzf mongo.tgz
-sudo cp mongodb-linux-x86_64-2.0.5/bin/* /usr/bin/
-)
+# http://docs.mongodb.org/manual/tutorial/install-mongodb-on-ubuntu/
+sudo apt-key adv --keyserver keyserver.ubuntu.com --recv 7F0CEB10
+echo 'deb http://downloads-distro.mongodb.org/repo/ubuntu-upstart dist 10gen' | sudo tee /etc/apt/sources.list.d/10gen.list
+sudo apt-get update
+sudo apt-get install mongodb-10gen
+
 aws-config/reports/mongo_cntrl restart
 
 # Install sleepy mongoose
