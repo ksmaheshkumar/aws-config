@@ -10,13 +10,13 @@
 # local files under ./jenkins_home/ to match the remote server's configuration.
 #
 # This works by gathering all the paths rooted in the local jenkins_home/
-# directory and using SSH to copy the corresponding files rooted at the $HOME
-# of the jenkins user on the ka-jenkins server.
+# directory and using rsync over SSH to copy the corresponding files rooted at
+# the $HOME of the jenkins user on the ka-jenkins server.
 #
 # USAGE:
 #   $ ./fetch_jenkins_config.sh
-#   Fetching ka-jenkins:./config.xml
-#   Fetching ka-jenkins:./jobs/website-commit/config.xml
+#   receiving file list ... done
+#   jobs/website-commit/config.xml
 #   ...
 #
 # To fetch a new file first create the local file then run the fetch script:
@@ -30,8 +30,5 @@ cd "`dirname $0`/jenkins_home"
 host=ka-jenkins
 remote_jenkins_home=/var/lib/jenkins
 
-for f in `find . -type f`
-do
-  echo "Fetching $host:$f"
-  ssh "$host" sudo -u jenkins "cat '$remote_jenkins_home/$f'" > "$f"
-done
+find . -type f -print0 \
+  | rsync -av -e ssh --rsync-path="sudo -u jenkins rsync" --files-from=- --from0 "$host":"$remote_jenkins_home" .
