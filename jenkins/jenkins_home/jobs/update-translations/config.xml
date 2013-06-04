@@ -69,7 +69,7 @@
   <concurrentBuild>false</concurrentBuild>
   <builders>
     <hudson.tasks.Shell>
-      <command>make sync_i18n_and_push</command>
+      <command>MAKE_TARGET=sync_i18n_and_push webapp/tools/build-make-target.sh</command>
     </hudson.tasks.Shell>
   </builders>
   <publishers>

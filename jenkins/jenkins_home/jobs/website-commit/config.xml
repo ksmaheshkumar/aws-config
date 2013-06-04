@@ -68,7 +68,7 @@
   <concurrentBuild>false</concurrentBuild>
   <builders>
     <hudson.tasks.Shell>
-      <command>webapp/tools/build-commit.sh</command>
+      <command>MAKE_TARGET=check webapp/tools/build-make-target.sh</command>
     </hudson.tasks.Shell>
   </builders>
   <publishers>

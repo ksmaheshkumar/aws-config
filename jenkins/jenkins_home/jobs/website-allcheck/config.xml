@@ -69,7 +69,7 @@ H 2,14,18,22 * * *</spec>
   <concurrentBuild>false</concurrentBuild>
   <builders>
     <hudson.tasks.Shell>
-      <command>MAKE_TARGET=allcheck_nolint webapp/tools/build-commit.sh</command>
+      <command>MAKE_TARGET=allcheck_nolint webapp/tools/build-make-target.sh</command>
     </hudson.tasks.Shell>
   </builders>
   <publishers>
