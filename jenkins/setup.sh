@@ -14,6 +14,13 @@ set -e
 CONFIG_DIR="$HOME"/aws-config/jenkins
 JENKINS_HOME=/var/lib/jenkins
 
+# Some builds need secrets.py from the webapp project. We create a place to
+# store the secrets.py.cast5 decryption password, and to store secrets.py so
+# it can be added to PYTHONPATH.
+# TODO(chris): store the password securely.
+SECRETS_DIR="${JENKINS_HOME}"/secrets_py
+SECRETS_PW="${SECRETS_DIR}"/secrets.py.cast5.password
+
 cd "$HOME"
 
 update_aws_config_env() {
@@ -54,6 +61,12 @@ install_basic_packages() {
 
 install_build_deps() {
     echo "Installing build dependencies"
+
+    # secrets.py is needed by the translations build and deployment
+    mkdir -p "${SECRETS_DIR}"
+    if [ ! -e "$SECRETS_PW" ]; then
+        echo "Put the password to decrypt secrets.py on the first line of this file. See https://www.dropbox.com/home/Khan%20Academy%20All%20Staff/Secrets" >"${SECRETS_PW}"
+    fi
 
     if [ ! -e "$HOME"/kiln_extensions/kilnauth.py ]; then
         echo "Installing the kilnauth Mercurial plugin"
@@ -193,8 +206,7 @@ install_jenkins
 install_nginx
 
 echo
-echo "TODO: hg identify https://khanacademy.kilnhg.com/Code/Website/Group/stable"
-echo "      (only need credentials once; Kiln auth cookie will be saved)"
+echo "TODO: Set the password for secrets.py in ${SECRETS_PW}"
 echo "TODO: generate an SSH key pair for Jenkins, register the public key with "
 echo "      Kiln for SSH access, and copy the key pair to ${JENKINS_HOME}/.ssh/"
 echo "TODO: copy files from jenkins_home/ to ${JENKINS_HOME}"
