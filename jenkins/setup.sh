@@ -62,12 +62,6 @@ install_basic_packages() {
 install_build_deps() {
     echo "Installing build dependencies"
 
-    # secrets.py is needed by the translations build and deployment
-    mkdir -p "${SECRETS_DIR}"
-    if [ ! -e "$SECRETS_PW" ]; then
-        echo "Put the password to decrypt secrets.py on the first line of this file. See https://www.dropbox.com/home/Khan%20Academy%20All%20Staff/Secrets" >"${SECRETS_PW}"
-    fi
-
     if [ ! -e "$HOME"/kiln_extensions/kilnauth.py ]; then
         echo "Installing the kilnauth Mercurial plugin"
         curl https://khanacademy.kilnhg.com/Tools/Downloads/Extensions > /tmp/extensions.zip && unzip /tmp/extensions.zip kiln_extensions/kilnauth.py
@@ -184,6 +178,13 @@ kilnauth = ${HOME}/kiln_extensions/kilnauth.py\" > \"${JENKINS_HOME}\"/.hgrc"
         sudo -u jenkins sh -c "cd \"${JENKINS_HOME}\"/plugins && rm -rf \"${plugin_file}\" \"${plugin_dir}\" && wget \"${plugin_url}\""
     done
 
+    # secrets.py is needed by the translations build and deployment
+    sudo -u jenkins mkdir -p "${SECRETS_DIR}"
+    if [ ! -e "$SECRETS_PW" ]; then
+        sudo -u jenkins sh -c "echo \"<PASSWORD>\nPut the password to decrypt secrets.py on the first line of this file.\nSee https://www.dropbox.com/home/Khan%20Academy%20All%20Staff/Secrets\" >'${SECRETS_PW}'"
+        sudo -u jenkins chmod 600 "${SECRETS_PW}"
+    fi
+
     # Start the daemon
     sudo update-rc.d jenkins defaults
     sudo service jenkins restart || sudo service jenkins start
@@ -206,7 +207,7 @@ install_jenkins
 install_nginx
 
 echo
-echo "TODO: Set the password for secrets.py in ${SECRETS_PW}"
+echo "TODO: Set the password for secrets.py: sudo -u jenkins vi ${SECRETS_PW}"
 echo "TODO: generate an SSH key pair for Jenkins, register the public key with "
 echo "      Kiln for SSH access, and copy the key pair to ${JENKINS_HOME}/.ssh/"
 echo "TODO: copy files from jenkins_home/ to ${JENKINS_HOME}"
