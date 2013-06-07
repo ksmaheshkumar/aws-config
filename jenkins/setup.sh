@@ -165,7 +165,6 @@ kilnauth = ${HOME}/kiln_extensions/kilnauth.py\" > \"${JENKINS_HOME}\"/.hgrc"
         "envinject/1.85/envinject.hpi" \
         "git-client/1.0.5/git-client.hpi" \
         "git/1.3.0/git.hpi" \
-        "hipchat/0.1.4/hipchat.hpi" \
         "htmlpublisher/1.2/htmlpublisher.hpi" \
         "mercurial/1.45/mercurial.hpi" \
         "openid/1.6/openid.hpi" \
@@ -207,6 +206,20 @@ install_jenkins
 install_nginx
 
 echo
+echo "TODO: install a custom version of the Jenkins hipchat plugin that supports"
+echo "      secure password storage. You may need to create ~/.m2/settings.xml "
+echo "      as decribed in https://wiki.jenkins-ci.org/display/JENKINS/Plugin+tutorial#Plugintutorial-SettingUpEnvironment"
+echo "        $ git clone https://github.com/chrisklaiber/jenkins-hipchat-plugin.git"
+echo "        $ cd jenkins-hipchat-plugin && git checkout khan-custom-plugin"
+echo "        $ mvn package"
+echo "        $ cp target/hipchat.hpi ${JENKINS_HOME}/plugins/"
+echo "        $ sudo service jenkins restart"
+echo "      Once restarted, set the global password HIPCHAT_AUTH_TOKEN in"
+echo "      either the EnvInject plugin configuration section or the Mask"
+echo "      Passwords plugin configuration section (but don't use both! Mask"
+echo "      Passwords plugins are revealed by the EnvInject plugin, at least as"
+echo "      of v2.7.2 of Mask Passwords) for use by the global HipChat"
+echo "      configuration section."
 echo "TODO: Set the password for secrets.py: sudo -u jenkins vi ${SECRETS_PW}"
 echo "TODO: generate an SSH key pair for Jenkins, register the public key with "
 echo "      Kiln for SSH access, and copy the key pair to ${JENKINS_HOME}/.ssh/"
