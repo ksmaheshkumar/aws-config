@@ -1,0 +1,3 @@
+[core]
+  # Global .gitignore file
+  excludesfile = ~/.gitignore_global
