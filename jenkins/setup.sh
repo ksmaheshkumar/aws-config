@@ -89,8 +89,9 @@ install_build_deps() {
     # nokogiri requirements (gem install does not suffice on Ubuntu)
     # See http://nokogiri.org/tutorials/installing_nokogiri.html
     sudo apt-get install -y libxslt-dev libxml2-dev
-    sudo gem install nokogiri
-    sudo gem install json uglifier therubyracer
+    # NOTE: version 2.x of uglifier has unexpected behavior that causes
+    # khan-exercises/build/pack.rb to fail.
+    sudo gem install --conservative nokogiri:1.5.7 json:1.7.7 uglifier:1.3.0 therubyracer:0.11.4
 }
 
 install_google_app_engine() {
