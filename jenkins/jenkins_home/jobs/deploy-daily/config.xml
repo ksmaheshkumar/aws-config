@@ -145,7 +145,7 @@ DEPLOY_VERSION=default HIPCHAT_ROOM=&quot;1s and 0s&quot; webapp/tools/build-dep
       <authToken>${HIPCHAT_AUTH_TOKEN}</authToken>
       <buildServerUrl>http://jenkins.khanacademy.org/</buildServerUrl>
       <room>1s and 0s</room>
-      <sendAs>Jenkins</sendAs>
+      <sendAs>Jenny Jenkins</sendAs>
     </jenkins.plugins.hipchat.HipChatNotifier>
   </publishers>
   <buildWrappers>

@@ -3,5 +3,5 @@
   <token>${HIPCHAT_AUTH_TOKEN}</token>
   <room>1s and 0s</room>
   <buildServerUrl>http://jenkins.khanacademy.org/</buildServerUrl>
-  <sendAs>Jenkins</sendAs>
+  <sendAs>Jenny Jenkins</sendAs>
 </jenkins.plugins.hipchat.HipChatNotifier_-DescriptorImpl>

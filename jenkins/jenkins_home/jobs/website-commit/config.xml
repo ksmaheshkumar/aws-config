@@ -201,7 +201,7 @@
       <authToken>${HIPCHAT_AUTH_TOKEN}</authToken>
       <buildServerUrl>http://jenkins.khanacademy.org/</buildServerUrl>
       <room>1s and 0s</room>
-      <sendAs>Jenkins</sendAs>
+      <sendAs>Jenny Jenkins</sendAs>
     </jenkins.plugins.hipchat.HipChatNotifier>
     <hudson.plugins.parameterizedtrigger.BuildTrigger plugin="parameterized-trigger@2.18">
       <configs>
