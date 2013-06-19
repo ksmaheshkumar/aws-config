@@ -1,0 +1,11 @@
+# envInject.xml contains hashed passwords. Rather than make sure this is safe
+# to put in public source control we just don't store it.
+envInject.xml
+
+# We don't use CVS but it insists on configuring itself. Omitted so that if we
+# ever use it we won't accidentally store the passphrase in source control.
+hudson.scm.CVSSCM.xml
+
+# The Disk Usage plugin appears to use this XML file as a database. It will
+# regenerate anyway so there's no need to store it.
+hudson.plugins.disk_usage.DiskUsageProjectActionFactory.xml
