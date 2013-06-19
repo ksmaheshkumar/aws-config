@@ -12,7 +12,7 @@
   <properties>
     <jenkins.plugins.hipchat.HipChatNotifier_-HipChatJobProperty plugin="hipchat@0.1.5-SNAPSHOT">
       <room></room>
-      <startNotification>false</startNotification>
+      <startNotification>true</startNotification>
       <notifySuccess>false</notifySuccess>
       <notifyAborted>false</notifyAborted>
       <notifyNotBuilt>false</notifyNotBuilt>
@@ -141,8 +141,18 @@ DEPLOY_VERSION=default HIPCHAT_ROOM=&quot;1s and 0s&quot; webapp/tools/build-dep
       <compressBuildLog>false</compressBuildLog>
       <replyTo>$DEFAULT_RECIPIENTS</replyTo>
     </hudson.plugins.emailext.ExtendedEmailPublisher>
+    <jenkins.plugins.hipchat.HipChatNotifier plugin="hipchat@0.1.5-SNAPSHOT">
+      <authToken>${HIPCHAT_AUTH_TOKEN}</authToken>
+      <buildServerUrl>http://jenkins.khanacademy.org/</buildServerUrl>
+      <room>1s and 0s</room>
+      <sendAs>Jenkins</sendAs>
+    </jenkins.plugins.hipchat.HipChatNotifier>
   </publishers>
   <buildWrappers>
+    <EnvInjectPasswordWrapper plugin="envinject@1.85">
+      <injectGlobalPasswords>true</injectGlobalPasswords>
+      <passwordEntries/>
+    </EnvInjectPasswordWrapper>
     <org.jenkinsci.plugins.builduser.BuildUser plugin="build-user-vars-plugin@1.1"/>
   </buildWrappers>
 </project>
