@@ -10,7 +10,7 @@
   </logRotator>
   <keepDependencies>false</keepDependencies>
   <properties>
-    <jenkins.plugins.hipchat.HipChatNotifier_-HipChatJobProperty plugin="hipchat@0.1.2-SNAPSHOT">
+    <jenkins.plugins.hipchat.HipChatNotifier_-HipChatJobProperty plugin="hipchat@0.1.5-SNAPSHOT">
       <room></room>
       <startNotification>false</startNotification>
       <notifySuccess>false</notifySuccess>
@@ -18,6 +18,7 @@
       <notifyNotBuilt>false</notifyNotBuilt>
       <notifyUnstable>false</notifyUnstable>
       <notifyFailure>true</notifyFailure>
+      <notifyBackToNormal>true</notifyBackToNormal>
     </jenkins.plugins.hipchat.HipChatNotifier_-HipChatJobProperty>
   </properties>
   <scm class="hudson.plugins.git.GitSCM" plugin="git@1.3.0">
@@ -51,11 +52,11 @@
     </browser>
     <submoduleCfg class="list"/>
     <relativeTargetDir>webapp</relativeTargetDir>
-    <reference></reference>
+    <reference>$JENKINS_HOME/gitcaches/webapp</reference>
     <excludedRegions></excludedRegions>
     <excludedUsers></excludedUsers>
-    <gitConfigName>Jenkins</gitConfigName>
-    <gitConfigEmail>jenkins@khanacademy.org</gitConfigEmail>
+    <gitConfigName></gitConfigName>
+    <gitConfigEmail></gitConfigEmail>
     <skipTag>false</skipTag>
     <includedRegions></includedRegions>
     <scmName></scmName>
@@ -196,12 +197,26 @@
       <compressBuildLog>false</compressBuildLog>
       <replyTo>$DEFAULT_RECIPIENTS</replyTo>
     </hudson.plugins.emailext.ExtendedEmailPublisher>
-    <jenkins.plugins.hipchat.HipChatNotifier plugin="hipchat@0.1.2-SNAPSHOT">
+    <jenkins.plugins.hipchat.HipChatNotifier plugin="hipchat@0.1.5-SNAPSHOT">
       <authToken>${HIPCHAT_AUTH_TOKEN}</authToken>
       <buildServerUrl>http://jenkins.khanacademy.org/</buildServerUrl>
       <room>1s and 0s</room>
       <sendAs>Jenkins</sendAs>
     </jenkins.plugins.hipchat.HipChatNotifier>
+    <hudson.plugins.parameterizedtrigger.BuildTrigger plugin="parameterized-trigger@2.18">
+      <configs>
+        <hudson.plugins.parameterizedtrigger.BuildTriggerConfig>
+          <configs>
+            <hudson.plugins.git.GitRevisionBuildParameters plugin="git@1.3.0">
+              <combineQueuedCommits>true</combineQueuedCommits>
+            </hudson.plugins.git.GitRevisionBuildParameters>
+          </configs>
+          <projects>deploy-staging, </projects>
+          <condition>SUCCESS</condition>
+          <triggerWithNoParameters>false</triggerWithNoParameters>
+        </hudson.plugins.parameterizedtrigger.BuildTriggerConfig>
+      </configs>
+    </hudson.plugins.parameterizedtrigger.BuildTrigger>
   </publishers>
   <buildWrappers>
     <EnvInjectPasswordWrapper plugin="envinject@1.85">

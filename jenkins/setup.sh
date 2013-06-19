@@ -160,6 +160,7 @@ kilnauth = ${HOME}/kiln_extensions/kilnauth.py\" > \"${JENKINS_HOME}\"/.hgrc"
 
     # Install plugins (versions initially chosen for Jenkins v1.512).
     for plugin in \
+        "build-user-vars-plugin/1.1/build-user-vars-plugin.hpi" \
         "cobertura/1.8/cobertura.hpi" \
         "disk-usage/0.19/disk-usage.hpi" \
         "email-ext/2.28/email-ext.hpi" \
@@ -168,7 +169,9 @@ kilnauth = ${HOME}/kiln_extensions/kilnauth.py\" > \"${JENKINS_HOME}\"/.hgrc"
         "git/1.3.0/git.hpi" \
         "htmlpublisher/1.2/htmlpublisher.hpi" \
         "mercurial/1.45/mercurial.hpi" \
+        "monitoring/1.45.0/monitoring.hpi" \
         "openid/1.6/openid.hpi" \
+        "parameterized-trigger/2.18/parameterized-trigger.hpi" \
         "simple-theme-plugin/0.3/simple-theme-plugin.hpi" \
         ;
     do
@@ -224,4 +227,7 @@ echo "      configuration section."
 echo "TODO: Set the password for secrets.py: sudo -u jenkins vi ${SECRETS_PW}"
 echo "TODO: generate an SSH key pair for Jenkins, register the public key with "
 echo "      Kiln for SSH access, and copy the key pair to ${JENKINS_HOME}/.ssh/"
+echo "TODO: Clone the webapp repo to a temporary cache to speed up cloning in"
+echo "      jobs (it will be used as the --reference flag to git clone):"
+echo "        $ git clone https://khanacademy.kilnhg.com/Code/Website/Group/webapp.git ${JENKINS_HOME}/gitcaches/webapp"
 echo "TODO: copy files from jenkins_home/ to ${JENKINS_HOME}. Don't forget the dot files!"
