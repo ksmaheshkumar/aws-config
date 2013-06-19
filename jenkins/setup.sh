@@ -172,6 +172,7 @@ kilnauth = ${HOME}/kiln_extensions/kilnauth.py\" > \"${JENKINS_HOME}\"/.hgrc"
         "monitoring/1.45.0/monitoring.hpi" \
         "openid/1.6/openid.hpi" \
         "parameterized-trigger/2.18/parameterized-trigger.hpi" \
+        "role-strategy/1.1.2/role-strategy.hpi" \
         "simple-theme-plugin/0.3/simple-theme-plugin.hpi" \
         ;
     do
