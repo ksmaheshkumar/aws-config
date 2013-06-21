@@ -239,12 +239,7 @@ install_phabricator() {
     || echo "CREATE USER 'phabricator'@'localhost' IDENTIFIED BY 'codereview'; GRANT ALL PRIVILEGES ON *.* TO 'phabricator'@'localhost' WITH GRANT OPTION;" \
         | mysql --user=root mysql
 
-    echo "Follow the directions at"
-    echo "  internal-webserver/phabricator/conf/khan-google.conf.php.template"
-    echo "Then hit enter to continue"
-    read prompt
-
-    # Just in case phabricator is already runnin (we want to be idempotent!)
+    # Just in case phabricator is already running (we want to be idempotent!)
     PHABRICATOR_ENV=khan "$HOME/internal-webserver/phabricator/bin/phd" stop
     sudo /etc/init.d/lighttpd stop
 
@@ -292,11 +287,14 @@ EOF
     # TODO(csilvers): automate this.
     cat <<EOF
 To finish phabricator installation:
-1) Visit http://phabricator.khanacademy.org, sign in via oauth,
-   create a new account for yourself, sign out, sign in as admin,
-   and visit http://phabricator.khanacademy.org/people/edit/2/role/
+1) Visit http://phabricator.khanacademy.org, sign in as admin, visit
+   http://phabricator.khanacademy.org/auth/config/new/, and follow 
+   the directions to enable Google OAuth.
+2) Sign out, then sign in again via oauth, create a new account for
+   yourself, sign out, sign in as admin, and visit
+   http://phabricator.khanacademy.org/people/edit/2/role/
    to make yourself an admin.
-2) On AWS's route53 (or whatever), add phabricator-files.khanacademy.org
+3) On AWS's route53 (or whatever), add phabricator-files.khanacademy.org
    as a CNAME to phabricator.khanacademy.org.
 EOF
 echo "Hit enter when this is done:"
