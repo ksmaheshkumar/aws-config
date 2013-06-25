@@ -32,6 +32,11 @@
           <description>By default the build will not run the test suite, because it is configured to be downstream from the website-commit build and assumes that the test suite has already been run. Unset this to run the test suite.</description>
           <defaultValue>1</defaultValue>
         </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>CLEAN</name>
+          <description>By default the value &quot;most&quot; cleans most files out of the working directory before a new build, but not all of them. Some generated files are left over to speed up the build (because many CSS, JS, and source files with embedded languages don&apos;t change very frequently). Set this to &quot;all&quot; to clear even the left-over generated files. Your build will take longer since all files must be regenerated.</description>
+          <defaultValue>most</defaultValue>
+        </hudson.model.StringParameterDefinition>
       </parameterDefinitions>
     </hudson.model.ParametersDefinitionProperty>
   </properties>
@@ -83,10 +88,7 @@
   <concurrentBuild>false</concurrentBuild>
   <builders>
     <hudson.tasks.Shell>
-      <command># Speed up subsequent runs by keeping generated files that the build may re-use if fresh enough.
-(cd webapp &amp;&amp; git clean -qfdx -e genfiles -e &apos;_hashed-*.js&apos; -e &apos;_hashed-*.css&apos;)
-(cd webapp &amp;&amp; git submodule foreach git clean -qfdx)
-NOTIFY_HIPCHAT=short HIPCHAT_ROOM=&quot;1s and 0s&quot; webapp/tools/build-deploy.sh</command>
+      <command>NOTIFY_HIPCHAT=short HIPCHAT_ROOM=&quot;1s and 0s&quot; webapp/tools/build-deploy.sh</command>
     </hudson.tasks.Shell>
   </builders>
   <publishers>

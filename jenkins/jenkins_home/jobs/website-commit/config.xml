@@ -67,7 +67,9 @@
   <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
   <triggers class="vector">
     <hudson.triggers.SCMTrigger>
-      <spec>* * * * *</spec>
+      <spec># Although polling is set to every 30 minutes this is just a fallback.
+# There&apos;s a webhook set up in Kiln to trigger builds via /git/notifyCommit?...
+H/30 * * * *</spec>
       <ignorePostCommitHooks>false</ignorePostCommitHooks>
     </hudson.triggers.SCMTrigger>
   </triggers>
@@ -149,7 +151,7 @@
       </reportTargets>
     </htmlpublisher.HtmlPublisher>
     <hudson.tasks.junit.JUnitResultArchiver>
-      <testResults>webapp/test-reports/*.xml</testResults>
+      <testResults>webapp/genfiles/test-reports/*.xml</testResults>
       <keepLongStdio>false</keepLongStdio>
       <testDataPublishers/>
     </hudson.tasks.junit.JUnitResultArchiver>
@@ -203,6 +205,32 @@
       <room>1s and 0s</room>
       <sendAs>Jenny Jenkins</sendAs>
     </jenkins.plugins.hipchat.HipChatNotifier>
+    <hudson.plugins.postbuildtask.PostbuildTask plugin="postbuild-task@1.8">
+      <tasks>
+        <hudson.plugins.postbuildtask.TaskProperties>
+          <logTexts>
+            <hudson.plugins.postbuildtask.LogProperties>
+              <logText>make: \*\*\* \[lint\] Error (\d+)</logText>
+              <operator>AND</operator>
+            </hudson.plugins.postbuildtask.LogProperties>
+          </logTexts>
+          <EscalateStatus>false</EscalateStatus>
+          <RunIfJobSuccessful>false</RunIfJobSuccessful>
+          <script>( echo &quot;Lint Errors:&quot; ; cat webapp/genfiles/lint_errors.txt ) | webapp/tools/hipchat-cli/hipchat_room_message -c red -r &quot;1s and 0s&quot;</script>
+        </hudson.plugins.postbuildtask.TaskProperties>
+        <hudson.plugins.postbuildtask.TaskProperties>
+          <logTexts>
+            <hudson.plugins.postbuildtask.LogProperties>
+              <logText>make: \*\*\* \[test\] Error (\d+)</logText>
+              <operator>AND</operator>
+            </hudson.plugins.postbuildtask.LogProperties>
+          </logTexts>
+          <EscalateStatus>false</EscalateStatus>
+          <RunIfJobSuccessful>false</RunIfJobSuccessful>
+          <script>( echo &quot;Failing Tests:&quot; ; env/bin/python webapp/tools/print_test_reports.py webapp/genfiles/test-reports ) | webapp/tools/hipchat-cli/hipchat_room_message -c red -r &quot;1s and 0s&quot;</script>
+        </hudson.plugins.postbuildtask.TaskProperties>
+      </tasks>
+    </hudson.plugins.postbuildtask.PostbuildTask>
     <hudson.plugins.parameterizedtrigger.BuildTrigger plugin="parameterized-trigger@2.18">
       <configs>
         <hudson.plugins.parameterizedtrigger.BuildTriggerConfig>

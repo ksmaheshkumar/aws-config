@@ -43,7 +43,7 @@
     <wipeOutWorkspace>false</wipeOutWorkspace>
     <pruneBranches>false</pruneBranches>
     <remotePoll>false</remotePoll>
-    <ignoreNotifyCommit>false</ignoreNotifyCommit>
+    <ignoreNotifyCommit>true</ignoreNotifyCommit>
     <useShallowClone>false</useShallowClone>
     <buildChooser class="hudson.plugins.git.util.DefaultBuildChooser"/>
     <gitTool>Default</gitTool>
@@ -150,7 +150,7 @@ H 10 * * *</spec>
       </reportTargets>
     </htmlpublisher.HtmlPublisher>
     <hudson.tasks.junit.JUnitResultArchiver>
-      <testResults>webapp/test-reports/*.xml</testResults>
+      <testResults>webapp/genfiles/test-reports/*.xml</testResults>
       <keepLongStdio>false</keepLongStdio>
       <testDataPublishers/>
     </hudson.tasks.junit.JUnitResultArchiver>

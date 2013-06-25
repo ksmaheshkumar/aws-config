@@ -32,6 +32,11 @@
           <description>Set this to 1 to skip running tests. Maybe you already ran the test suite and deployed, and then got in a minor fix, and just want to get it out quickly. If this is you then setting this to 1 is A-OK.</description>
           <defaultValue></defaultValue>
         </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>CLEAN</name>
+          <description>By default the value &quot;most&quot; cleans most files out of the working directory before a new build, but not all of them. Some generated files are left over to speed up the build (because many CSS, JS, and source files with embedded languages don&apos;t change very frequently). Set this to &quot;all&quot; to clear even the left-over generated files. Your build will take longer since all files must be regenerated.</description>
+          <defaultValue>most</defaultValue>
+        </hudson.model.StringParameterDefinition>
       </parameterDefinitions>
     </hudson.model.ParametersDefinitionProperty>
   </properties>
@@ -84,11 +89,7 @@
   <concurrentBuild>false</concurrentBuild>
   <builders>
     <hudson.tasks.Shell>
-      <command># Speed up subsequent runs by keeping generated files that the build may re-use if fresh enough.
-(cd webapp &amp;&amp; git clean -qfdx -e genfiles -e &apos;_hashed-*.js&apos; -e &apos;_hashed-*.css&apos;)
-(cd webapp &amp;&amp; git submodule foreach git clean -qfdx)
-
-# deploy.py looks to $USER for the real initiator when prod-deploy@ is running the deploy.
+      <command># deploy.py looks to $USER for the real initiator when prod-deploy@ is running the deploy.
 if [ -n &quot;$BUILD_USER_ID&quot; ]; then
   export USER=$BUILD_USER_ID
 fi
