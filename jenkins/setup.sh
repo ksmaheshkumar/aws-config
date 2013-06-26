@@ -172,6 +172,7 @@ kilnauth = ${HOME}/kiln_extensions/kilnauth.py\" > \"${JENKINS_HOME}\"/.hgrc"
         "monitoring/1.45.0/monitoring.hpi" \
         "openid/1.6/openid.hpi" \
         "parameterized-trigger/2.18/parameterized-trigger.hpi" \
+        "postbuild-task/1.8/postbuild-task.hpi" \
         "role-strategy/1.1.2/role-strategy.hpi" \
         "simple-theme-plugin/0.3/simple-theme-plugin.hpi" \
         ;
@@ -226,8 +227,9 @@ echo "      Passwords plugins are revealed by the EnvInject plugin, at least as"
 echo "      of v2.7.2 of Mask Passwords) for use by the global HipChat"
 echo "      configuration section."
 echo "TODO: Set the password for secrets.py: sudo -u jenkins vi ${SECRETS_PW}"
-echo "TODO: generate an SSH key pair for Jenkins, register the public key with "
-echo "      Kiln for SSH access, and copy the key pair to ${JENKINS_HOME}/.ssh/"
+echo "TODO: generate an SSH key pair for Jenkins and register the public key"
+echo "      as the Kiln user ReadWriteKiln (or ReadOnlyKiln if jobs don't need"
+echo "      write access), and copy the key pair to ${JENKINS_HOME}/.ssh/"
 echo "TODO: Clone the webapp repo to a temporary cache to speed up cloning in"
 echo "      jobs (it will be used as the --reference flag to git clone):"
 echo "        $ git clone https://khanacademy.kilnhg.com/Code/Website/Group/webapp.git ${JENKINS_HOME}/gitcaches/webapp"

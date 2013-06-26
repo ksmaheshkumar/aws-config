@@ -210,7 +210,7 @@ H/30 * * * *</spec>
         <hudson.plugins.postbuildtask.TaskProperties>
           <logTexts>
             <hudson.plugins.postbuildtask.LogProperties>
-              <logText>make: \*\*\* \[lint\] Error (\d+)</logText>
+              <logText>make(\[\d+\])?: \*\*\* \[lint\] Error (\d+)</logText>
               <operator>AND</operator>
             </hudson.plugins.postbuildtask.LogProperties>
           </logTexts>
@@ -221,13 +221,13 @@ H/30 * * * *</spec>
         <hudson.plugins.postbuildtask.TaskProperties>
           <logTexts>
             <hudson.plugins.postbuildtask.LogProperties>
-              <logText>make: \*\*\* \[test\] Error (\d+)</logText>
+              <logText>make(\[\d+\])?: \*\*\* \[test\] Error (\d+)</logText>
               <operator>AND</operator>
             </hudson.plugins.postbuildtask.LogProperties>
           </logTexts>
           <EscalateStatus>false</EscalateStatus>
           <RunIfJobSuccessful>false</RunIfJobSuccessful>
-          <script>( echo &quot;Failing Tests:&quot; ; env/bin/python webapp/tools/print_test_reports.py webapp/genfiles/test-reports ) | webapp/tools/hipchat-cli/hipchat_room_message -c red -r &quot;1s and 0s&quot;</script>
+          <script>( echo &quot;Failing Tests:&quot; ; env/bin/python webapp/tools/print_test_reports.py --format=jenkins_html --jenkins_build_url=&quot;$BUILD_URL&quot; webapp/genfiles/test-reports ) | webapp/tools/hipchat-cli/hipchat_room_message -c red -r &quot;1s and 0s&quot;</script>
         </hudson.plugins.postbuildtask.TaskProperties>
       </tasks>
     </hudson.plugins.postbuildtask.PostbuildTask>
