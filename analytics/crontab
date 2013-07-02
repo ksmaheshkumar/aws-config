@@ -64,7 +64,7 @@ LOGFILE=bash -c 'mkdir -p ~/kalogs/$0; echo ~/kalogs/$0/$0.$(date "$@" +\%Y-\%m-
 */10 * * * * bash --login -c 'curl -s "http://www.khanacademy.org/stats/memcache?output=txt"' >> `eval $LOGFILE appengine_stats` 2>&1
 
 # Upload GAE data to EMR daily; Run daily reporting jobs
-03 2 * * * bash --login -c '~/analytics/map_reduce/load_emr_daily.sh' > `eval $LOGFILE load_emr --date=yesterday` 2>&1
+03 4 * * * bash --login -c '~/analytics/map_reduce/load_emr_daily.sh' > `eval $LOGFILE load_emr --date=yesterday` 2>&1
 
 # Weekly reporting jobs
 00 12  * * 0 bash --login -c '~/analytics/src/run_report.sh week' >> `eval $LOGFILE weekly_report` 2>&1
