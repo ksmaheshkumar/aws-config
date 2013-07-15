@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <project>
   <actions/>
-  <description>The daily deploy that gets the latest code on the master branch into production.</description>
+  <description>NOTE: you probably don&apos;t want to run this manually. Instead, you want to promote a successful deploy-staging build. This is the daily deploy that gets the latest code on the master branch into production.</description>
   <logRotator class="hudson.tasks.LogRotator">
     <daysToKeep>-1</daysToKeep>
     <numToKeep>200</numToKeep>
@@ -22,6 +22,11 @@
     </jenkins.plugins.hipchat.HipChatNotifier_-HipChatJobProperty>
     <hudson.model.ParametersDefinitionProperty>
       <parameterDefinitions>
+        <hudson.model.StringParameterDefinition>
+          <name>GIT_COMMIT_OVERRIDE</name>
+          <description>NOTE: you probably don&apos;t want to start a build here manually. Instead, promote a successful deploy-staging build. By default this will deploy the latest code from origin/master. Set this parameter to a git SHA1 or the name of a branch on a remote (e.g., &quot;origin/master&quot;) to override what is deployed.</description>
+          <defaultValue>origin/master</defaultValue>
+        </hudson.model.StringParameterDefinition>
         <hudson.model.StringParameterDefinition>
           <name>FORCE_INDEX_CHANGES</name>
           <description>By default the build will refuse to deploy if there have been changes to index.yaml since the last deployment. Set this to 1 to override this behavior and deploy anyway.</description>
@@ -51,7 +56,7 @@
     </userRemoteConfigs>
     <branches>
       <hudson.plugins.git.BranchSpec>
-        <name>master</name>
+        <name>$GIT_COMMIT_OVERRIDE</name>
       </hudson.plugins.git.BranchSpec>
     </branches>
     <localBranch>master</localBranch>

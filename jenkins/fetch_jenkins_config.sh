@@ -27,6 +27,8 @@ remote_jenkins_home=/var/lib/jenkins
 rsync -avk -e ssh --rsync-path="sudo -u jenkins rsync" \
   --exclude-from=../fetch_jenkins_config.exclude \
   --include='/jobs' --include='/jobs/*' --include='/jobs/*/*.xml' \
+  --include='/jobs/*/promotions' --include='/jobs/*/promotions/*' \
+  --include='/jobs/*/promotions/*/*.xml' \
   --include='/*.xml' \
   --exclude='*' \
   "$host":"$remote_jenkins_home"/ .

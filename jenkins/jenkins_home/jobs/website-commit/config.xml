@@ -216,7 +216,7 @@ H/30 * * * *</spec>
           </logTexts>
           <EscalateStatus>false</EscalateStatus>
           <RunIfJobSuccessful>false</RunIfJobSuccessful>
-          <script>( echo &quot;Lint Errors:&quot; ; cat webapp/genfiles/lint_errors.txt ) | webapp/tools/hipchat-cli/hipchat_room_message -c red -r &quot;1s and 0s&quot;</script>
+          <script>( echo &quot;Lint Errors:&quot; ; cat webapp/genfiles/lint_errors.txt ) | webapp/tools/hipchat-cli/hipchat_room_message -e -c red -r &quot;1s and 0s&quot;</script>
         </hudson.plugins.postbuildtask.TaskProperties>
         <hudson.plugins.postbuildtask.TaskProperties>
           <logTexts>
