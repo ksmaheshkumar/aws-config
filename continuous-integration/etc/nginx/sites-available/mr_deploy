@@ -1,13 +1,7 @@
 # Modified from http://gunicorn.org/deploy.html
-# TODO(david) or TODO(dylan): Split up this config file so that 
-#     mr_deploy and exercise_screens can be configured separately
 
 upstream mr_deploy {
     server unix:/tmp/gunicorn.sock fail_timeout=0;
-}
-
-upstream exercise_screens {
-    server 127.0.0.1:5000 fail_timeout=0;
 }
 
 server {
@@ -28,13 +22,4 @@ server {
             break;
         }
     }
-
-    location /exercise-screens {
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header Host $http_host;
-        proxy_redirect off;
-        proxy_buffering off;
-        proxy_pass http://exercise_screens;
-    }
-
 }

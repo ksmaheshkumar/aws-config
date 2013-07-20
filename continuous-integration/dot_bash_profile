@@ -9,4 +9,4 @@ export HISTFILESIZE=20000
 # show timestamps with history command
 export HISTTIMEFORMAT="%F %T "
 
-export PATH="$PATH:/usr/local/google_appengine:/usr/local/phantomjs/bin"
+export PATH="$PATH:/usr/local/google_appengine"
