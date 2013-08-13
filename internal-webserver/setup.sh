@@ -220,6 +220,11 @@ install_phabricator() {
     pecl list | grep -q APC || yes "" | sudo pecl install apc
     sudo pip install pygments                      # for syntax highlighting
     sudo ln -snf /usr/local/bin/pygmentize /usr/bin/
+    mkdir -p "$HOME/internal-webserver/phabricator/support/bin"
+    cat <<EOF >"$HOME/internal-webserver/phabricator/support/bin/README"
+Instead of putting binaries that phabricator needs in your $PATH, you can
+put symlinks to them here.  (This directory is in your phabricator-path.)
+EOF
     if [ ! -s "/usr/lib/php5/20090626/xhprof.so"]; then
         ( cd /var/tmp
           rm -rf xhprof-0.9.2.tgz xhprof-0.9.2
