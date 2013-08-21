@@ -6,7 +6,7 @@
 3) uploads to crowdin the latest all.pot file from source control.</description>
   <logRotator class="hudson.tasks.LogRotator">
     <daysToKeep>-1</daysToKeep>
-    <numToKeep>200</numToKeep>
+    <numToKeep>20</numToKeep>
     <artifactDaysToKeep>-1</artifactDaysToKeep>
     <artifactNumToKeep>-1</artifactNumToKeep>
   </logRotator>
@@ -69,13 +69,14 @@
   <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
   <triggers class="vector">
     <hudson.triggers.TimerTrigger>
-      <spec>H 12 * * *</spec>
+      <spec>H 2 * * *</spec>
     </hudson.triggers.TimerTrigger>
   </triggers>
   <concurrentBuild>false</concurrentBuild>
   <builders>
     <hudson.tasks.Shell>
-      <command>MAKE_TARGET=sync_i18n_and_push webapp/tools/build-make-target.sh</command>
+      <command>mkdir $WORKSPACE/tmp
+TMPDIR=$WORKSPACE/tmp MAKE_TARGET=sync_i18n_and_push webapp/tools/build-make-target.sh</command>
     </hudson.tasks.Shell>
   </builders>
   <publishers>
