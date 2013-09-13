@@ -173,7 +173,8 @@ install_repo_backup() {
     # Add khanacademy.kilnhg.com to knownhosts so ssh doesn't prompt.
     ssh -oStrictHostKeyChecking=no khanacademy.kilnhg.com >/dev/null 2>&1 || true
     echo "Visit https://khanacademy.kilnhg.com/Keys"
-    echo "Log in, click 'Add a New Key', paste the contents of ~/.ssh/id_rsa.pub"
+    echo "Log in as user ReadOnlyKiln (ask kamens for the password),"
+    echo "   click 'Add a New Key', paste the contents of ~/.ssh/id_rsa.pub"
     echo "   into the box, and hit 'Save key'"
 }
 
@@ -306,54 +307,6 @@ echo "Hit enter when this is done:"
 read prompt
 }
 
-install_jenkins() {
-    echo "Installing packages: Jenkins"
-    sudo apt-get install -y openjdk-6-jre openjdk-6-jdk
-
-    ## wget -q -O - http://pkg.jenkins-ci.org/debian/jenkins-ci.org.key | sudo apt-key add -
-    ## sudo sh -c 'echo deb http://pkg.jenkins-ci.org/debian binary/ > /etc/apt/sources.list.d/jenkins.list'
-    ## sudo apt-get update
-
-    sudo apt-get install -y jenkins     # http://jenkins-ci.org
-
-    # For jenkins builds running the website's Makefile.
-    sudo apt-get install -y make
-
-    # For jenkins python builds.
-    sudo apt-get install -y git mercurial subversion
-    sudo pip install virtualenv
-
-    # For tests that rely on Node and Node packages.
-    sudo apt-get install -y nodejs
-    wget -q -O- https://npmjs.org/install.sh | sudo sh
-
-    # To build a custom version of mercurial-plugin 1.38:
-    # With jenkins 1.409.1 installed, a custom version of the
-    # Mercurial plugin based on 1.38 should be used to avoid an issue
-    # where all committers may be spammed by the build.
-    sudo apt-get-install -y maven2
-    ( cd internal-webserver/mercurial-plugin
-      mvn install
-      sudo rm -rf /var/lib/jenkins/plugins/mercurial \
-                  /var/lib/jenkins/plugins/mercurial.hpi
-      sudo su jenkins -c "cp target/mercurial.hpi /var/lib/jenkins/plugins"
-      rm -rf target
-    )
-
-    # With jenkins 1.409.1 installed, an older email-ext and its maven
-    # dependency are needed.
-    sudo su jenkins -c 'cd /var/lib/jenkins/plugins && rm -f email-ext.hpi maven-plugin.hpi && wget http://updates.jenkins-ci.org/download/plugins/email-ext/2.14.1/email-ext.hpi && wget https://updates.jenkins-ci.org/download/plugins/maven-plugin/1.399/maven-plugin.hpi'
-
-    # Start the daemon
-    sudo ln -snf /usr/lib/jvm/java-6-openjdk /usr/lib/jvm/default-java
-    sudo update-rc.d jenkins defaults
-    sudo service jenkins restart
-
-    cat <<EOF
-To finish the jenkins install, follow the instructions in jenkins.install.
-EOF
-}
-
 install_gae_default_version_notifier() {
     echo "Installing gae-default-version-notifier"
     git clone git://github.com/Khan/gae-default-version-notifier.git || \
@@ -401,7 +354,6 @@ install_appengine
 install_repo_backup
 ##install_gerrit
 install_phabricator
-##install_jenkins
 install_gae_default_version_notifier
 install_beep_boop
 install_publish_notifier
