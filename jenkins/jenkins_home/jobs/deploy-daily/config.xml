@@ -90,7 +90,7 @@
   <disabled>false</disabled>
   <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
   <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
-  <triggers class="vector"/>
+  <triggers/>
   <concurrentBuild>false</concurrentBuild>
   <builders>
     <hudson.tasks.Shell>
@@ -159,6 +159,9 @@ DEPLOY_VERSION=default HIPCHAT_ROOM=&quot;1s and 0s&quot; webapp/tools/build-dep
       <injectGlobalPasswords>true</injectGlobalPasswords>
       <passwordEntries/>
     </EnvInjectPasswordWrapper>
+    <org.jenkinsci.plugins.buildnamesetter.BuildNameSetter plugin="build-name-setter@1.3">
+      <template>#${BUILD_NUMBER} (${GIT_REVISION,length=7})</template>
+    </org.jenkinsci.plugins.buildnamesetter.BuildNameSetter>
     <org.jenkinsci.plugins.builduser.BuildUser plugin="build-user-vars-plugin@1.1"/>
   </buildWrappers>
 </project>

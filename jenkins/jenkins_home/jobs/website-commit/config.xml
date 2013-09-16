@@ -65,7 +65,7 @@
   <disabled>false</disabled>
   <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
   <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
-  <triggers class="vector">
+  <triggers>
     <hudson.triggers.SCMTrigger>
       <spec># Although polling is set to every 30 minutes this is just a fallback.
 # There&apos;s a webhook set up in Kiln to trigger builds via /git/notifyCommit?...
@@ -216,7 +216,7 @@ H/30 * * * *</spec>
           </logTexts>
           <EscalateStatus>false</EscalateStatus>
           <RunIfJobSuccessful>false</RunIfJobSuccessful>
-          <script>( echo &quot;Lint Errors:&quot; ; cat webapp/genfiles/lint_errors.txt ) | webapp/tools/hipchat-cli/hipchat_room_message -e -c red -r &quot;1s and 0s&quot;</script>
+          <script>( echo &quot;Lint Errors:&quot; ; cat webapp/genfiles/lint_errors.txt ) | head -n 10 | webapp/tools/hipchat-cli/hipchat_room_message -e -c red -r &quot;1s and 0s&quot;</script>
         </hudson.plugins.postbuildtask.TaskProperties>
         <hudson.plugins.postbuildtask.TaskProperties>
           <logTexts>
@@ -251,5 +251,8 @@ H/30 * * * *</spec>
       <injectGlobalPasswords>true</injectGlobalPasswords>
       <passwordEntries/>
     </EnvInjectPasswordWrapper>
+    <org.jenkinsci.plugins.buildnamesetter.BuildNameSetter plugin="build-name-setter@1.3">
+      <template>#${BUILD_NUMBER} (${GIT_REVISION,length=7})</template>
+    </org.jenkinsci.plugins.buildnamesetter.BuildNameSetter>
   </buildWrappers>
 </project>

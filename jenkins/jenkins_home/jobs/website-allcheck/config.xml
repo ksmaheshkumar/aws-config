@@ -65,17 +65,17 @@
   <disabled>false</disabled>
   <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
   <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
-  <triggers class="vector">
+  <triggers>
     <hudson.triggers.SCMTrigger>
-      <spec># H 3 * * * (in Pacific Time)
-H 10 * * *</spec>
+      <spec>H 10,15,22 * * 1-5</spec>
       <ignorePostCommitHooks>false</ignorePostCommitHooks>
     </hudson.triggers.SCMTrigger>
   </triggers>
   <concurrentBuild>false</concurrentBuild>
   <builders>
     <hudson.tasks.Shell>
-      <command>MAKE_TARGET=allcheck_nolint webapp/tools/build-make-target.sh</command>
+      <command># Set JOBS=1 to avoid out-of-memory errors by limiting the number of Python processes
+MAKE_TARGET=allcheck_nolint webapp/tools/build-make-target.sh</command>
     </hudson.tasks.Shell>
   </builders>
   <publishers>
@@ -215,7 +215,7 @@ H 10 * * *</spec>
           </logTexts>
           <EscalateStatus>false</EscalateStatus>
           <RunIfJobSuccessful>false</RunIfJobSuccessful>
-          <script>( echo &quot;Lint Errors:&quot; ; cat webapp/genfiles/lint_errors.txt ) | webapp/tools/hipchat-cli/hipchat_room_message -e -c red -r &quot;1s and 0s&quot;</script>
+          <script>( echo &quot;Lint Errors:&quot; ; cat webapp/genfiles/lint_errors.txt ) | head -n 10 | webapp/tools/hipchat-cli/hipchat_room_message -e -c red -r &quot;1s and 0s&quot;</script>
         </hudson.plugins.postbuildtask.TaskProperties>
         <hudson.plugins.postbuildtask.TaskProperties>
           <logTexts>
@@ -236,5 +236,8 @@ H 10 * * *</spec>
       <injectGlobalPasswords>true</injectGlobalPasswords>
       <passwordEntries/>
     </EnvInjectPasswordWrapper>
+    <org.jenkinsci.plugins.buildnamesetter.BuildNameSetter plugin="build-name-setter@1.3">
+      <template>#${BUILD_NUMBER} (${GIT_REVISION,length=7})</template>
+    </org.jenkinsci.plugins.buildnamesetter.BuildNameSetter>
   </buildWrappers>
 </project>
