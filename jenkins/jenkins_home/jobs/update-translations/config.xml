@@ -76,8 +76,8 @@
   <builders>
     <hudson.tasks.Shell>
       <command>mkdir -p $WORKSPACE/tmp
-rm -rf $WORKSPACE/tmp/*  # clear temporary files from the previous build
-TMPDIR=$WORKSPACE/tmp WITH_SECRETS=1 MAKE_TARGET=sync_i18n_and_push webapp/tools/build-make-target.sh</command>
+find $WORKSPACE/tmp -ctime +5 -mindepth 1 -maxdepth 1 -print0 | xargs -0 rm -rf  # keep temp files for 5 days
+TMPDIR=$WORKSPACE/tmp WITH_SECRETS=1 webapp/tools/build-make-target.sh sync_i18n_and_push</command>
     </hudson.tasks.Shell>
   </builders>
   <publishers>

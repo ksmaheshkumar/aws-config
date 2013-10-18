@@ -30,7 +30,7 @@
         <hudson.model.StringParameterDefinition>
           <name>FORCE_INDEX_CHANGES</name>
           <description>By default the build will refuse to deploy if there have been changes to index.yaml since the last deployment. Set this to 1 to override this behavior and deploy anyway.</description>
-          <defaultValue></defaultValue>
+          <defaultValue>1</defaultValue>
         </hudson.model.StringParameterDefinition>
         <hudson.model.StringParameterDefinition>
           <name>SKIP_TESTS</name>

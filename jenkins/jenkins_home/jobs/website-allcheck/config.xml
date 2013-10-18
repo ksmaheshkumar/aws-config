@@ -75,80 +75,10 @@
   <builders>
     <hudson.tasks.Shell>
       <command># Set JOBS=1 to avoid out-of-memory errors by limiting the number of Python processes
-MAKE_TARGET=allcheck_nolint webapp/tools/build-make-target.sh</command>
+webapp/tools/build-make-target.sh allcheck_nolint JUNIT_XML=1</command>
     </hudson.tasks.Shell>
   </builders>
   <publishers>
-    <hudson.plugins.cobertura.CoberturaPublisher plugin="cobertura@1.8">
-      <coberturaReportFile>webapp/coverage.xml</coberturaReportFile>
-      <onlyStable>true</onlyStable>
-      <failUnhealthy>false</failUnhealthy>
-      <failUnstable>false</failUnstable>
-      <autoUpdateHealth>false</autoUpdateHealth>
-      <autoUpdateStability>false</autoUpdateStability>
-      <zoomCoverageChart>false</zoomCoverageChart>
-      <failNoReports>true</failNoReports>
-      <healthyTarget>
-        <targets class="enum-map" enum-type="hudson.plugins.cobertura.targets.CoverageMetric">
-          <entry>
-            <hudson.plugins.cobertura.targets.CoverageMetric>CONDITIONAL</hudson.plugins.cobertura.targets.CoverageMetric>
-            <int>7000000</int>
-          </entry>
-          <entry>
-            <hudson.plugins.cobertura.targets.CoverageMetric>LINE</hudson.plugins.cobertura.targets.CoverageMetric>
-            <int>8000000</int>
-          </entry>
-          <entry>
-            <hudson.plugins.cobertura.targets.CoverageMetric>METHOD</hudson.plugins.cobertura.targets.CoverageMetric>
-            <int>8000000</int>
-          </entry>
-        </targets>
-      </healthyTarget>
-      <unhealthyTarget>
-        <targets class="enum-map" enum-type="hudson.plugins.cobertura.targets.CoverageMetric">
-          <entry>
-            <hudson.plugins.cobertura.targets.CoverageMetric>CONDITIONAL</hudson.plugins.cobertura.targets.CoverageMetric>
-            <int>0</int>
-          </entry>
-          <entry>
-            <hudson.plugins.cobertura.targets.CoverageMetric>LINE</hudson.plugins.cobertura.targets.CoverageMetric>
-            <int>0</int>
-          </entry>
-          <entry>
-            <hudson.plugins.cobertura.targets.CoverageMetric>METHOD</hudson.plugins.cobertura.targets.CoverageMetric>
-            <int>0</int>
-          </entry>
-        </targets>
-      </unhealthyTarget>
-      <failingTarget>
-        <targets class="enum-map" enum-type="hudson.plugins.cobertura.targets.CoverageMetric">
-          <entry>
-            <hudson.plugins.cobertura.targets.CoverageMetric>CONDITIONAL</hudson.plugins.cobertura.targets.CoverageMetric>
-            <int>0</int>
-          </entry>
-          <entry>
-            <hudson.plugins.cobertura.targets.CoverageMetric>LINE</hudson.plugins.cobertura.targets.CoverageMetric>
-            <int>0</int>
-          </entry>
-          <entry>
-            <hudson.plugins.cobertura.targets.CoverageMetric>METHOD</hudson.plugins.cobertura.targets.CoverageMetric>
-            <int>0</int>
-          </entry>
-        </targets>
-      </failingTarget>
-      <sourceEncoding>UTF_8</sourceEncoding>
-    </hudson.plugins.cobertura.CoberturaPublisher>
-    <htmlpublisher.HtmlPublisher plugin="htmlpublisher@1.2">
-      <reportTargets>
-        <htmlpublisher.HtmlPublisherTarget>
-          <reportName>Painted Source Code Coverage</reportName>
-          <reportDir>webapp/htmlcov/</reportDir>
-          <reportFiles>index.html</reportFiles>
-          <keepAll>false</keepAll>
-          <wrapperName>htmlpublisher-wrapper.html</wrapperName>
-        </htmlpublisher.HtmlPublisherTarget>
-      </reportTargets>
-    </htmlpublisher.HtmlPublisher>
     <hudson.tasks.junit.JUnitResultArchiver>
       <testResults>webapp/genfiles/test-reports/*.xml</testResults>
       <keepLongStdio>false</keepLongStdio>

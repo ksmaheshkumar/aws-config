@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <hudson.plugins.git.GitSCM_-DescriptorImpl plugin="git@1.3.0">
-  <generation>83</generation>
+  <generation>112</generation>
   <globalConfigName>Jenny Jenkins</globalConfigName>
   <globalConfigEmail>jenkins@khanacademy.org</globalConfigEmail>
   <createAccountBasedOnEmail>false</createAccountBasedOnEmail>
