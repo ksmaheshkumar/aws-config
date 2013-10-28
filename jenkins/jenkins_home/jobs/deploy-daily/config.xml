@@ -1,7 +1,12 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <project>
   <actions/>
-  <description>NOTE: you probably don&apos;t want to run this manually. Instead, you want to promote a successful deploy-staging build. This is the daily deploy that gets the latest code on the master branch into production.</description>
+  <description>This is the daily deploy that gets the latest code on the master branch into production.&#xd;
+&#xd;
+NOTE 1: you probably don&apos;t want to run this manually. Instead, you want to promote a successful deploy-staging build.&#xd;
+&#xd;
+NOTE 2: this uses the deploy-staging build workspace for speed.&#xd;
+TODO(chris): copy deploy-staging workspace and reuse rather than sharing a workspace.</description>
   <logRotator class="hudson.tasks.LogRotator">
     <daysToKeep>-1</daysToKeep>
     <numToKeep>200</numToKeep>
@@ -17,7 +22,7 @@
       <notifyAborted>false</notifyAborted>
       <notifyNotBuilt>false</notifyNotBuilt>
       <notifyUnstable>false</notifyUnstable>
-      <notifyFailure>false</notifyFailure>
+      <notifyFailure>true</notifyFailure>
       <notifyBackToNormal>false</notifyBackToNormal>
     </jenkins.plugins.hipchat.HipChatNotifier_-HipChatJobProperty>
     <hudson.model.ParametersDefinitionProperty>
@@ -44,6 +49,15 @@
         </hudson.model.StringParameterDefinition>
       </parameterDefinitions>
     </hudson.model.ParametersDefinitionProperty>
+    <hudson.plugins.throttleconcurrents.ThrottleJobProperty plugin="throttle-concurrents@1.8">
+      <maxConcurrentPerNode>0</maxConcurrentPerNode>
+      <maxConcurrentTotal>0</maxConcurrentTotal>
+      <categories>
+        <string>builds-using-deploy-staging-workspace</string>
+      </categories>
+      <throttleEnabled>true</throttleEnabled>
+      <throttleOption>category</throttleOption>
+    </hudson.plugins.throttleconcurrents.ThrottleJobProperty>
   </properties>
   <scm class="hudson.plugins.git.GitSCM" plugin="git@1.3.0">
     <configVersion>2</configVersion>
@@ -92,6 +106,7 @@
   <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
   <triggers/>
   <concurrentBuild>false</concurrentBuild>
+  <customWorkspace>$JENKINS_HOME/jobs/deploy-staging/workspace</customWorkspace>
   <builders>
     <hudson.tasks.Shell>
       <command># deploy.py looks to $USER for the real initiator when prod-deploy@ is running the deploy.
