@@ -75,6 +75,7 @@ sudo ln -snf $CONFIG_DIR/sandcastle_apache2_site \
   /etc/apache2/sites-available/sandcastle
 sudo ln -snf $CONFIG_DIR/sandcastle_apache2_envvars \
   /etc/apache2/envvars
+sudo a2enmod rewrite
 sudo a2dissite default
 sudo a2ensite sandcastle
 sudo service apache2 restart

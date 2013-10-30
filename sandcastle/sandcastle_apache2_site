@@ -1,7 +1,12 @@
 <VirtualHost *:80>
+    ServerName sandcastle.kasandbox.org
     ServerName sandcastle.khanacademy.org
     WSGIScriptAlias / /home/sandcastle/sandcastle/apache/django.wsgi
     Alias /media /home/sandcastle/sandcastle/media
     Alias /robots.txt /home/sandcastle/sandcastle/media/robots.txt
     WSGIApplicationGroup %{GLOBAL}
+
+    RewriteEngine On
+    RewriteCond %{HTTP_HOST} ^sandcastle\.khanacademy\.org$ [NC]
+    RewriteRule ^(.*)$ http://sandcastle.kasandbox.org$1 [R=301]
 </VirtualHost>
