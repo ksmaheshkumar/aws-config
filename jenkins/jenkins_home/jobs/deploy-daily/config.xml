@@ -101,6 +101,8 @@ if [ -n &quot;$BUILD_USER_ID&quot; ]; then
   export USER=$BUILD_USER_ID
 fi
 
+# The default deploy may only be done from the master branch. We fake it here.
+(cd webapp &amp;&amp; git branch -f master HEAD &amp;&amp; git checkout master &amp;&amp; git rev-parse HEAD)
 DEPLOY_VERSION=default HIPCHAT_ROOM=&quot;1s and 0s&quot; webapp/tools/build-deploy.sh</command>
     </hudson.tasks.Shell>
   </builders>

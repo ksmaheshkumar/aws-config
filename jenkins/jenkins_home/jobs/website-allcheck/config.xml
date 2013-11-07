@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <project>
   <actions/>
-  <description>Runs the &quot;huge&quot; sized test suite nightly if there have been changes. Does not lint.</description>
+  <description>Runs the &quot;huge&quot; sized test suite from time to time if there have been changes. Does not lint.</description>
   <logRotator class="hudson.tasks.LogRotator">
     <daysToKeep>-1</daysToKeep>
     <numToKeep>200</numToKeep>
@@ -20,6 +20,12 @@
       <notifyFailure>true</notifyFailure>
       <notifyBackToNormal>true</notifyBackToNormal>
     </jenkins.plugins.hipchat.HipChatNotifier_-HipChatJobProperty>
+    <hudson.plugins.throttleconcurrents.ThrottleJobProperty plugin="throttle-concurrents@1.8">
+      <maxConcurrentPerNode>0</maxConcurrentPerNode>
+      <maxConcurrentTotal>0</maxConcurrentTotal>
+      <throttleEnabled>false</throttleEnabled>
+      <throttleOption>project</throttleOption>
+    </hudson.plugins.throttleconcurrents.ThrottleJobProperty>
   </properties>
   <scm class="hudson.plugins.git.GitSCM" plugin="git@2.0">
     <configVersion>2</configVersion>
@@ -64,6 +70,7 @@
   <builders>
     <hudson.tasks.Shell>
       <command># Set JOBS=1 to avoid out-of-memory errors by limiting the number of Python processes
+webapp/tools/build-make-target.sh clean
 webapp/tools/build-make-target.sh allcheck_nolint JUNIT_XML=1</command>
     </hudson.tasks.Shell>
   </builders>
