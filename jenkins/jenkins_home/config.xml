@@ -65,7 +65,7 @@
       </role>
     </roleMap>
   </authorizationStrategy>
-  <securityRealm class="hudson.plugins.openid.GoogleAppSsoSecurityRealm" plugin="openid@1.6">
+  <securityRealm class="hudson.plugins.openid.GoogleAppSsoSecurityRealm" plugin="openid@1.7">
     <endpoint>https://www.google.com/accounts/o8/site-xrds?hd=khanacademy.org</endpoint>
     <domain>khanacademy.org</domain>
   </securityRealm>

@@ -1,5 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<hudson.plugins.promoted__builds.PromotionProcess plugin="promoted-builds@2.11">
+<hudson.plugins.promoted__builds.PromotionProcess plugin="promoted-builds@2.14">
+  <actions/>
   <keepDependencies>false</keepDependencies>
   <properties/>
   <scm class="hudson.scm.NullSCM"/>
@@ -33,7 +34,7 @@
 echo &quot;I&apos;m about to trigger deploy-daily with GIT_COMMIT_OVERRIDE=$PROMOTED_GIT_COMMIT&quot;
 set -x</command>
     </hudson.tasks.Shell>
-    <hudson.plugins.parameterizedtrigger.TriggerBuilder plugin="parameterized-trigger@2.18">
+    <hudson.plugins.parameterizedtrigger.TriggerBuilder plugin="parameterized-trigger@2.21">
       <configs>
         <hudson.plugins.parameterizedtrigger.BlockableBuildTriggerConfig>
           <configs>

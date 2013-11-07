@@ -59,11 +59,10 @@ TODO(chris): copy deploy-staging workspace and reuse rather than sharing a works
       <throttleOption>category</throttleOption>
     </hudson.plugins.throttleconcurrents.ThrottleJobProperty>
   </properties>
-  <scm class="hudson.plugins.git.GitSCM" plugin="git@1.3.0">
+  <scm class="hudson.plugins.git.GitSCM" plugin="git@2.0">
     <configVersion>2</configVersion>
     <userRemoteConfigs>
       <hudson.plugins.git.UserRemoteConfig>
-        <name></name>
         <refspec>+refs/heads/master:refs/remotes/origin/master</refspec>
         <url>ssh://khanacademy@khanacademy.kilnhg.com/Website/Group/webapp</url>
       </hudson.plugins.git.UserRemoteConfig>
@@ -73,32 +72,20 @@ TODO(chris): copy deploy-staging workspace and reuse rather than sharing a works
         <name>$GIT_COMMIT_OVERRIDE</name>
       </hudson.plugins.git.BranchSpec>
     </branches>
-    <localBranch>master</localBranch>
-    <disableSubmodules>false</disableSubmodules>
-    <recursiveSubmodules>true</recursiveSubmodules>
     <doGenerateSubmoduleConfigurations>false</doGenerateSubmoduleConfigurations>
-    <authorOrCommitter>false</authorOrCommitter>
-    <clean>false</clean>
-    <wipeOutWorkspace>false</wipeOutWorkspace>
-    <pruneBranches>false</pruneBranches>
-    <remotePoll>false</remotePoll>
-    <ignoreNotifyCommit>false</ignoreNotifyCommit>
-    <useShallowClone>false</useShallowClone>
-    <buildChooser class="hudson.plugins.git.util.DefaultBuildChooser"/>
-    <gitTool>Default</gitTool>
     <browser class="hudson.plugins.git.browser.KilnGit">
       <url>https://khanacademy.kilnhg.com/Code/Website/Group/webapp/</url>
     </browser>
     <submoduleCfg class="list"/>
-    <relativeTargetDir>webapp</relativeTargetDir>
-    <reference>$JENKINS_HOME/gitcaches/webapp</reference>
-    <excludedRegions></excludedRegions>
-    <excludedUsers></excludedUsers>
-    <gitConfigName></gitConfigName>
-    <gitConfigEmail></gitConfigEmail>
-    <skipTag>false</skipTag>
-    <includedRegions></includedRegions>
-    <scmName></scmName>
+    <extensions>
+      <hudson.plugins.git.extensions.impl.RelativeTargetDirectory>
+        <relativeTargetDir>webapp</relativeTargetDir>
+      </hudson.plugins.git.extensions.impl.RelativeTargetDirectory>
+      <hudson.plugins.git.extensions.impl.SubmoduleOption>
+        <disableSubmodules>false</disableSubmodules>
+        <recursiveSubmodules>true</recursiveSubmodules>
+      </hudson.plugins.git.extensions.impl.SubmoduleOption>
+    </extensions>
   </scm>
   <canRoam>true</canRoam>
   <disabled>false</disabled>
@@ -118,7 +105,7 @@ DEPLOY_VERSION=default HIPCHAT_ROOM=&quot;1s and 0s&quot; webapp/tools/build-dep
     </hudson.tasks.Shell>
   </builders>
   <publishers>
-    <hudson.plugins.emailext.ExtendedEmailPublisher plugin="email-ext@2.28">
+    <hudson.plugins.emailext.ExtendedEmailPublisher plugin="email-ext@2.36">
       <recipientList>$DEFAULT_RECIPIENTS</recipientList>
       <configuredTriggers>
         <hudson.plugins.emailext.plugins.trigger.FirstFailureTrigger>
@@ -134,6 +121,7 @@ DEPLOY_VERSION=default HIPCHAT_ROOM=&quot;1s and 0s&quot; webapp/tools/build-dep
             <attachBuildLog>false</attachBuildLog>
             <compressBuildLog>false</compressBuildLog>
             <replyTo></replyTo>
+            <contentType>project</contentType>
           </email>
           <failureCount>1</failureCount>
         </hudson.plugins.emailext.plugins.trigger.FirstFailureTrigger>
@@ -150,6 +138,7 @@ DEPLOY_VERSION=default HIPCHAT_ROOM=&quot;1s and 0s&quot; webapp/tools/build-dep
             <attachBuildLog>false</attachBuildLog>
             <compressBuildLog>false</compressBuildLog>
             <replyTo></replyTo>
+            <contentType>project</contentType>
           </email>
         </hudson.plugins.emailext.plugins.trigger.FixedTrigger>
       </configuredTriggers>
@@ -161,6 +150,7 @@ DEPLOY_VERSION=default HIPCHAT_ROOM=&quot;1s and 0s&quot; webapp/tools/build-dep
       <attachBuildLog>false</attachBuildLog>
       <compressBuildLog>false</compressBuildLog>
       <replyTo>$DEFAULT_RECIPIENTS</replyTo>
+      <saveOutput>false</saveOutput>
     </hudson.plugins.emailext.ExtendedEmailPublisher>
     <jenkins.plugins.hipchat.HipChatNotifier plugin="hipchat@0.1.5-SNAPSHOT">
       <authToken>${HIPCHAT_AUTH_TOKEN}</authToken>
@@ -170,7 +160,7 @@ DEPLOY_VERSION=default HIPCHAT_ROOM=&quot;1s and 0s&quot; webapp/tools/build-dep
     </jenkins.plugins.hipchat.HipChatNotifier>
   </publishers>
   <buildWrappers>
-    <EnvInjectPasswordWrapper plugin="envinject@1.85">
+    <EnvInjectPasswordWrapper plugin="envinject@1.89">
       <injectGlobalPasswords>true</injectGlobalPasswords>
       <passwordEntries/>
     </EnvInjectPasswordWrapper>

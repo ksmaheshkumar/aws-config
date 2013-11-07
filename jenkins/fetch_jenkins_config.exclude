@@ -9,3 +9,4 @@ hudson.scm.CVSSCM.xml
 # The Disk Usage plugin appears to use this XML file as a database. It will
 # regenerate anyway so there's no need to store it.
 hudson.plugins.disk_usage.DiskUsageProjectActionFactory.xml
+disk-usage.xml

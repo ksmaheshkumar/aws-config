@@ -39,7 +39,7 @@
         </hudson.model.StringParameterDefinition>
       </parameterDefinitions>
     </hudson.model.ParametersDefinitionProperty>
-    <hudson.plugins.promoted__builds.JobPropertyImpl plugin="promoted-builds@2.11">
+    <hudson.plugins.promoted__builds.JobPropertyImpl plugin="promoted-builds@2.14">
       <activeProcessNames>
         <string>Promote to Daily Deploy</string>
       </activeProcessNames>
@@ -52,9 +52,10 @@
       </categories>
       <throttleEnabled>true</throttleEnabled>
       <throttleOption>category</throttleOption>
+      <configVersion>1</configVersion>
     </hudson.plugins.throttleconcurrents.ThrottleJobProperty>
   </properties>
-  <scm class="hudson.plugins.git.GitSCM" plugin="git@1.3.0">
+  <scm class="hudson.plugins.git.GitSCM" plugin="git@2.0">
     <configVersion>2</configVersion>
     <userRemoteConfigs>
       <hudson.plugins.git.UserRemoteConfig>
@@ -68,31 +69,22 @@
         <name>origin/master</name>
       </hudson.plugins.git.BranchSpec>
     </branches>
-    <disableSubmodules>false</disableSubmodules>
-    <recursiveSubmodules>true</recursiveSubmodules>
     <doGenerateSubmoduleConfigurations>false</doGenerateSubmoduleConfigurations>
-    <authorOrCommitter>false</authorOrCommitter>
-    <clean>false</clean>
-    <wipeOutWorkspace>false</wipeOutWorkspace>
-    <pruneBranches>false</pruneBranches>
-    <remotePoll>false</remotePoll>
-    <ignoreNotifyCommit>true</ignoreNotifyCommit>
-    <useShallowClone>false</useShallowClone>
-    <buildChooser class="hudson.plugins.git.util.DefaultBuildChooser"/>
     <gitTool>Default</gitTool>
     <browser class="hudson.plugins.git.browser.KilnGit">
       <url>https://khanacademy.kilnhg.com/Code/Website/Group/webapp/</url>
     </browser>
     <submoduleCfg class="list"/>
-    <relativeTargetDir>webapp</relativeTargetDir>
-    <reference>$JENKINS_HOME/gitcaches/webapp</reference>
-    <excludedRegions></excludedRegions>
-    <excludedUsers></excludedUsers>
-    <gitConfigName></gitConfigName>
-    <gitConfigEmail></gitConfigEmail>
-    <skipTag>false</skipTag>
-    <includedRegions></includedRegions>
-    <scmName></scmName>
+    <extensions>
+      <hudson.plugins.git.extensions.impl.RelativeTargetDirectory>
+        <relativeTargetDir>webapp</relativeTargetDir>
+      </hudson.plugins.git.extensions.impl.RelativeTargetDirectory>
+      <hudson.plugins.git.extensions.impl.SubmoduleOption>
+        <disableSubmodules>false</disableSubmodules>
+        <recursiveSubmodules>true</recursiveSubmodules>
+      </hudson.plugins.git.extensions.impl.SubmoduleOption>
+      <hudson.plugins.git.extensions.impl.IgnoreNotifyCommit/>
+    </extensions>
   </scm>
   <canRoam>true</canRoam>
   <disabled>false</disabled>
@@ -106,7 +98,7 @@
     </hudson.tasks.Shell>
   </builders>
   <publishers>
-    <hudson.plugins.emailext.ExtendedEmailPublisher plugin="email-ext@2.28">
+    <hudson.plugins.emailext.ExtendedEmailPublisher plugin="email-ext@2.36">
       <recipientList>$DEFAULT_RECIPIENTS</recipientList>
       <configuredTriggers>
         <hudson.plugins.emailext.plugins.trigger.FirstFailureTrigger>
@@ -122,6 +114,7 @@
             <attachBuildLog>false</attachBuildLog>
             <compressBuildLog>false</compressBuildLog>
             <replyTo></replyTo>
+            <contentType>project</contentType>
           </email>
           <failureCount>1</failureCount>
         </hudson.plugins.emailext.plugins.trigger.FirstFailureTrigger>
@@ -138,6 +131,7 @@
             <attachBuildLog>false</attachBuildLog>
             <compressBuildLog>false</compressBuildLog>
             <replyTo></replyTo>
+            <contentType>project</contentType>
           </email>
         </hudson.plugins.emailext.plugins.trigger.FixedTrigger>
       </configuredTriggers>
@@ -149,6 +143,7 @@
       <attachBuildLog>false</attachBuildLog>
       <compressBuildLog>false</compressBuildLog>
       <replyTo>$DEFAULT_RECIPIENTS</replyTo>
+      <saveOutput>false</saveOutput>
     </hudson.plugins.emailext.ExtendedEmailPublisher>
   </publishers>
   <buildWrappers>
