@@ -58,6 +58,24 @@ TODO(chris): copy deploy-staging workspace and reuse rather than sharing a works
       <throttleEnabled>true</throttleEnabled>
       <throttleOption>category</throttleOption>
     </hudson.plugins.throttleconcurrents.ThrottleJobProperty>
+    <hudson.plugins.disk__usage.DiskUsageProperty plugin="disk-usage@0.22">
+      <diskUsageWithoutBuilds>3073408642</diskUsageWithoutBuilds>
+      <slaveWorkspacesUsage class="concurrent-hash-map">
+        <entry>
+          <string></string>
+          <concurrent-hash-map>
+            <entry>
+              <string>/var/lib/jenkins/jobs/deploy-staging/workspace</string>
+              <long>3531146399</long>
+            </entry>
+            <entry>
+              <string>/var/lib/jenkins/jobs/deploy-daily/workspace</string>
+              <long>3065563185</long>
+            </entry>
+          </concurrent-hash-map>
+        </entry>
+      </slaveWorkspacesUsage>
+    </hudson.plugins.disk__usage.DiskUsageProperty>
   </properties>
   <scm class="hudson.plugins.git.GitSCM" plugin="git@2.0">
     <configVersion>2</configVersion>
