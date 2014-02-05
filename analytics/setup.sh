@@ -170,7 +170,7 @@ https://www.dropbox.com/home/Khan%20Academy%20All%20Staff/Secrets/b297cf4c-priva
 
 $ mv <DOWNLOADED_FILE> ga_client_privatekey.p12
 $ chmod 600 ga_client_privatekey.p12
-$ scp ga_client_secrets.json analytics:~/analytics/webapps/dashboards/ga_client_privatekey.p12
+$ scp ga_client_privatekey.p12 analytics:~/analytics/webapps/dashboards/ga_client_privatekey.p12
 EOF
 
 cat <<EOF
