@@ -147,6 +147,34 @@ EOF
 
 cat <<EOF
 
+NOTE: You'll also need a service account's client_secrets.json and
+private key to authenticate the dashboards webapp against Google
+Analytics' API. This is an interactive process which requires a
+browser and developer credentials against our Google Cloud Project.
+You'll probably have to do this on a local machine and SCP it over :(
+
+To install ga_client_secrets.json:
+
+Visit the page for the KA app's credentials
+https://cloud.google.com/console/project/apps~khan-academy/apiui/credential
+and click "Download JSON" under "Service Account", then:
+
+$ mv <DOWNLOADED_FILE> ga_client_secrets.json
+$ chmod 600 ga_client_secrets.json
+$ scp ga_client_secrets.json analytics:~/analytics/webapps/dashboards/ga_client_secrets.json
+
+To install ga_client_privatekey.p12:
+
+First download the private key file from
+https://www.dropbox.com/home/Khan%20Academy%20All%20Staff/Secrets/b297cf4c-privatekey.p12
+
+$ mv <DOWNLOADED_FILE> ga_client_privatekey.p12
+$ chmod 600 ga_client_privatekey.p12
+$ scp ga_client_secrets.json analytics:~/analytics/webapps/dashboards/ga_client_privatekey.p12
+EOF
+
+cat <<EOF
+
 NOTE: You'll also need a credentials.json with AWS keys for the Elastic
 MapReduce Ruby client in ~/emr. See
 http://elasticmapreduce.s3.amazonaws.com/elastic-mapreduce-ruby.zip
