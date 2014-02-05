@@ -59,6 +59,23 @@ install_basic_packages() {
     sudo service postfix restart
 }
 
+install_phantomjs() {
+    if ! which phantomjs >/dev/null; then
+        (
+            cd /usr/local/share
+            case `uname -m` in
+                i?86) mach=i686;;
+                *) mach=x86_64;;
+            esac
+            sudo rm -rf phantomjs
+            wget "https://phantomjs.googlecode.com/files/phantomjs-1.9.2-linux-${mach}.tar.bz2" -O- | sudo tar xfj -
+
+            sudo ln -snf /usr/local/share/phantomjs-1.9.2-linux-${mach}/bin/phantomjs /usr/local/bin/phantomjs
+        )
+        which phantomjs >/dev/null
+    fi
+}
+
 install_build_deps() {
     echo "Installing build dependencies"
 
@@ -92,6 +109,9 @@ install_build_deps() {
     # NOTE: version 2.x of uglifier has unexpected behavior that causes
     # khan-exercises/build/pack.rb to fail.
     sudo gem install --conservative nokogiri:1.5.7 json:1.7.7 uglifier:1.3.0 therubyracer:0.11.4
+
+    # jstest deps
+    install_phantomjs
 }
 
 install_google_app_engine() {
