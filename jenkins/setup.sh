@@ -57,6 +57,16 @@ install_basic_packages() {
                 -e 's/inet_interfaces = all/inet_interfaces = loopback-only/' \
                 /etc/postfix/main.cf
     sudo service postfix restart
+
+    # Some KA tests write to /tmp and don't clean up after themselves,
+    # on purpose (see kake/server_client.py:rebuild_if_needed().  We
+    # install tmpreaper to clean up those files "eventually".
+    # This avoids promppting at install time.
+    echo "tmpreaper tmpreaper/readsecurity note" | sudo debconf-set-selections
+    echo "tmpreaper tmpreaper/readsecurity_upgrading note" | sudo debconf-set-selections
+    sudo apt-get install -y tmpreaper
+    # We need to comment out a line before tmpreaper will actually run.
+    sudo perl -pli -e s/^SHOWWARNING/#SHOWWARNING/ /etc/tmpreaper.conf
 }
 
 install_phantomjs() {
