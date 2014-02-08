@@ -169,7 +169,18 @@ webapp/tools/build-make-target.sh allcheck_nolint JUNIT_XML=1</command>
           </logTexts>
           <EscalateStatus>false</EscalateStatus>
           <RunIfJobSuccessful>false</RunIfJobSuccessful>
-          <script>( echo &quot;Failing Tests:&quot; ; env/bin/python webapp/tools/print_test_reports.py --format=jenkins_html --jenkins_build_url=&quot;$BUILD_URL&quot; webapp/genfiles/test-reports ) | webapp/tools/hipchat-cli/hipchat_room_message -c red -r &quot;1s and 0s&quot;</script>
+          <script>( echo &quot;Failing Python Tests:&quot; ; env/bin/python webapp/tools/print_test_reports.py --format=jenkins_html --jenkins_build_url=&quot;$BUILD_URL&quot; webapp/genfiles/test-reports ) | webapp/tools/hipchat-cli/hipchat_room_message -c red -r &quot;1s and 0s&quot;</script>
+        </hudson.plugins.postbuildtask.TaskProperties>
+        <hudson.plugins.postbuildtask.TaskProperties>
+          <logTexts>
+            <hudson.plugins.postbuildtask.LogProperties>
+              <logText>make(\[\d+\])?: \*\*\* \[jstest\] Error (\d+)</logText>
+              <operator>AND</operator>
+            </hudson.plugins.postbuildtask.LogProperties>
+          </logTexts>
+          <EscalateStatus>false</EscalateStatus>
+          <RunIfJobSuccessful>false</RunIfJobSuccessful>
+          <script>( echo &quot;Failing JavaScript Tests:&quot; ; grep -E &apos;^		?[^	]&apos; genfiles/jstest_output.txt | sed &apos;s/^	//&apos; ) | head -n 10 | webapp/tools/hipchat-cli/hipchat_room_message -e -c red -r &quot;1s and 0s&quot;</script>
         </hudson.plugins.postbuildtask.TaskProperties>
       </tasks>
     </hudson.plugins.postbuildtask.PostbuildTask>
