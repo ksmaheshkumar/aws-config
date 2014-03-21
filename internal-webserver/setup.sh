@@ -359,6 +359,32 @@ install_kahntube_ouath_collector() {
     sudo service khantube-oauth-collector-daemon restart
 }
 
+install_exercise_icons() {
+    # A utility to generate exercise icons. Currently used at http://khanacademy.org/commoncore/map.
+    # https://github.com/jnetterf/exercise-icons/
+    sudo aptitude install gcc-multilib xdg-utils libxml2-dev libcurl4-openssl-dev imagemagick
+    wget http://downloads.dlang.org/releases/2014/dmd_2.065.0-0_amd64.deb -O /tmp/dmd.deb
+    sudo dpkg -i /tmp/dmd.deb
+    
+    cd /usr/local/share
+    sudo wget https://phantomjs.googlecode.com/files/phantomjs-1.9.0-linux-x86_64.tar.bz2
+    sudo tar -xjf /usr/local/share/phantomjs-1.9.0-linux-x86_64.tar.bz2
+    sudo ln -sf /usr/local/share/phantomjs-1.9.0-linux-x86_64/bin/phantomjs /usr/local/bin/phantomjs
+    sudo git clone git://github.com/n1k0/casperjs.git /usr/local/src/casperjs
+    cd /usr/local/src/casperjs
+    sudo git checkout tags/1.0.2
+    sudo ln -sf /usr/local/src/casperjs/bin/casperjs /usr/local/bin/casperjs
+    
+    git clone git@github.com:jnetterf/exercise-icons.git
+    echo "Add ~/exercise-icons/secrets.txt"
+    echo "if it is not already there, according to the instructions in README.md."
+    echo "BUCKET should be set to 'ka-exercise-screenshots-2'."
+    echo "Hit <enter> when this is done:"
+    read prompt
+    cd exercise-icons
+    make
+}
+
 cd "$HOME"
 install_basic_packages
 install_ec2_tools
@@ -373,6 +399,7 @@ install_gae_default_version_notifier
 install_beep_boop
 install_publish_notifier
 install_kahntube_ouath_collector
+install_exercise_icons
 
 # Do this again, just in case any of the apt-get installs nuked it.
 install_root_config_files
