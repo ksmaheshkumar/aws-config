@@ -25,6 +25,7 @@ set -e
 sudo apt-get update
 
 echo "Installing developer tools"
+sudo apt-get install -y ntp
 sudo apt-get install -y python-pip
 sudo apt-get install -y build-essential python-dev
 sudo apt-get install -y git mercurial

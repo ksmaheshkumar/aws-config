@@ -19,6 +19,7 @@ CONFIG_DIR=$HOME/aws-config/api-explorer
 sudo apt-get update
 
 echo "Installing developer tools"
+sudo apt-get install -y ntp
 sudo apt-get install -y python-pip
 sudo apt-get install -y git mercurial
 

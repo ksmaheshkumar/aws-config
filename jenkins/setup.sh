@@ -37,6 +37,7 @@ update_aws_config_env() {
 
 install_basic_packages() {
     echo "Installing basic packages"
+    sudo apt-get install -y ntp
     sudo apt-get install -y curl
     sudo apt-get install -y python-pip
     sudo apt-get install -y python-dev  # for numpy

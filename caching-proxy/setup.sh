@@ -19,6 +19,7 @@ CONFIG_DIR=/home/caching-proxy/aws-config/caching-proxy
 sudo apt-get update
 
 echo "Installing developer tools"
+sudo apt-get install -y ntp
 sudo apt-get install -y git
 
 echo "Syncing aws-config"
