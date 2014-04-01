@@ -125,6 +125,24 @@ DEPLOY_VERSION=default HIPCHAT_ROOM=&quot;1s and 0s&quot; timeout -k 5m 1h webap
     </hudson.tasks.Shell>
   </builders>
   <publishers>
+    <hudson.plugins.postbuildtask.PostbuildTask plugin="postbuild-task@1.8">
+      <tasks>
+        <hudson.plugins.postbuildtask.TaskProperties>
+          <logTexts>
+            <hudson.plugins.postbuildtask.LogProperties>
+              <logText>Precompilation failed.</logText>
+              <operator>AND</operator>
+            </hudson.plugins.postbuildtask.LogProperties>
+          </logTexts>
+          <EscalateStatus>true</EscalateStatus>
+          <RunIfJobSuccessful>false</RunIfJobSuccessful>
+          <script># Failed precompilation means bad performance. We will need to re-deploy.&#xd;
+echo &quot;Google failed to precompile our Python. This deployed version is going to be slow! Cross your fingers and try re-deploying.&quot; | webapp/tools/hipchat-cli/hipchat_room_message -c red -r &quot;1s and 0s&quot;&#xd;
+exit 1  # so that this error can be escalated to be the job status&#xd;
+</script>
+        </hudson.plugins.postbuildtask.TaskProperties>
+      </tasks>
+    </hudson.plugins.postbuildtask.PostbuildTask>
     <hudson.plugins.emailext.ExtendedEmailPublisher plugin="email-ext@2.36">
       <recipientList>$DEFAULT_RECIPIENTS</recipientList>
       <configuredTriggers>
