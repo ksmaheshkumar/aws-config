@@ -1,0 +1,10 @@
+[core]
+        # Global .gitignore file
+        excludesfile = ~/.gitignore_global
+
+[user]
+        email = jenkins+manual@khanacademy.org
+        name = Jenny Jenkins (manual login)
+
+[http]
+        postBuffer = 629145600

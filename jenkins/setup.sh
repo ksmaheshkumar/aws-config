@@ -70,6 +70,10 @@ install_basic_packages() {
     sudo perl -pli -e s/^SHOWWARNING/#SHOWWARNING/ /etc/tmpreaper.conf
 }
 
+install_user_env() {
+    cp -a "$CONFIG_DIR/.gitconfig" "$HOME/.gitconfig"
+}
+
 install_phantomjs() {
     if ! which phantomjs >/dev/null; then
         (
@@ -236,6 +240,7 @@ install_nginx() {
 }
 
 update_aws_config_env
+install_user_env
 install_basic_packages
 install_build_deps
 install_google_app_engine
