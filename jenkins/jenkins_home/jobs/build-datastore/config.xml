@@ -83,7 +83,7 @@
   <concurrentBuild>false</concurrentBuild>
   <builders>
     <hudson.tasks.Shell>
-      <command>webapp/tools/build-datastore.sh</command>
+      <command>timeout -k 5m 5h webapp/tools/build-datastore.sh</command>
     </hudson.tasks.Shell>
   </builders>
   <publishers>

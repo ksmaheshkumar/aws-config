@@ -108,7 +108,7 @@
   <concurrentBuild>false</concurrentBuild>
   <builders>
     <hudson.tasks.Shell>
-      <command>NOTIFY_HIPCHAT=short HIPCHAT_ROOM=&quot;1s and 0s&quot; webapp/tools/build-deploy.sh</command>
+      <command>NOTIFY_HIPCHAT=short HIPCHAT_ROOM=&quot;1s and 0s&quot; timeout -k 5m 2h webapp/tools/build-deploy.sh</command>
     </hudson.tasks.Shell>
   </builders>
   <publishers>

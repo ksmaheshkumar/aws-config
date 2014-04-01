@@ -83,9 +83,9 @@
   <concurrentBuild>false</concurrentBuild>
   <builders>
     <hudson.tasks.Shell>
-      <command># Set JOBS=1 to avoid out-of-memory errors by limiting the number of Python processes
+      <command># Set JOBS=1 if you need to avoid out-of-memory errors (by limiting the number of Python processes)
 webapp/tools/build-make-target.sh clean
-webapp/tools/build-make-target.sh allcheck_nolint JUNIT_XML=1</command>
+timeout -k 5m 1h webapp/tools/build-make-target.sh allcheck_nolint JUNIT_XML=1</command>
     </hudson.tasks.Shell>
   </builders>
   <publishers>
@@ -169,7 +169,7 @@ webapp/tools/build-make-target.sh allcheck_nolint JUNIT_XML=1</command>
           </logTexts>
           <EscalateStatus>false</EscalateStatus>
           <RunIfJobSuccessful>false</RunIfJobSuccessful>
-          <script>( echo &quot;Failing Python Tests:&quot; ; env/bin/python webapp/tools/print_test_reports.py --format=jenkins_html --jenkins_build_url=&quot;$BUILD_URL&quot; webapp/genfiles/test-reports ) | webapp/tools/hipchat-cli/hipchat_room_message -c red -r &quot;1s and 0s&quot;</script>
+          <script>( echo &quot;Failing Python Tests:&quot; ; env/bin/python webapp/tools/print_test_reports.py --format=jenkins_html --jenkins_build_url=&quot;$BUILD_URL&quot; webapp/genfiles/test-reports ) | head -n 10 | webapp/tools/hipchat-cli/hipchat_room_message -c red -r &quot;1s and 0s&quot;</script>
         </hudson.plugins.postbuildtask.TaskProperties>
         <hudson.plugins.postbuildtask.TaskProperties>
           <logTexts>

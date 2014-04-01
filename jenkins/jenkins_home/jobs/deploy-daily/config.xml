@@ -44,7 +44,7 @@ TODO(chris): copy deploy-staging workspace and reuse rather than sharing a works
         </hudson.model.StringParameterDefinition>
         <hudson.model.StringParameterDefinition>
           <name>CLEAN</name>
-          <description>By default the value &quot;most&quot; cleans most files out of the working directory before a new build, but not all of them. Some generated files are left over to speed up the build (because many CSS, JS, and source files with embedded languages don&apos;t change very frequently). Set this to &quot;all&quot; to clear even the left-over generated files. Your build will take longer since all files must be regenerated.</description>
+          <description>By default the value &quot;most&quot; cleans most files out of the working directory before a new build, but not all of them. Some generated files are left over to speed up the build (because many CSS, JS, and source files with embedded languages don&apos;t change very frequently). Set this to &quot;all&quot; to clear even the left-over generated files. Your build will take longer since all files must be regenerated. You can also use &quot;none&quot; to clean nothing.</description>
           <defaultValue>most</defaultValue>
         </hudson.model.StringParameterDefinition>
       </parameterDefinitions>
@@ -121,7 +121,7 @@ fi
 
 # The default deploy may only be done from the master branch. We fake it here.
 (cd webapp &amp;&amp; git branch -f master HEAD &amp;&amp; git checkout master &amp;&amp; git rev-parse HEAD)
-DEPLOY_VERSION=default HIPCHAT_ROOM=&quot;1s and 0s&quot; webapp/tools/build-deploy.sh</command>
+DEPLOY_VERSION=default HIPCHAT_ROOM=&quot;1s and 0s&quot; timeout -k 5m 1h webapp/tools/build-deploy.sh</command>
     </hudson.tasks.Shell>
   </builders>
   <publishers>
