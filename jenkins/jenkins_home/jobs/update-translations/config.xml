@@ -74,15 +74,13 @@
   <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
   <triggers>
     <hudson.triggers.TimerTrigger>
-      <spec>H 2 * * *</spec>
+      <spec>H 20 * * *</spec>
     </hudson.triggers.TimerTrigger>
   </triggers>
   <concurrentBuild>false</concurrentBuild>
   <builders>
     <hudson.tasks.Shell>
-      <command>mkdir -p $WORKSPACE/tmp
-find $WORKSPACE/tmp -ctime +5 -mindepth 1 -maxdepth 1 -print0 | xargs -0 rm -rf  # keep temp files for 5 days
-TMPDIR=$WORKSPACE/tmp WITH_SECRETS=1 webapp/tools/build-make-target.sh sync_i18n_and_push</command>
+      <command>timeout -k 5m 23h webapp/tools/build-update-translations.sh</command>
     </hudson.tasks.Shell>
   </builders>
   <publishers>
@@ -107,7 +105,7 @@ TMPDIR=$WORKSPACE/tmp WITH_SECRETS=1 webapp/tools/build-make-target.sh sync_i18n
         </hudson.plugins.emailext.plugins.trigger.SuccessTrigger>
         <hudson.plugins.emailext.plugins.trigger.FailureTrigger>
           <email>
-            <recipientList></recipientList>
+            <recipientList>i18n-blackhole@khanacademy.org, james@khanacademy.org</recipientList>
             <subject>$PROJECT_DEFAULT_SUBJECT</subject>
             <body>$PROJECT_DEFAULT_CONTENT</body>
             <sendToDevelopers>false</sendToDevelopers>
@@ -117,7 +115,7 @@ TMPDIR=$WORKSPACE/tmp WITH_SECRETS=1 webapp/tools/build-make-target.sh sync_i18n
             <attachmentsPattern></attachmentsPattern>
             <attachBuildLog>false</attachBuildLog>
             <compressBuildLog>false</compressBuildLog>
-            <replyTo></replyTo>
+            <replyTo>$DEFAULT_RECIPIENTS</replyTo>
             <contentType>project</contentType>
           </email>
         </hudson.plugins.emailext.plugins.trigger.FailureTrigger>
