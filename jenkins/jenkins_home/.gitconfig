@@ -1,3 +1,8 @@
 [core]
   # Global .gitignore file
   excludesfile = ~/.gitignore_global
+
+# This is in case we need to do manual git operations as the jenkins user
+[user]
+  email = jenkins+manual@khanacademy.org
+  name = Jenny Jenkins (manual login)

@@ -2,16 +2,22 @@
 
 # This sets up our Jenkins on an EC2 Ubuntu12 AMI.
 #
-# Idempotent.
+# Idempotent.  Run this as the ubuntu user (though most of the work
+# will be done as the jenkins user).
+#
+# NOTE: This script assumes that a 'data' disk has been attached to
+# this ec2 instance as sdb (aka xvdb) and mounted at /mnt!  I think
+# aws can do this for you by default when you set up the instance.
 #
 # This can be run like
 #
-# $ cat setup.sh | ssh <hostname of EC2 machine> sh
+# $ cat setup.sh | ssh ubuntu@<hostname of EC2 machine> sh
 
 # Bail on any errors
 set -e
 
 CONFIG_DIR="$HOME"/aws-config/jenkins
+# Installing jenkins creates a jenkins user whose $HOME is this directory.
 JENKINS_HOME=/var/lib/jenkins
 
 # Some builds need secrets.py from the webapp project. We create a place to
@@ -239,6 +245,17 @@ install_nginx() {
     sudo service nginx restart
 }
 
+install_jenkins_home() {
+    # We install jenkins_home/jobs on a separate disk, so sync it separately.
+    rsync -av --exclude jobs "${CONFIG_DIR}/jenkins_home/" "${JENKINS_HOME}/"
+    if [ -e "${JENKINS_HOME}/jobs" && ! -L "${JENKINS_HOME}/jobs" ]; then
+        echo "Config ERROR: jobs should be a symlink.  Fix manually!"
+        exit 1
+    fi
+    ln -snf /mnt/jenkins/jobs "${JENKINS_HOME}/jobs"
+    rsync -av "${CONFIG_DIR}/jenkins_home/jobs/" "${JENKINS_HOME}/jobs/"
+}
+
 update_aws_config_env
 install_user_env
 install_basic_packages
@@ -246,6 +263,7 @@ install_build_deps
 install_google_app_engine
 install_jenkins
 install_nginx
+install_jenkins_home
 
 echo
 echo "TODO: install a custom version of the Jenkins hipchat plugin that supports"
