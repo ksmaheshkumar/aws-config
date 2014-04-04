@@ -24,6 +24,9 @@ MAILTO=analytics-admin+crontab@khanacademy.org
 LOGFILE=bash -c 'mkdir -p ~/kalogs/$0; echo ~/kalogs/$0/$0.$(date "$@" +\%Y-\%m-\%d).log'
 
 
+# Monitor for uncommitted local changes in the analytics repo every hour.  Send email if we see any.
+1 * * * * test -z "$(cd ~/analytics; git status --porcelain)" || echo 'Warning: uncommitted changes on tha analyics machine!'
+
 # Monitor the free disk space hourly on this machine. Send alerts if too low.
 1 * * * * python ~/analytics/src/monitor_disk_space.py analytics 90 > /dev/null 2>&1
 
