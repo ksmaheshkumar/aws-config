@@ -25,10 +25,14 @@
 # Bail on any errors
 set -e
 
+# Make sure we have the most recent info for apt.
+sudo apt-get update
+
 install_basic_packages() {
     echo "Installing packages: Basic setup"
     sudo apt-get install -y ntp
     sudo apt-get install -y gcc
+    sudo apt-get install -y make
     # This is needed so installing postfix doesn't prompt.  See
     # http://www.ossramblings.com/preseed_your_apt_get_for_unattended_installs
     # If it prompts anyway, type in the stuff from postfix.preseed manually.
@@ -56,16 +60,17 @@ install_repositories() {
     if [ ! -s "$HOME/relay.secret" ]; then
         echo "You must install $HOME/relay.secret.  To do this, do"
         echo "   echo <hostedgraphite_api_key> > $HOME/relay.secret"
+        echo "   chmod 600 $HOME/relay.secret"
         echo "Where <hostedcrowdin-api-key> is from webapp's secrets.py."
         echo "Hit enter when done..."
-        read $prompt
+        read prompt
     fi
 }
 
 install_root_config_files() {
     echo "Updating config files on the root filesystem (using symlinks)"
 
-    sudo cp -sav --backup=numbered "$HOME/aws-config/internal-webserver/etc/" /
+    sudo cp -sav --backup=numbered "$HOME/aws-config/prod-rpc/etc/" /
     sudo chown root:root /etc
 }
 
@@ -77,8 +82,8 @@ install_user_config_files() {
 }
 
 start_daemons() {
-    echo "Starting daemons in $HOME/aws-config/internal-webserver/etc/"
-    for daemon in $HOME/aws-config/internal-webserver/etc/init/*.conf; do
+    echo "Starting daemons in $HOME/aws-config/internal-webserver/etc/init"
+    for daemon in $HOME/aws-config/production-rpc/etc/init/*.conf; do
         start `basename $daemon .conf` || true
     done
 }
