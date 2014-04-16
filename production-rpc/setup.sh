@@ -70,8 +70,13 @@ install_repositories() {
 install_root_config_files() {
     echo "Updating config files on the root filesystem (using symlinks)"
 
-    sudo cp -sav --backup=numbered "$HOME/aws-config/prod-rpc/etc/" /
+    sudo cp -sav --backup=numbered "$HOME/aws-config/production-rpc/etc/" /
     sudo chown root:root /etc
+
+    # Stuff in /etc/init needs to be owned by root, so we copy instead of
+    # symlinking there.
+    find /etc/init -type l | sudo xargs rm
+    sudo install -m644 "$HOME"/aws-config/production-rpc/etc/init/* /etc/init
 }
 
 install_user_config_files() {
