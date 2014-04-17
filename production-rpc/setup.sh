@@ -89,7 +89,8 @@ install_user_config_files() {
 start_daemons() {
     echo "Starting daemons in $HOME/aws-config/internal-webserver/etc/init"
     for daemon in $HOME/aws-config/production-rpc/etc/init/*.conf; do
-        start `basename $daemon .conf` || true
+        sudo stop `basename $daemon .conf` || true
+        sudo start `basename $daemon .conf`
     done
 }
 
