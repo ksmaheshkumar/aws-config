@@ -29,12 +29,21 @@ expected, click the large "Run Indexing" button that is present at the top of
 every page. Indexing will take some time so be patient.
 """
 
+import json
 import logging
 import optparse
+import os
 import pipes
+import shutil
 import subprocess
 import sys
+import tempfile
 import yaml
+
+dry_run = False
+"""A global that is flipped within main if we're in a dry run (not actually
+issuing commands to CloudSearch.
+"""
 
 
 def parse_arguments(raw_args=sys.argv[1:]):
@@ -50,6 +59,14 @@ def parse_arguments(raw_args=sys.argv[1:]):
             "information will be printed with each log message."
     )
 
+    parser.add_option("--leave-temp-dir", action="store_true", default=False,
+        help="If specified, the created temporary directory will not be "
+            "deleted when the script exits."
+    )
+
+    parser.add_option("-n", "--dry-run", action="store_true", default=False,
+        help="If specified, no commands will actually be executed.")
+
     options, args = parser.parse_args(raw_args)
 
     if len(args) != 2:
@@ -57,6 +74,20 @@ def parse_arguments(raw_args=sys.argv[1:]):
             "containing the domain configuration.")
 
     return (options, args[0], args[1])
+
+
+def maybe_execute_command(command, *args, **kwargs):
+    """Runs a CloudSearch command (or not if its a dry run)."""
+
+    pretty_command = command_list_to_str(command)
+
+    # No logging here because we always log 
+    if dry_run:
+        logging.info("Would execute: %s", pretty_command)
+        return
+    else:
+        logging.info("Executing: %s", pretty_command)
+        return subprocess.check_call(command, *args, **kwargs)
 
 
 def setup_logging(verbose):
@@ -202,16 +233,15 @@ def configure_fields(config, domain):
         logging.info("Configuring field %r.", name)
 
         command = ["cs-configure-fields", "--domain-name", domain] + i
-        logging.debug("Executing command: %s", command_list_to_str(command))
 
         try:
-            subprocess.check_call(command)
+            maybe_execute_command(command)
         except subprocess.CalledProcessError:
             logging.exception("Could not configure field %r.", name)
             sys.exit(1)
 
 
-def configure_analysis_schemes(config, domain):
+def configure_analysis_schemes(config, domain, temp_dir):
     """Configures all of the analysis schemes. Called by main()."""
     analysis_schemes = config["analysis_schemes"]
     logging.debug("Loaded analysis schemes %r.", analysis_schemes)
@@ -223,10 +253,26 @@ def configure_analysis_schemes(config, domain):
             "--domain-name", domain,
             "--name", i["name"],
             "--lang", i["lang"]]
-        logging.debug("Executing command: %s", command_list_to_str(command))
+
+        if "algorithmic_stemming" in i:
+            command += ["--stem-algo", i["algorithmic_stemming"]]
+
+        if "stopwords" in i:
+            # Create a new temporary file that will hold the converted
+            # stopwords.
+            _converted_stopwords = tempfile.NamedTemporaryFile(dir=temp_dir,
+                delete=False)
+
+            # Convert the YAML file into CloudSearch compatible JSON
+            with _converted_stopwords as converted_stopwords:
+                with open(i["stopwords"]) as yaml_stopwords:
+                    stopwords_list = yaml.load(yaml_stopwords)
+                    json.dump(stopwords_list, converted_stopwords)
+
+            command += ["--stopwords", _converted_stopwords.name]
 
         try:
-            subprocess.check_call(command)
+            maybe_execute_command(command)
         except subprocess.CalledProcessError:
             logging.exception("Could not configure analysis scheme %r.",
                 i["name"])
@@ -245,9 +291,30 @@ def main(options, domain, domain_config_path):
             domain_config_path)
         sys.exit(1)
 
-    configure_analysis_schemes(config, domain)
+    # From this point onward, all relative paths should be relative from the
+    # directory that contains the config file.
+    os.chdir(os.path.dirname(os.path.abspath(domain_config_path)))
 
-    configure_fields(config, domain)
+    global dry_run
+    if options.dry_run:
+        dry_run = True
+
+    # Some of our configuration require temporary files, so we create a
+    # temporary directory here that will contain all of our other temporary
+    # files and directories for easy cleanup.
+    temp_dir = tempfile.mkdtemp()
+    logging.debug("Created temporary directory at %r.", temp_dir)
+
+    try:
+        configure_analysis_schemes(config, domain, temp_dir)
+
+        configure_fields(config, domain)
+    finally:
+        if options.leave_temp_dir:
+            logging.info("Leaving temporary directory at %r.", temp_dir)
+        else:
+            shutil.rmtree(temp_dir)
+            logging.debug("Deleted temporary directory at %r.", temp_dir)
 
     logging.info("Be sure to follow the directions under the 'After Running "
         "the Script' section located in the docstring of this module.")

@@ -11,12 +11,18 @@ analysis_schemes:
 
     - name: ka_english
       lang: en
+      algorithmic_stemming: full
+      stopwords: dictionaries/en-stopwords.yaml
 
     - name: ka_spanish
       lang: es
+      algorithmic_stemming: light
+      stopwords: dictionaries/es-stopwords.yaml
 
     - name: ka_portuguese
       lang: pt
+      algorithmic_stemming: light
+      stopwords: dictionaries/pt-stopwords.yaml
 
 fields:
     # These are the fields that documents in the index will contain. Possible
@@ -34,6 +40,11 @@ fields:
       type: text
       traits: [search, return, sort]
       analysis_scheme: locale_specific
+
+    # A relative URL (ie: what's after 'http://khanacademy.org') to the entity
+    - name: relative_url
+      type: literal
+      traits: [return]
 
     # This field contains the description of the entity which might not exist
     # (in which case it is omitted). For example, this field is omitted for
