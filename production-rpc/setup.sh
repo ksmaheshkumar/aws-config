@@ -75,8 +75,10 @@ install_root_config_files() {
 
     # Stuff in /etc/init needs to be owned by root, so we copy instead of
     # symlinking there.
-    find /etc/init -type l | sudo xargs rm
-    sudo install -m644 "$HOME"/aws-config/production-rpc/etc/init/* /etc/init
+    for initfile in "$HOME"/aws-config/production-rpc/etc/init/*; do
+        rm -f "/etc/init/`basename "$initfile"`"
+        sudo install -m644 "$initfile" /etc/init
+    done
 }
 
 install_user_config_files() {
