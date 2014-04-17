@@ -180,7 +180,7 @@ timeout -k 5m 1h webapp/tools/build-make-target.sh -j2 lint check_nolint JUNIT_X
           </logTexts>
           <EscalateStatus>false</EscalateStatus>
           <RunIfJobSuccessful>false</RunIfJobSuccessful>
-          <script>( echo &quot;Failing JavaScript Tests:&quot; ; grep -E &apos;^		?[^	]&apos; genfiles/jstest_output.txt | sed &apos;s/^	//&apos; ) | head -n 10 | webapp/tools/hipchat-cli/hipchat_room_message -e -c red -r &quot;1s and 0s&quot;</script>
+          <script>( echo &quot;Failing JavaScript Tests:&quot; ; env/bin/python webapp/tools/print_jstest_reports.py webapp/genfiles/jstest_output.txt ) | head -n 10 | webapp/tools/hipchat-cli/hipchat_room_message -e -c red -r &quot;1s and 0s&quot;</script>
         </hudson.plugins.postbuildtask.TaskProperties>
       </tasks>
     </hudson.plugins.postbuildtask.PostbuildTask>
