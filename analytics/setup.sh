@@ -203,6 +203,11 @@ http://elasticmapreduce.s3.amazonaws.com/elastic-mapreduce-ruby.zip
 --------------
 NOTE: You will need to copy the value of sleep_secret from secrets.py
 and put it in $HOME/sleep_secret.  This is needed for load_emr_daily.sh
+
+--------------
+NOTE: You will need to copy the value of hostedgraphite_api_key from
+secrets.py and put it in $HOME/hostedgraphite_secret.  This is needed
+for src/gae_dashboard/dashboard_report.py.
 EOF
 
 # Finally, we can start the crontab!
