@@ -75,5 +75,10 @@ sudo /etc/init.d/tomcat6 restart
 sudo rm /etc/lighttpd/lighttpd.conf
 sudo cp "$REPO_ROOT/config/lighttpd.conf" /etc/lighttpd/lighttpd.conf
 
+# Install the aws proxy CGI script
+sudo mkdir -p /var/www/cgi-bin/
+sudo cp "$REPO_ROOT/data/aws-proxy.py" /var/www/cgi-bin/aws-proxy
+sudo chmod +x /var/www/cgi-bin/aws-proxy
+
 # Restart lighttpd to pick up our changes
 sudo /etc/init.d/lighttpd restart

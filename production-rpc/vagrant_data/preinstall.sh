@@ -20,11 +20,20 @@ sudo apt-get -y install git
 sudo mkdir -p /etc/lighttpd
 echo 'var.secret = "secret"' | sudo tee /etc/lighttpd/khan-secret.conf > /dev/null
 
-# Clone the aws-config repo into our home directory
-cd
-if [ ! -d "aws-config/" ]; then
-	git clone git://github.com/Khan/aws-config
+# Clone the aws-config repo into our home directory (note that we're root if
+# vagrant is doing the provisioning so home is probably /root). We do a copy
+# here instead of a symlink so that if our provisioning scripts go crazy they
+# don't thrash our network mounted repo (the one that's on our host machine!).
+if [ -d "aws-config/" ]; then
+	rm -rf "$HOME/aws-config"
 fi
+cp -a /var/local/aws-config "$HOME"
+
+# On the production box it is expected that the endpoint is in ubuntu's home
+# directory, so we'll do a little hackery here.
+sudo mkdir -p /home/ubuntu/aws-config/production-rpc/data/
+sudo ln -fs "$HOME"/aws-config/production-rpc/data/cloudsearch-publish-dev-endpoint /home/ubuntu/aws-config/production-rpc/data/cloudsearch-publish-endpoint
+chmod -R a+rx /home/ubuntu/ "$HOME"
 
 # The postfix installer is going to try to grab the screen and display some
 # fancy curses menu. This ends up doing some very bad things so we seed it with
