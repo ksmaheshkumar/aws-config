@@ -2,4 +2,4 @@
   /home/ubuntu/mysql_data/** rwk,
   /opt/mysql_data/ r,
   /opt/mysql_data/** rwk,
-  /home/ubuntu/aws-config/internal-webserver/etc/mysql/conf.d/ubuntu_rootdir.cnf r,
+  /home/ubuntu/aws-config/internal-webserver/etc/mysql/conf.d/** r,
