@@ -38,7 +38,7 @@ fields:
 
     - name: title
       type: text
-      traits: [search, return, sort]
+      traits: [search, return, sort, highlight]
       analysis_scheme: locale_specific
 
     # A relative URL (ie: what's after 'http://khanacademy.org') to the entity
@@ -51,7 +51,7 @@ fields:
     # articles.
     - name: description
       type: text
-      traits: [search]
+      traits: [search, highlight]
       analysis_scheme: locale_specific
 
     # This field contains the "content" of the entity. For an article, this is
@@ -65,7 +65,7 @@ fields:
     # This field is only specified for videos.
     - name: keywords
       type: text-array
-      traits: [search, highlight]
+      traits: [search, return, highlight]
       analysis_scheme: ka_english
 
     # This field will contain one of: Video, Article, Program, Exercise, or
