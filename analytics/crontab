@@ -36,12 +36,6 @@ LOGFILE=bash -c 'mkdir -p ~/kalogs/$0; echo ~/kalogs/$0/$0.$(date "$@" +\%Y-\%m-
 # Fetch topic tree and versions every day
 00 2 * * * bash --login -c '~/analytics/src/fetch_topic_tree.py' > `eval $LOGFILE fetch_topic_tree --date=yesterday` 2>&1
 
-# Fetch webpagetest performance data every day.  We try to do it
-# during the peak part of the day to get 'worst-case' numbers.
-# We'll imagine that's around noon EDT, which is 6pm UTC.
-# The 'echo' will get sent as mail, if the cronjob has a non-zero exit code.
-00 18 * * * bash --login -c 'cd ~/analytics/src/webpagetest && ./run_webpagetest.py' > `eval $LOGFILE webpagetest --date=today` 2>&1 || echo "webpagetest run failed; see `eval $LOGFILE webpagetest --date=today`"
-
 # Fetch GAE usage reports every day. Reports are generated at about 1430 PST
 # which is 2130 UTC, and we allow for a bit of wiggle room.
 00 22 * * * bash --login -c '~/analytics/src/gae_dashboard/fetch_usage.sh' > `eval $LOGFILE gae_dashboard_usage --date=yesterday` 2>&1 || echo "gae_dashboard_usage run failed; see `eval $LOGFILE gae_dashboard_usage --date=yesterday`"
