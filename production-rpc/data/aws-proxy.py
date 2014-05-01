@@ -42,7 +42,7 @@ def get_headers(env=os.environ):
     Scans through the CGI environment to find most of the HTTP headers for
     the original request, and returns them all as a dictionary.
     """
-    BLACKLIST = {"HOST", "CONTENT-LENGTH"}
+    BLACKLIST = {"HOST", "CONTENT-LENGTH", "ACCEPT-ENCODING"}
     PREFIX = "HTTP_"
     headers = {}
     for k, v in env.iteritems():
@@ -97,6 +97,13 @@ def main():
 
     # Have curl pull the POST data from standard input
     curl_args += ["--data", "@-"]
+
+    # Detailed information on the request will get printed to stderr.
+    curl_args += ["-v"]
+
+    # This fixes a problem where curl would ask the server for an OK before
+    # sending the data, which caused our client to get some unwanted data.
+    curl_args += ["--header", "Expect:"]
 
     curl_args += ["--", url]
 
