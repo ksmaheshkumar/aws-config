@@ -67,6 +67,3 @@ LOGFILE=bash -c 'mkdir -p ~/kalogs/$0; echo ~/kalogs/$0/$0.$(date "$@" +\%Y-\%m-
 
 # Monthly reporting jobs
 00 09 1 * * bash --login -c '~/analytics/src/run_report.sh month' >> `eval $LOGFILE monthly_report` 2>&1
-
-# Monthly archiving of downloaded data to S3 
-00 1 1 * * bash --login -c '~/analytics/src/archive_to_s3.py' >> `eval $LOGFILE archive_to_s3` 2>&1
