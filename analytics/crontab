@@ -56,13 +56,6 @@ LOGFILE=bash -c 'mkdir -p ~/kalogs/$0; echo ~/kalogs/$0/$0.$(date "$@" +\%Y-\%m-
 # Fetch raw datastore entities every hour.
 05 * * * * bash --login -c '~/analytics/src/gae_download.py -c ~/analytics/cfg/gae_download.json' >> `eval $LOGFILE gae_download` 2>&1
 
-# Fetch logs every hour.  We fetch the previous hour by default, so
-# start a few minutes after the hour to give those logs time to flush.
-# The 'echo' will get sent as mail, if the cronjob fails or the
-# timeout triggers.
-# TODO(csilvers): have log-to-logfile occur here, not in fetch_logs.sh
-03 * * * * /usr/bin/timeout 420m ~/analytics/src/fetch_logs.sh || echo "analytics: fetch-logs failed with error $? [redo it manually?]"
-
 # Fetch appengine statistics (memcache, etc) every 10 minutes.
 */10 * * * * bash --login -c 'curl -s "http://www.khanacademy.org/stats/memcache?output=txt"' >> `eval $LOGFILE appengine_stats` 2>&1
 
