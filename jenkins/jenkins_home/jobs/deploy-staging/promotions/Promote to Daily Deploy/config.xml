@@ -1,22 +1,9 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<hudson.plugins.promoted__builds.PromotionProcess plugin="promoted-builds@2.14">
+<hudson.plugins.promoted__builds.PromotionProcess plugin="promoted-builds@2.17">
   <actions/>
   <keepDependencies>false</keepDependencies>
   <properties>
-    <hudson.plugins.disk__usage.DiskUsageProperty plugin="disk-usage@0.22">
-      <diskUsageWithoutBuilds>0</diskUsageWithoutBuilds>
-      <slaveWorkspacesUsage class="concurrent-hash-map">
-        <entry>
-          <string></string>
-          <concurrent-hash-map>
-            <entry>
-              <string>/var/lib/jenkins/jobs/deploy-staging/workspace</string>
-              <long>3530948939</long>
-            </entry>
-          </concurrent-hash-map>
-        </entry>
-      </slaveWorkspacesUsage>
-    </hudson.plugins.disk__usage.DiskUsageProperty>
+    <hudson.plugins.disk__usage.DiskUsageProperty plugin="disk-usage@0.23"/>
   </properties>
   <scm class="hudson.scm.NullSCM"/>
   <canRoam>false</canRoam>
