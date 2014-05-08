@@ -1,7 +1,12 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <project>
   <actions/>
-  <description>Runs the &quot;medium&quot; sized test suite when there are changes on the master branch.</description>
+  <description>This deploy pushes code to production that is intended to become the new live version.&#xd;
+&#xd;
+NOTE 1: you probably don&apos;t want to run this manually. Instead, you want to promote a successful deploy-staging build.&#xd;
+&#xd;
+NOTE 2: this uses the deploy-staging build workspace for speed.&#xd;
+TODO(chris): copy deploy-staging workspace and reuse rather than sharing a workspace.</description>
   <logRotator class="hudson.tasks.LogRotator">
     <daysToKeep>-1</daysToKeep>
     <numToKeep>200</numToKeep>
@@ -12,29 +17,60 @@
   <properties>
     <jenkins.plugins.hipchat.HipChatNotifier_-HipChatJobProperty plugin="hipchat@0.1.5-SNAPSHOT">
       <room></room>
-      <startNotification>false</startNotification>
+      <startNotification>true</startNotification>
       <notifySuccess>false</notifySuccess>
       <notifyAborted>false</notifyAborted>
       <notifyNotBuilt>false</notifyNotBuilt>
       <notifyUnstable>false</notifyUnstable>
       <notifyFailure>true</notifyFailure>
-      <notifyBackToNormal>true</notifyBackToNormal>
+      <notifyBackToNormal>false</notifyBackToNormal>
     </jenkins.plugins.hipchat.HipChatNotifier_-HipChatJobProperty>
+    <hudson.model.ParametersDefinitionProperty>
+      <parameterDefinitions>
+        <hudson.model.StringParameterDefinition>
+          <name>GIT_COMMIT_OVERRIDE</name>
+          <description>NOTE: you probably don&apos;t want to start a build here manually. Instead, promote a successful deploy-staging build. By default this will deploy the latest code from origin/master. Set this parameter to a git SHA1 or the name of a branch on a remote (e.g., &quot;origin/master&quot;) to override what is deployed.</description>
+          <defaultValue>origin/master</defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>FORCE_INDEX_CHANGES</name>
+          <description>By default the build will refuse to deploy if there have been changes to index.yaml since the last deployment. Set this to 1 to override this behavior and deploy anyway.</description>
+          <defaultValue>1</defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>SKIP_TESTS</name>
+          <description>Set this to 1 to skip running tests. Maybe you already ran the test suite and deployed, and then got in a minor fix, and just want to get it out quickly. If this is you then setting this to 1 is A-OK.</description>
+          <defaultValue></defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>CLEAN</name>
+          <description>By default the value &quot;most&quot; cleans most files out of the working directory before a new build, but not all of them. Some generated files are left over to speed up the build (because many CSS, JS, and source files with embedded languages don&apos;t change very frequently). Set this to &quot;all&quot; to clear even the left-over generated files. Your build will take longer since all files must be regenerated. You can also use &quot;none&quot; to clean nothing.</description>
+          <defaultValue>most</defaultValue>
+        </hudson.model.StringParameterDefinition>
+      </parameterDefinitions>
+    </hudson.model.ParametersDefinitionProperty>
     <hudson.plugins.throttleconcurrents.ThrottleJobProperty plugin="throttle-concurrents@1.8">
       <maxConcurrentPerNode>0</maxConcurrentPerNode>
       <maxConcurrentTotal>0</maxConcurrentTotal>
-      <throttleEnabled>false</throttleEnabled>
-      <throttleOption>project</throttleOption>
+      <categories>
+        <string>builds-using-deploy-staging-workspace</string>
+      </categories>
+      <throttleEnabled>true</throttleEnabled>
+      <throttleOption>category</throttleOption>
     </hudson.plugins.throttleconcurrents.ThrottleJobProperty>
     <hudson.plugins.disk__usage.DiskUsageProperty plugin="disk-usage@0.22">
-      <diskUsageWithoutBuilds>3203019797</diskUsageWithoutBuilds>
+      <diskUsageWithoutBuilds>3073408642</diskUsageWithoutBuilds>
       <slaveWorkspacesUsage class="concurrent-hash-map">
         <entry>
           <string></string>
           <concurrent-hash-map>
             <entry>
-              <string>/var/lib/jenkins/jobs/website-commit/workspace</string>
-              <long>3109904431</long>
+              <string>/var/lib/jenkins/jobs/deploy-staging/workspace</string>
+              <long>3531146399</long>
+            </entry>
+            <entry>
+              <string>/var/lib/jenkins/jobs/deploy-default/workspace</string>
+              <long>3065563185</long>
             </entry>
           </concurrent-hash-map>
         </entry>
@@ -51,7 +87,7 @@
     </userRemoteConfigs>
     <branches>
       <hudson.plugins.git.BranchSpec>
-        <name>master</name>
+        <name>$GIT_COMMIT_OVERRIDE</name>
       </hudson.plugins.git.BranchSpec>
     </branches>
     <doGenerateSubmoduleConfigurations>false</doGenerateSubmoduleConfigurations>
@@ -73,27 +109,40 @@
   <disabled>false</disabled>
   <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
   <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
-  <triggers>
-    <hudson.triggers.SCMTrigger>
-      <spec># Although polling is set to every 30 minutes this is just a fallback.
-# There&apos;s a webhook set up in Kiln to trigger builds via /git/notifyCommit?...
-H/30 * * * *</spec>
-      <ignorePostCommitHooks>false</ignorePostCommitHooks>
-    </hudson.triggers.SCMTrigger>
-  </triggers>
+  <triggers/>
   <concurrentBuild>false</concurrentBuild>
+  <customWorkspace>$JENKINS_HOME/jobs/deploy-staging/workspace</customWorkspace>
   <builders>
     <hudson.tasks.Shell>
-      <command>webapp/tools/build-make-target.sh clean
-timeout -k 5m 1h webapp/tools/build-make-target.sh -j2 lint check_nolint JUNIT_XML=1</command>
+      <command># deploy.py looks to $USER for the real initiator when prod-deploy@ is running the deploy.
+if [ -n &quot;$BUILD_USER_ID&quot; ]; then
+  export USER=$BUILD_USER_ID
+fi
+
+# The default deploy may only be done from the master branch. We fake it here.
+(cd webapp &amp;&amp; git branch -f master HEAD &amp;&amp; git checkout master &amp;&amp; git rev-parse HEAD)
+DEPLOY_VERSION=default HIPCHAT_ROOM=&quot;1s and 0s&quot; timeout -k 5m 1h webapp/tools/build-deploy.sh</command>
     </hudson.tasks.Shell>
   </builders>
   <publishers>
-    <hudson.tasks.junit.JUnitResultArchiver>
-      <testResults>webapp/genfiles/test-reports/*.xml</testResults>
-      <keepLongStdio>false</keepLongStdio>
-      <testDataPublishers/>
-    </hudson.tasks.junit.JUnitResultArchiver>
+    <hudson.plugins.postbuildtask.PostbuildTask plugin="postbuild-task@1.8">
+      <tasks>
+        <hudson.plugins.postbuildtask.TaskProperties>
+          <logTexts>
+            <hudson.plugins.postbuildtask.LogProperties>
+              <logText>Precompilation failed.</logText>
+              <operator>AND</operator>
+            </hudson.plugins.postbuildtask.LogProperties>
+          </logTexts>
+          <EscalateStatus>true</EscalateStatus>
+          <RunIfJobSuccessful>false</RunIfJobSuccessful>
+          <script># Failed precompilation means bad performance. We will need to re-deploy.&#xd;
+echo &quot;Google failed to precompile our Python. This deployed version is going to be slow! Cross your fingers and try re-deploying.&quot; | webapp/tools/hipchat-cli/hipchat_room_message -c red -r &quot;1s and 0s&quot;&#xd;
+exit 1  # so that this error can be escalated to be the job status&#xd;
+</script>
+        </hudson.plugins.postbuildtask.TaskProperties>
+      </tasks>
+    </hudson.plugins.postbuildtask.PostbuildTask>
     <hudson.plugins.emailext.ExtendedEmailPublisher plugin="email-ext@2.36">
       <recipientList>$DEFAULT_RECIPIENTS</recipientList>
       <configuredTriggers>
@@ -147,57 +196,6 @@ timeout -k 5m 1h webapp/tools/build-make-target.sh -j2 lint check_nolint JUNIT_X
       <room>1s and 0s</room>
       <sendAs>Jenny Jenkins</sendAs>
     </jenkins.plugins.hipchat.HipChatNotifier>
-    <hudson.plugins.postbuildtask.PostbuildTask plugin="postbuild-task@1.8">
-      <tasks>
-        <hudson.plugins.postbuildtask.TaskProperties>
-          <logTexts>
-            <hudson.plugins.postbuildtask.LogProperties>
-              <logText>make(\[\d+\])?: \*\*\* \[lint\] Error (\d+)</logText>
-              <operator>AND</operator>
-            </hudson.plugins.postbuildtask.LogProperties>
-          </logTexts>
-          <EscalateStatus>false</EscalateStatus>
-          <RunIfJobSuccessful>false</RunIfJobSuccessful>
-          <script>( echo &quot;Lint Errors:&quot; ; cat webapp/genfiles/lint_errors.txt ) | head -n 10 | webapp/tools/hipchat-cli/hipchat_room_message -e -c red -r &quot;1s and 0s&quot;</script>
-        </hudson.plugins.postbuildtask.TaskProperties>
-        <hudson.plugins.postbuildtask.TaskProperties>
-          <logTexts>
-            <hudson.plugins.postbuildtask.LogProperties>
-              <logText>make(\[\d+\])?: \*\*\* \[test\] Error (\d+)</logText>
-              <operator>AND</operator>
-            </hudson.plugins.postbuildtask.LogProperties>
-          </logTexts>
-          <EscalateStatus>false</EscalateStatus>
-          <RunIfJobSuccessful>false</RunIfJobSuccessful>
-          <script>env/bin/python webapp/tools/print_test_reports.py --format=jenkins_html --jenkins_build_url=&quot;$BUILD_URL&quot; webapp/genfiles/test-reports | head -n 10 | webapp/tools/hipchat-cli/hipchat_room_message -c red -r &quot;1s and 0s&quot;</script>
-        </hudson.plugins.postbuildtask.TaskProperties>
-        <hudson.plugins.postbuildtask.TaskProperties>
-          <logTexts>
-            <hudson.plugins.postbuildtask.LogProperties>
-              <logText>make(\[\d+\])?: \*\*\* \[jstest\] Error (\d+)</logText>
-              <operator>AND</operator>
-            </hudson.plugins.postbuildtask.LogProperties>
-          </logTexts>
-          <EscalateStatus>false</EscalateStatus>
-          <RunIfJobSuccessful>false</RunIfJobSuccessful>
-          <script>env/bin/python webapp/tools/print_jstest_reports.py webapp/genfiles/jstest_output.txt | head -n 10 | webapp/tools/hipchat-cli/hipchat_room_message -e -c red -r &quot;1s and 0s&quot;</script>
-        </hudson.plugins.postbuildtask.TaskProperties>
-      </tasks>
-    </hudson.plugins.postbuildtask.PostbuildTask>
-    <hudson.plugins.parameterizedtrigger.BuildTrigger plugin="parameterized-trigger@2.21">
-      <configs>
-        <hudson.plugins.parameterizedtrigger.BuildTriggerConfig>
-          <configs>
-            <hudson.plugins.git.GitRevisionBuildParameters plugin="git@2.0">
-              <combineQueuedCommits>true</combineQueuedCommits>
-            </hudson.plugins.git.GitRevisionBuildParameters>
-          </configs>
-          <projects>deploy-staging</projects>
-          <condition>SUCCESS</condition>
-          <triggerWithNoParameters>false</triggerWithNoParameters>
-        </hudson.plugins.parameterizedtrigger.BuildTriggerConfig>
-      </configs>
-    </hudson.plugins.parameterizedtrigger.BuildTrigger>
   </publishers>
   <buildWrappers>
     <EnvInjectPasswordWrapper plugin="envinject@1.89">
@@ -207,5 +205,6 @@ timeout -k 5m 1h webapp/tools/build-make-target.sh -j2 lint check_nolint JUNIT_X
     <org.jenkinsci.plugins.buildnamesetter.BuildNameSetter plugin="build-name-setter@1.3">
       <template>#${BUILD_NUMBER} (${GIT_REVISION,length=7})</template>
     </org.jenkinsci.plugins.buildnamesetter.BuildNameSetter>
+    <org.jenkinsci.plugins.builduser.BuildUser plugin="build-user-vars-plugin@1.1"/>
   </buildWrappers>
 </project>

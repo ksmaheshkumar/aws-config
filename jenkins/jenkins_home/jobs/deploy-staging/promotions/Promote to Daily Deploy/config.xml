@@ -46,7 +46,7 @@
   <buildSteps>
     <hudson.tasks.Shell>
       <command>set +x
-echo &quot;I&apos;m about to trigger deploy-daily with GIT_COMMIT_OVERRIDE=$PROMOTED_GIT_COMMIT&quot;
+echo &quot;I&apos;m about to trigger deploy-default with GIT_COMMIT_OVERRIDE=$PROMOTED_GIT_COMMIT&quot;
 set -x</command>
     </hudson.tasks.Shell>
     <hudson.plugins.parameterizedtrigger.TriggerBuilder plugin="parameterized-trigger@2.21">
@@ -61,7 +61,7 @@ CLEAN=$CLEAN
 </properties>
             </hudson.plugins.parameterizedtrigger.PredefinedBuildParameters>
           </configs>
-          <projects>deploy-daily</projects>
+          <projects>deploy-default</projects>
           <condition>ALWAYS</condition>
           <triggerWithNoParameters>false</triggerWithNoParameters>
           <block>

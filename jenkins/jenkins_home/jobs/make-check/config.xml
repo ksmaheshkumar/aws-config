@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <project>
   <actions/>
-  <description>Runs the &quot;huge&quot; sized test suite from time to time if there have been changes. Does not lint.</description>
+  <description>Runs the &quot;medium&quot; sized test suite when there are changes on the master branch.</description>
   <logRotator class="hudson.tasks.LogRotator">
     <daysToKeep>-1</daysToKeep>
     <numToKeep>200</numToKeep>
@@ -27,14 +27,14 @@
       <throttleOption>project</throttleOption>
     </hudson.plugins.throttleconcurrents.ThrottleJobProperty>
     <hudson.plugins.disk__usage.DiskUsageProperty plugin="disk-usage@0.22">
-      <diskUsageWithoutBuilds>3348417513</diskUsageWithoutBuilds>
+      <diskUsageWithoutBuilds>3203019797</diskUsageWithoutBuilds>
       <slaveWorkspacesUsage class="concurrent-hash-map">
         <entry>
           <string></string>
           <concurrent-hash-map>
             <entry>
-              <string>/var/lib/jenkins/jobs/website-allcheck/workspace</string>
-              <long>3255510063</long>
+              <string>/var/lib/jenkins/jobs/make-check/workspace</string>
+              <long>3109904431</long>
             </entry>
           </concurrent-hash-map>
         </entry>
@@ -67,7 +67,6 @@
         <disableSubmodules>false</disableSubmodules>
         <recursiveSubmodules>true</recursiveSubmodules>
       </hudson.plugins.git.extensions.impl.SubmoduleOption>
-      <hudson.plugins.git.extensions.impl.IgnoreNotifyCommit/>
     </extensions>
   </scm>
   <canRoam>true</canRoam>
@@ -76,16 +75,17 @@
   <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
   <triggers>
     <hudson.triggers.SCMTrigger>
-      <spec>H 10,15,22 * * 1-5</spec>
+      <spec># Although polling is set to every 30 minutes this is just a fallback.
+# There&apos;s a webhook set up in Kiln to trigger builds via /git/notifyCommit?...
+H/30 * * * *</spec>
       <ignorePostCommitHooks>false</ignorePostCommitHooks>
     </hudson.triggers.SCMTrigger>
   </triggers>
   <concurrentBuild>false</concurrentBuild>
   <builders>
     <hudson.tasks.Shell>
-      <command># Set JOBS=1 if you need to avoid out-of-memory errors (by limiting the number of Python processes)
-webapp/tools/build-make-target.sh clean
-timeout -k 5m 1h webapp/tools/build-make-target.sh allcheck_nolint JUNIT_XML=1</command>
+      <command>webapp/tools/build-make-target.sh clean
+timeout -k 5m 1h webapp/tools/build-make-target.sh -j2 lint check_nolint JUNIT_XML=1</command>
     </hudson.tasks.Shell>
   </builders>
   <publishers>
@@ -184,6 +184,20 @@ timeout -k 5m 1h webapp/tools/build-make-target.sh allcheck_nolint JUNIT_XML=1</
         </hudson.plugins.postbuildtask.TaskProperties>
       </tasks>
     </hudson.plugins.postbuildtask.PostbuildTask>
+    <hudson.plugins.parameterizedtrigger.BuildTrigger plugin="parameterized-trigger@2.21">
+      <configs>
+        <hudson.plugins.parameterizedtrigger.BuildTriggerConfig>
+          <configs>
+            <hudson.plugins.git.GitRevisionBuildParameters plugin="git@2.0">
+              <combineQueuedCommits>true</combineQueuedCommits>
+            </hudson.plugins.git.GitRevisionBuildParameters>
+          </configs>
+          <projects>deploy-staging</projects>
+          <condition>SUCCESS</condition>
+          <triggerWithNoParameters>false</triggerWithNoParameters>
+        </hudson.plugins.parameterizedtrigger.BuildTriggerConfig>
+      </configs>
+    </hudson.plugins.parameterizedtrigger.BuildTrigger>
   </publishers>
   <buildWrappers>
     <EnvInjectPasswordWrapper plugin="envinject@1.89">
