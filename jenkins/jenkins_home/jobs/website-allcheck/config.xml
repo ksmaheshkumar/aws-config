@@ -169,7 +169,7 @@ timeout -k 5m 1h webapp/tools/build-make-target.sh allcheck_nolint JUNIT_XML=1</
           </logTexts>
           <EscalateStatus>false</EscalateStatus>
           <RunIfJobSuccessful>false</RunIfJobSuccessful>
-          <script>( echo &quot;Failing Python Tests:&quot; ; env/bin/python webapp/tools/print_test_reports.py --format=jenkins_html --jenkins_build_url=&quot;$BUILD_URL&quot; webapp/genfiles/test-reports ) | head -n 10 | webapp/tools/hipchat-cli/hipchat_room_message -c red -r &quot;1s and 0s&quot;</script>
+          <script>env/bin/python webapp/tools/print_test_reports.py --format=jenkins_html --jenkins_build_url=&quot;$BUILD_URL&quot; webapp/genfiles/test-reports | head -n 10 | webapp/tools/hipchat-cli/hipchat_room_message -c red -r &quot;1s and 0s&quot;</script>
         </hudson.plugins.postbuildtask.TaskProperties>
         <hudson.plugins.postbuildtask.TaskProperties>
           <logTexts>
@@ -180,7 +180,7 @@ timeout -k 5m 1h webapp/tools/build-make-target.sh allcheck_nolint JUNIT_XML=1</
           </logTexts>
           <EscalateStatus>false</EscalateStatus>
           <RunIfJobSuccessful>false</RunIfJobSuccessful>
-          <script>( echo &quot;Failing JavaScript Tests:&quot; ; env/bin/python webapp/tools/print_jstest_reports.py webapp/genfiles/jstest_output.txt ) | head -n 10 | webapp/tools/hipchat-cli/hipchat_room_message -e -c red -r &quot;1s and 0s&quot;</script>
+          <script>env/bin/python webapp/tools/print_jstest_reports.py webapp/genfiles/jstest_output.txt | head -n 10 | webapp/tools/hipchat-cli/hipchat_room_message -e -c red -r &quot;1s and 0s&quot;</script>
         </hudson.plugins.postbuildtask.TaskProperties>
       </tasks>
     </hudson.plugins.postbuildtask.PostbuildTask>
