@@ -42,7 +42,6 @@ set -x</command>
           <configs>
             <hudson.plugins.parameterizedtrigger.PredefinedBuildParameters>
               <properties>GIT_COMMIT_OVERRIDE=$PROMOTED_GIT_COMMIT
-FORCE_INDEX_CHANGES=$FORCE_INDEX_CHANGES
 SKIP_TESTS=1
 CLEAN=$CLEAN
 </properties>

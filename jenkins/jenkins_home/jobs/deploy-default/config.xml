@@ -33,11 +33,6 @@ TODO(chris): copy deploy-staging workspace and reuse rather than sharing a works
           <defaultValue>origin/master</defaultValue>
         </hudson.model.StringParameterDefinition>
         <hudson.model.StringParameterDefinition>
-          <name>FORCE_INDEX_CHANGES</name>
-          <description>By default the build will refuse to deploy if there have been changes to index.yaml since the last deployment. Set this to 1 to override this behavior and deploy anyway.</description>
-          <defaultValue>1</defaultValue>
-        </hudson.model.StringParameterDefinition>
-        <hudson.model.StringParameterDefinition>
           <name>SKIP_TESTS</name>
           <description>Set this to 1 to skip running tests. Maybe you already ran the test suite and deployed, and then got in a minor fix, and just want to get it out quickly. If this is you then setting this to 1 is A-OK.</description>
           <defaultValue></defaultValue>
