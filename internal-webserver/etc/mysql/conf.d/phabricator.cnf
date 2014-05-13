@@ -1,2 +1,3 @@
 [mysqld]
 sql_mode=STRICT_ALL_TABLES
+max_allowed_packet=999999999999
