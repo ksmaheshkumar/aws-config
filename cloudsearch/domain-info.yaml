@@ -1,6 +1,8 @@
 # This configuration file is meant to be read by the provision-domain.py script
 # and is used to set up a CloudSearch domain. See that script for more
 # information on the provisioning process.
+# Also see
+# https://sites.google.com/a/khanacademy.org/forge/for-developers/developing-search/working-with-cloudsearch-domains
 
 analysis_schemes:
     # These are the analysis schemes we use. Creating and using analysis
@@ -58,7 +60,7 @@ fields:
     # literally its content (stripped of HTML tags), but for a video it is the
     # subtitles of the video, this will be omitted for topics.
     - name: content
-      type: text
+      type: text-array
       traits: [search, highlight]
       analysis_scheme: locale_specific
 

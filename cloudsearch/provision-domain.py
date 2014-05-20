@@ -2,6 +2,9 @@
 
 """A tool for provisioning a Khan Academy CloudSearch domain.
 
+Additional information is available at
+https://sites.google.com/a/khanacademy.org/forge/for-developers/developing-search/working-with-cloudsearch-domains
+
 WARNING: Running this script will cause the domain to enter the
 "Needs Indexing" state, regardless if anything actually changed! Being in this
 state does not adversely affect the domain's performance, but should be avoided
