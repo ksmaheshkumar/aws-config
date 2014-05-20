@@ -1,0 +1,40 @@
+server {
+	listen 80;
+
+	root /home/ubuntu/internal-webserver/phabricator/webroot;
+	include mime.types;
+	access_log /home/ubuntu/logs/phabricator-access.log;
+
+	server_name phabricator.khanacademy.org;
+	server_tokens off;
+
+	gzip on;
+	gzip_types text/css text/javascript text/plain;
+
+	location / {
+		index index.php;
+		if (!-f $request_filename) {
+			rewrite ^/(.*)$ /index.php?__path__=/$1 last;
+			break;
+		}
+	}
+
+	# pass the PHP scripts to FastCGI server listening on 127.0.0.1:9000
+
+	location ~ \.php$ {
+		fastcgi_pass 127.0.0.1:9000;
+		fastcgi_index index.php;
+		fastcgi_param PHABRICATOR_ENV khan;
+		fastcgi_param PATH /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games;
+		include fastcgi_params;
+	}
+}
+
+server {
+	listen 80;
+
+	server_name codereview.khanacademy.org;
+	server_name cr.khanacademy.org;
+
+	return 301 http://phabricator.khanacademy.org$request_uri;
+}

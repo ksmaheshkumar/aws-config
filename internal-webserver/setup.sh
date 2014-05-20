@@ -34,13 +34,17 @@ set -e
 # Activate the multiverse!  Needed for ec2-api-tools
 sudo perl -pi.orig -e 'next if /-backports/; s/^# (deb .* multiverse)$/$1/' \
     /etc/apt/sources.list
+if ! grep -q nginx/stable /etc/apt/sources.list; then
+  sudo add-apt-repository -y "deb http://ppa.launchpad.net/nginx/stable/ubuntu `lsb_release -cs` main"
+fi
 sudo apt-get update
 
 install_basic_packages() {
     echo "Installing packages: Basic setup"
     sudo apt-get install -y python-pip
     sudo apt-get install -y ntp
-    sudo apt-get install -y lighttpd
+    sudo apt-get install -y nginx  # uses ppa added above
+    sudo apt-get install -y php5-fpm
     # This is needed so installing postfix doesn't prompt.  See
     # http://www.ossramblings.com/preseed_your_apt_get_for_unattended_installs
     # If it prompts anyway, type in the stuff from postfix.preseed manually.
@@ -221,6 +225,7 @@ install_phabricator() {
     pecl list | grep -q APC || yes "" | sudo pecl install apc
     sudo pip install pygments                      # for syntax highlighting
     sudo ln -snf /usr/local/bin/pygmentize /usr/bin/
+    sudo rm -f /etc/nginx/sites-enabled/default
     mkdir -p "$HOME/internal-webserver/phabricator/support/bin"
     cat <<EOF >"$HOME/internal-webserver/phabricator/support/bin/README"
 Instead of putting binaries that phabricator needs in your $PATH, you can
@@ -247,7 +252,8 @@ EOF
 
     # Just in case phabricator is already running (we want to be idempotent!)
     PHABRICATOR_ENV=khan "$HOME/internal-webserver/phabricator/bin/phd" stop
-    sudo /etc/init.d/lighttpd stop
+    sudo service nginx stop
+    sudo service php5-fpm stop
 
     env PHABRICATOR_ENV=khan \
         internal-webserver/phabricator/bin/storage --force upgrade
@@ -287,7 +293,8 @@ EOF
     # Start the daemons.
     sudo mkdir -p /var/tmp/phd/log
     sudo chown -R ubuntu /var/tmp/phd
-    sudo service lighttpd start
+    sudo service php5-fpm start
+    sudo service nginx start
     PHABRICATOR_ENV=khan "$HOME/internal-webserver/phabricator/bin/phd" start
 
     # TODO(csilvers): automate this.
