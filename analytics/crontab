@@ -24,7 +24,8 @@ MAILTO=analytics-admin+crontab@khanacademy.org
 LOGFILE=bash -c 'mkdir -p ~/kalogs/$0; echo ~/kalogs/$0/$0.$(date "$@" +\%Y-\%m-\%d).log'
 
 
-# Monitor for uncommitted local changes in the analytics repo every hour.  Send email if we see any.
+# Monitor for uncommitted local changes in the analytics repo every
+# hour.  Send email if we see any.
 1 * * * * test -z "$(cd ~/analytics; git status --porcelain)" || echo 'Warning: uncommitted changes on tha analyics machine!'
 
 # Monitor the free disk space hourly on this machine. Send alerts if too low.
@@ -32,9 +33,6 @@ LOGFILE=bash -c 'mkdir -p ~/kalogs/$0; echo ~/kalogs/$0/$0.$(date "$@" +\%Y-\%m-
 
 # Daily: Auto-archive the old, locally stored entity and log data to S3 
 1 3 * * * bash --login -c 'python -u ~/analytics/tools/archive_to_s3.py I_AM_SERIOUS' >> `eval $LOGFILE auto_archive` 2>&1 
-
-# Fetch topic tree and versions every day
-00 2 * * * bash --login -c '~/analytics/src/fetch_topic_tree.py' > `eval $LOGFILE fetch_topic_tree --date=yesterday` 2>&1
 
 # Fetch GAE usage reports every day. Reports are generated at about 1430 PST
 # which is 2130 UTC, and we allow for a bit of wiggle room.
@@ -46,24 +44,5 @@ LOGFILE=bash -c 'mkdir -p ~/kalogs/$0; echo ~/kalogs/$0/$0.$(date "$@" +\%Y-\%m-
 # keep a pulse on this process.
 00 23 * * * bash --login -c '~/analytics/src/gae_dashboard/fetch_stats.sh -n' >> `eval $LOGFILE gae_dashboard_stats` 2>&1 || echo "gae_dashboard_stats run failed; see `eval $LOGFILE gae_dashboard_stats`"
 
-# Load the topic_attempts Hive table, which requires GAE Hive tables to have
-# loaded (from load_emr_daily.sh)
-# TODO(david): This should be a generic python script to run any arbitrary hive
-#     script with # instances, etc. configurable by cmd line args
-# TODO(david): Ensure this runs after completion of the load_emr_daily job.
-04 5 * * * bash --login -c '~/analytics/map_reduce/shell/load_topic_attempts.sh' > `eval $LOGFILE load_topic_attempts --date=yesterday` 2>&1
-
-# Fetch raw datastore entities every hour.
-05 * * * * bash --login -c '~/analytics/src/gae_download.py -c ~/analytics/cfg/gae_download.json' >> `eval $LOGFILE gae_download` 2>&1
-
 # Fetch appengine statistics (memcache, etc) every 10 minutes.
 */10 * * * * bash --login -c 'curl -s "http://www.khanacademy.org/stats/memcache?output=txt"' >> `eval $LOGFILE appengine_stats` 2>&1
-
-# Upload GAE data to EMR daily; Run daily reporting jobs
-03 8 * * * bash --login -c '~/analytics/map_reduce/load_emr_daily.sh' > `eval $LOGFILE load_emr --date=yesterday` 2>&1
-
-# Weekly reporting jobs
-00 12  * * 0 bash --login -c '~/analytics/src/run_report.sh week' >> `eval $LOGFILE weekly_report` 2>&1
-
-# Monthly reporting jobs
-00 09 1 * * bash --login -c '~/analytics/src/run_report.sh month' >> `eval $LOGFILE monthly_report` 2>&1
