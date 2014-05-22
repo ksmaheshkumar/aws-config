@@ -20,10 +20,11 @@ server {
     location /cloudsearch/secure-update/{{SECRET}}/ {
         rewrite ^/cloudsearch/secure-update/[^/]+(/.*)$ $1 break;
 
-        # Nameserver(s) to use. This was pulled from /etc/resolv.conf. You may
-        # need to change the name server to use if DNS resolution errors appear
-        # in /var/log/nginx/error.log
-        resolver 172.16.0.23;
+        # Use Google's public DNS servers when resolving the CloudSearch
+        # domain. We have to hardcode a value here because nginx won't use
+        # libc and this DNS server will be available regardless of what machine
+        # you're on.
+        resolver 8.8.8.8;
 
         # It is important that this is a variable. It forces nginx to
         # re-resolve the endpoint each time (otherwise it would cache the
