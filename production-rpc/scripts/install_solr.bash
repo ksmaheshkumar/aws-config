@@ -3,7 +3,9 @@
 # This script installs Tomcat and Solr/Lucene for search indexing of the
 # KhanAcademy.org content. This will blow away any configuration changes you've
 # made to the nginx configuration. Make sure to go in and change the SECRET
-# in /etc/nginx/sites-available/search.conf
+# in /etc/nginx/sites-available/search.conf, as well as change the
+# $cloudsearch_document_endpoint variable to point at the production
+# CloudSearch endpoint.
 
 # Echo all commands (and show values of variables)
 set -x
