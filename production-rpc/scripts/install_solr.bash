@@ -1,16 +1,9 @@
 #!/bin/bash
 
 # This script installs Tomcat and Solr/Lucene for search indexing of the
-# KhanAcademy.org content. This script attempts to be idempotent (so you can
-# run it multiple times without a problem).
-
-if [ ! -s /etc/lighttpd/khan-secret.conf ]; then
-  # The 'sudo tee' trick is the easiest way to redirect output to a file under sudo.
-  echo 'Cannot install SOLR without the shared secret. Run'
-  echo '  echo '\''var.secret = "<solr_secret>"'\'' | sudo tee -a /etc/lighttpd/khan-secret.conf > /dev/null'
-  echo "Where <solr_secret> is taken from secrets.py, and run this script again."
-  exit 1
-fi
+# KhanAcademy.org content. This will blow away any configuration changes you've
+# made to the nginx configuration. Make sure to go in and change the SECRET
+# in /etc/nginx/sites-available/search.conf
 
 # Echo all commands (and show values of variables)
 set -x
@@ -29,7 +22,7 @@ ARCHIVE_URL="http://archive.apache.org/dist/lucene/solr/$SOLR_VERSION/apache-sol
 cd "$REPO_ROOT"
 
 # Start out by installing package dependencies
-sudo apt-get -y install lighttpd tomcat6 curl mailutils moreutils
+sudo apt-get -y install tomcat6 curl mailutils moreutils
 
 # Configure Tomcat: Set port number to 9001
 sudo sed -i 's/8080/9001/g' '/var/lib/tomcat6/conf/server.xml'
@@ -70,15 +63,17 @@ sudo rm -f /var/lib/tomcat6/webapps/ROOT/index.html
 # Restart Tomcat server to pick up our changes
 sudo /etc/init.d/tomcat6 restart
 
-# Configure lighttpd to redirect requests:
-#   search-rpc.khanacademy.org => localhost:9001 (Tomcat)
-sudo rm /etc/lighttpd/lighttpd.conf
-sudo cp "$REPO_ROOT/config/lighttpd.conf" /etc/lighttpd/lighttpd.conf
+# We need nginx as well, which we pull from a PPA
+sudo apt-get -y install python-software-properties
+sudo add-apt-repository -y "deb http://ppa.launchpad.net/nginx/stable/ubuntu `lsb_release -cs` main"
+sudo apt-get update
+sudo apt-get -y install nginx
 
-# Install the aws proxy CGI script
-sudo mkdir -p /var/www/cgi-bin/
-sudo cp "$REPO_ROOT/data/aws-proxy.py" /var/www/cgi-bin/aws-proxy
-sudo chmod +x /var/www/cgi-bin/aws-proxy
+# Configure nginx
+sudo rm -f /etc/nginx/sites-available/* /etc/nginx/sites-enabled/*
+sudo cp -rf "$REPO_ROOT"/etc/nginx/* /etc/nginx
+sudo ln -s /etc/nginx/sites-available/search.conf /etc/nginx/sites-enabled/search.conf
 
-# Restart lighttpd to pick up our changes
-sudo /etc/init.d/lighttpd restart
+# Reload nginx to pick up our changes
+sudo /etc/init.d/nginx testconfig
+sudo /etc/init.d/nginx restart

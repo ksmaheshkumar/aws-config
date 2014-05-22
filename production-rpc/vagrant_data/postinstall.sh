@@ -9,7 +9,8 @@ set -x
 # Stop on failure
 set -e
 
-# Fix the host in the lighttpd configuration file
-sed -i 's/search-rpc.khanacademy.org/localhost/g' '/etc/lighttpd/lighttpd.conf'
+# Fix the host in the nginx configuration file
+sed -i 's/search-rpc.khanacademy.org/localhost/g' '/etc/nginx/sites-available/search.conf'
 
-sudo /etc/init.d/lighttpd restart
+sudo /etc/init.d/nginx testconfig
+sudo /etc/init.d/nginx reload
