@@ -1,20 +1,23 @@
+# This file is processed by the install_solr.bash script to replace the {{...}}
+# placeholders with appropriate values.
+
 server {
     listen *:80;
     server_name search-rpc.khanacademy.org;
 
     # See below for information on this
-    set $cloudsearch_document_endpoint "http://doc-khan-academy-dev-2-5hz5ckwpoayj4gdjg24cpqzysq.us-east-1.cloudsearch.amazonaws.com";
+    set $cloudsearch_document_endpoint {{CLOUDSEARCH_DOCUMENT_ENDPOINT}};
 
     # CloudSearch accepts bulk requests up to 5 MB, we'll allow a bit over this
     client_max_body_size 6M;
 
-    location ~ ^/solr/(select|secure-update/SECRET)/ {
+    location ~ ^/solr/(select|secure-update/{{SECRET}})/ {
         rewrite ^/solr/secure-update/[^/]+/(.*)$ /solr/update/$1 break;
 
         proxy_pass http://127.0.0.1:9001;
     }
 
-    location /cloudsearch/secure-update/SECRET/ {
+    location /cloudsearch/secure-update/{{SECRET}}/ {
         rewrite ^/cloudsearch/secure-update/[^/]+(/.*)$ $1 break;
 
         # Nameserver(s) to use. This was pulled from /etc/resolv.conf.

@@ -18,22 +18,21 @@ sudo apt-get -y install git
 # Install the "secret" (literally the text secret). The tee trick is given in
 # install_solr.bash and is used to write to the file with sudo privileges
 sudo mkdir -p /etc/lighttpd
-echo 'var.secret = "secret"' | sudo tee /etc/lighttpd/khan-secret.conf > /dev/null
+echo 'secret' | sudo tee "$HOME/solr_secret" > /dev/null
 
 # Clone the aws-config repo into our home directory (note that we're root if
 # vagrant is doing the provisioning so home is probably /root). We do a copy
 # here instead of a symlink so that if our provisioning scripts go crazy they
 # don't thrash our network mounted repo (the one that's on our host machine!).
-if [ -d "aws-config/" ]; then
-	rm -rf "$HOME/aws-config"
+if [ -d "$HOME/aws-config" ]; then
+	sudo rm -rf "$HOME/aws-config"
 fi
-cp -a /var/local/aws-config "$HOME"
+sudo cp -af /var/local/aws-config "$HOME"
 
 # On the production box it is expected that the endpoint is in ubuntu's home
 # directory, so we'll do a little hackery here.
-sudo mkdir -p /home/ubuntu/aws-config/production-rpc/data/
-sudo ln -fs "$HOME"/aws-config/production-rpc/data/cloudsearch-publish-dev-endpoint /home/ubuntu/aws-config/production-rpc/data/cloudsearch-publish-endpoint
-chmod -R a+rx /home/ubuntu/ "$HOME"
+sudo ln -fs "$HOME/aws-config/production-rpc/data/cloudsearch-publish-dev-endpoint" "$HOME/aws-config/production-rpc/data/cloudsearch-publish-endpoint"
+sudo chmod -R a+rx "$HOME"
 
 # The postfix installer is going to try to grab the screen and display some
 # fancy curses menu. This ends up doing some very bad things so we seed it with
