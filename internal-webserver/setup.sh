@@ -114,9 +114,10 @@ install_user_config_files() {
 
     echo "Creating logs directory (for webserver logs)"
     sudo mkdir -p /opt/logs
-    sudo chmod 755 /opt/logs
+    sudo chmod 1777 /opt/logs
     sudo chown www-data.www-data /opt/logs
     ln -snf /opt/logs "$HOME/logs"
+    ln -snf /var/tmp/phd/log/daemons.log "$HOME/logs/phd-daemons.log"
 }
 
 install_appengine() {
