@@ -10,7 +10,7 @@ PATH = /usr/local/bin:/usr/bin:/bin
   10 *  *   *   *     sh -c 'python $HOME/beep-boop/google_code_reports.py >> $HOME/logs/beep-boop-gcode.log' || echo "Failed to run beep-boop for google-code; see $HOME/logs/beep-boop-gcode.log"
 
 # Check for elevated issue rates on Github.
-  16 *  *   *   *     sh -c 'python $HOME/beep-boop/github_reports.py >> $HOME/logs/beep-boop-github.log || echo "Failed to run beep-boop for github; see $HOME/logs/beep-boop-github.log"
+  16 *  *   *   *     sh -c 'python $HOME/beep-boop/github_reports.py >> $HOME/logs/beep-boop-github.log' || echo "Failed to run beep-boop for github; see $HOME/logs/beep-boop-github.log"
 
 # Do a backup every day.  (12:00 UTC is 4am PST)
   0  12  *   *   *     sh -c 'echo "--- `date`"; $HOME/aws-config/internal-webserver/snapshot_toby.sh >> $HOME/logs/aws-snapshot.log' || echo "Failed to snapshot toby's data; see $HOME/logs/aws-snapshot.log"
