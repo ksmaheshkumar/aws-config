@@ -352,9 +352,18 @@ install_publish_notifier() {
     read prompt
 }
 
+install_gae_dashboard() {
+    echo "Put the value of hostedgraphite_api_key from secrets.py"
+    echo "in $HOME/hostedgraphite_secret"
+    echo "Also put the password for khanbackups@gmail.com"
+    echo "in $HOME/private_pw"
+    echo "Hit <enter> when this is done:"
+    read prompt
+}
+
 install_kahntube_ouath_collector() {
     # A simple flask server that will collect youtube oauth credentials needed
-    # inorder to upload captions to the various youtube accounts 
+    # inorder to upload captions to the various youtube accounts
     sudo pip install -r "${HOME}"/internal-webserver/khantube-oauth-collector/requirements.txt
     sudo update-rc.d -f khantube-oauth-collector-daemon remove
     sudo ln -snf "${HOME}"/aws-config/internal-webserver/etc/init.d/khantube-oauth-collector-daemon /etc/init.d
@@ -423,6 +432,7 @@ install_phabricator
 install_gae_default_version_notifier
 install_beep_boop
 install_publish_notifier
+install_gae_dashboard
 install_kahntube_ouath_collector
 install_exercise_icons
 
