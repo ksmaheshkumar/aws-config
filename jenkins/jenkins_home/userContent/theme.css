@@ -22,9 +22,8 @@
   background-image:url(handtree.png) !important;
 }
 
-/* Parameterized build promotions are in a ".pane" with white-space:nowrap
- * which doesn't make sense for potentially long descriptions. For example,
- * http://jenkins.khanacademy.org/job/deploy-staging/112/promotion/? */
+/* Parameterized build promotions are in a ".pane" with white-space:nowrap, but
+ * that doesn't make sense for potentially long descriptions. */
 .pane .setting-description {
   white-space:normal;
 }

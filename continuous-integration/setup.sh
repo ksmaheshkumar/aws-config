@@ -19,6 +19,7 @@ cd $HOME
 sudo apt-get update
 
 echo "Installing developer tools"
+sudo apt-get install -y ntp
 sudo apt-get install -y curl
 sudo apt-get install -y python-pip
 sudo apt-get install -y git mercurial subversion

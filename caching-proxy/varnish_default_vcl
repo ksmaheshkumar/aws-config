@@ -11,6 +11,11 @@ backend ka {
     .port = "80";
 }
 
+backend cs_scratchpad_audio_s3 {
+    .host = "ka-cs-scratchpad-audio.s3.amazonaws.com";
+    .port = "80";
+}
+
 sub vcl_recv {
     if (req.url ~ "\?(.*&)?clearcache([=&].*)?$") {
         ban("req.url ~ /");
@@ -30,6 +35,14 @@ sub vcl_recv {
             # more details on the technique.
             error 600 "OK";
         }
+    } else if (req.http.Host ~ "(?:^|\.)kasandbox\.org$" && req.url ~ "^/s3/ka-cs-scratchpad-audio.*") {
+        # We want the first to proxy to the second
+        # http://kasandbox.org/s3/ka-cs-scratchpad-audio/71/a002f80db7cd1eb52277b85194348c/blob.mp3
+        # https://ka-cs-scratchpad-audio.s3.amazonaws.com/71/a002f80db7cd1eb52277b85194348c/blob.mp3
+        set req.http.Host = "ka-cs-scratchpad-audio.s3.amazonaws.com";
+        set req.backend = cs_scratchpad_audio_s3;
+        set req.url = regsub(req.url, "/s3/ka-cs-scratchpad-audio", "");
+        
     } else if (req.http.Host ~ "(?:^|\.)kasandbox\.org$") {
         set req.http.Host = "www.khanacademy.org";
         set req.backend = ka;

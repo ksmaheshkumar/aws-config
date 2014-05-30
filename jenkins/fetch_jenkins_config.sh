@@ -11,7 +11,7 @@
 # USAGE:
 #   $ ./fetch_jenkins_config.sh
 #   receiving file list ... done
-#   jobs/website-commit/config.xml
+#   jobs/make-check/config.xml
 #   ...
 
 # Make sure we're in the directory this script resides in.

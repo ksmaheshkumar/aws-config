@@ -34,13 +34,17 @@ set -e
 # Activate the multiverse!  Needed for ec2-api-tools
 sudo perl -pi.orig -e 'next if /-backports/; s/^# (deb .* multiverse)$/$1/' \
     /etc/apt/sources.list
+if ! grep -q nginx/stable /etc/apt/sources.list; then
+  sudo add-apt-repository -y "deb http://ppa.launchpad.net/nginx/stable/ubuntu `lsb_release -cs` main"
+fi
 sudo apt-get update
 
 install_basic_packages() {
     echo "Installing packages: Basic setup"
     sudo apt-get install -y python-pip
     sudo apt-get install -y ntp
-    sudo apt-get install -y lighttpd
+    sudo apt-get install -y nginx  # uses ppa added above
+    sudo apt-get install -y php5-fpm
     # This is needed so installing postfix doesn't prompt.  See
     # http://www.ossramblings.com/preseed_your_apt_get_for_unattended_installs
     # If it prompts anyway, type in the stuff from postfix.preseed manually.
@@ -174,7 +178,7 @@ install_repo_backup() {
     ssh -oStrictHostKeyChecking=no khanacademy.kilnhg.com >/dev/null 2>&1 || true
     echo "Visit https://khanacademy.kilnhg.com/Keys"
     echo "Log in as user ReadOnlyKiln (ask kamens for the password),"
-    echo "   click 'Add a New Key', paste the contents of ~/.ssh/id_rsa.pub"
+    echo "   click 'Add a New Key', paste the contents of $HOME/.ssh/id_rsa.pub"
     echo "   into the box, and hit 'Save key'"
 }
 
@@ -221,6 +225,7 @@ install_phabricator() {
     pecl list | grep -q APC || yes "" | sudo pecl install apc
     sudo pip install pygments                      # for syntax highlighting
     sudo ln -snf /usr/local/bin/pygmentize /usr/bin/
+    sudo rm -f /etc/nginx/sites-enabled/default
     mkdir -p "$HOME/internal-webserver/phabricator/support/bin"
     cat <<EOF >"$HOME/internal-webserver/phabricator/support/bin/README"
 Instead of putting binaries that phabricator needs in your $PATH, you can
@@ -247,7 +252,8 @@ EOF
 
     # Just in case phabricator is already running (we want to be idempotent!)
     PHABRICATOR_ENV=khan "$HOME/internal-webserver/phabricator/bin/phd" stop
-    sudo /etc/init.d/lighttpd stop
+    sudo service nginx stop
+    sudo service php5-fpm stop
 
     env PHABRICATOR_ENV=khan \
         internal-webserver/phabricator/bin/storage --force upgrade
@@ -287,7 +293,8 @@ EOF
     # Start the daemons.
     sudo mkdir -p /var/tmp/phd/log
     sudo chown -R ubuntu /var/tmp/phd
-    sudo service lighttpd start
+    sudo service php5-fpm start
+    sudo service nginx start
     PHABRICATOR_ENV=khan "$HOME/internal-webserver/phabricator/bin/phd" start
 
     # TODO(csilvers): automate this.
@@ -311,7 +318,7 @@ install_gae_default_version_notifier() {
     echo "Installing gae-default-version-notifier"
     git clone git://github.com/Khan/gae-default-version-notifier.git || \
         ( cd gae-default-version-notifier && git pull )
-    echo "For now, set up ~/gae-default-version-notifier/secrets.py based"
+    echo "For now, set up $HOME/gae-default-version-notifier/secrets.py based"
     echo "on secrets.py.example and the 'real' secrets.py."
     # TODO(csilvers): instead, control this via monit(1).
     echo "Then run: nohup python notify.py </dev/null >/dev/null 2>&1 &"
@@ -336,12 +343,70 @@ install_publish_notifier() {
     echo "Installing publish-notifier"
     git clone git://github.com/Khan/publish-notifier.git || \
         ( cd publish-notifier && git pull )
-    echo "For now, set up ~/publish-notifier/secrets.py based"
+    echo "For now, set up $HOME/publish-notifier/secrets.py based"
     echo "on secrets.py.example and the 'real' secrets.py."
     # TODO(csilvers): instead, control this via monit(1).
     echo "Then run: nohup python notify.py </dev/null >/dev/null 2>&1 &"
     echo "Hit <enter> when this is done:"
     read prompt
+}
+
+install_kahntube_ouath_collector() {
+    # A simple flask server that will collect youtube oauth credentials needed
+    # inorder to upload captions to the various youtube accounts 
+    sudo pip install -r "${HOME}"/internal-webserver/khantube-oauth-collector/requirements.txt
+    sudo update-rc.d -f khantube-oauth-collector-daemon remove
+    sudo ln -snf "${HOME}"/aws-config/internal-webserver/etc/init.d/khantube-oauth-collector-daemon /etc/init.d
+    sudo update-rc.d khantube-oauth-collector-daemon defaults
+    if [ ! -e "$HOME/internal-webserver/khantube-oauth-collector/secrets.py" ]; then
+        echo "Add $HOME/internal-webserver/khantube-oauth-collector/secrets.py "
+        echo "according to the secrets_example.py in the same directory."
+        echo "Hit <enter> when this is done:"
+        read prompt
+    fi
+    sudo service khantube-oauth-collector-daemon restart
+}
+
+install_exercise_icons() {
+    # A utility to generate exercise icons. Currently used at http://khanacademy.org/commoncore/map.
+    # https://github.com/Khan/exercise-icons/
+    sudo aptitude -y install gcc-multilib xdg-utils libxml2-dev libcurl4-openssl-dev imagemagick
+
+    if [ ! -e "/usr/bin/dmd" ]; then
+        wget http://downloads.dlang.org/releases/2014/dmd_2.065.0-0_amd64.deb -O /tmp/dmd.deb
+        sudo dpkg -i /tmp/dmd.deb
+        rm /tmp/dmd.deb
+    fi
+
+    (
+        cd /usr/local/share
+
+        if [ ! -L "/usr/local/bin/phantomjs" ]; then
+		sudo wget https://phantomjs.googlecode.com/files/phantomjs-1.9.0-linux-x86_64.tar.bz2
+		sudo tar -xjf /usr/local/share/phantomjs-1.9.0-linux-x86_64.tar.bz2
+		sudo rm /usr/local/share/phantomjs-1.9.0-linux-x86_64.tar.bz2
+		sudo ln -sf /usr/local/share/phantomjs-1.9.0-linux-x86_64/bin/phantomjs /usr/local/bin/phantomjs
+        fi
+        if [ ! -L "/usr/local/bin/casperjs" ]; then
+		sudo git clone git://github.com/n1k0/casperjs.git /usr/local/src/casperjs
+		cd /usr/local/src/casperjs/
+		sudo git fetch origin
+		sudo git checkout tags/1.0.2
+		sudo ln -snf /usr/local/src/casperjs/bin/casperjs /usr/local/bin/casperjs
+        fi
+
+        cd "$HOME"
+        git clone git@github.com:Khan/exercise-icons.git || (cd exercise-icons && git pull)
+        if [ ! -e "$HOME/exercise-icons/secrets.txt" ]; then
+            echo "Add $HOME/exercise-icons/secrets.txt"
+            echo "according to the instructions in README.md."
+            echo "BUCKET should be set to 'ka-exercise-screenshots-2'."
+            echo "Hit <enter> when this is done:"
+            read prompt
+        fi
+        cd exercise-icons
+        make
+    )
 }
 
 cd "$HOME"
@@ -352,11 +417,13 @@ install_root_config_files
 install_user_config_files
 install_appengine
 install_repo_backup
-##install_gerrit
+#install_gerrit
 install_phabricator
 install_gae_default_version_notifier
 install_beep_boop
 install_publish_notifier
+install_kahntube_ouath_collector
+install_exercise_icons
 
 # Do this again, just in case any of the apt-get installs nuked it.
 install_root_config_files

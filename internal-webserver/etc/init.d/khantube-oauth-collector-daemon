@@ -1,0 +1,53 @@
+# A crummy, low-tech daemonizer based on git-daemon
+# This runs the khantube oauth collector flask app which collects the oauth 
+# refresh tokens necessary to upload captions to youtube.
+NAME=khantube-oauth-collector-daemon
+PIDFILE=/var/run/$NAME.pid
+DESC="The Khan Academy youtube uploader Oauth token collector daemon"
+LOGFILE=/home/ubuntu/logs/khantube-oauth-collector.log
+DAEMON=/home/ubuntu/internal-webserver/khantube-oauth-collector/main.py
+DAEMON_OPTS="--port 7001"
+
+test -x $DAEMON || exit 0
+
+[ -r /etc/default/khantube-oauth-collector ] && . /etc/default/khantube-oauth-collector
+
+. /lib/lsb/init-functions
+
+start_khantube_oauth_collector() {
+  mkdir -p $(dirname $LOGFILE)
+  nohup $DAEMON $DAEMON_OPTS > $LOGFILE &
+  echo $! > $PIDFILE
+}
+
+stop_khantube_oauth_collector() {
+  [ -f $PIDFILE ] && ( kill `cat $PIDFILE` 2> /dev/null )
+  rm -f $PIDFILE 2> /dev/null
+}
+
+case "$1" in
+  start)
+  log_begin_msg "Starting $DESC"
+  start_khantube_oauth_collector
+  log_end_msg 0
+  ;;
+  stop)
+  log_begin_msg "Stopping $DESC"
+  stop_khantube_oauth_collector
+  log_end_msg 0
+  ;;
+  restart|force-reload)
+  log_begin_msg "Restarting $DESC"
+  stop_khantube_oauth_collector
+  sleep 1
+  start_khantube_oauth_collector
+  log_end_msg 0
+  ;;
+  *)
+  echo "Usage: $0 {start|stop|restart|force-reload}" >&2
+  exit 1
+  ;;
+esac
+
+exit 0
+

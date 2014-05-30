@@ -1,7 +1,10 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<hudson.plugins.promoted__builds.PromotionProcess plugin="promoted-builds@2.11">
+<hudson.plugins.promoted__builds.PromotionProcess plugin="promoted-builds@2.17">
+  <actions/>
   <keepDependencies>false</keepDependencies>
-  <properties/>
+  <properties>
+    <hudson.plugins.disk__usage.DiskUsageProperty plugin="disk-usage@0.23"/>
+  </properties>
   <scm class="hudson.scm.NullSCM"/>
   <canRoam>false</canRoam>
   <disabled>false</disabled>
@@ -30,22 +33,21 @@
   <buildSteps>
     <hudson.tasks.Shell>
       <command>set +x
-echo &quot;I&apos;m about to trigger deploy-daily with GIT_COMMIT_OVERRIDE=$PROMOTED_GIT_COMMIT&quot;
+echo &quot;I&apos;m about to trigger deploy-default with GIT_COMMIT_OVERRIDE=$PROMOTED_GIT_COMMIT&quot;
 set -x</command>
     </hudson.tasks.Shell>
-    <hudson.plugins.parameterizedtrigger.TriggerBuilder plugin="parameterized-trigger@2.18">
+    <hudson.plugins.parameterizedtrigger.TriggerBuilder plugin="parameterized-trigger@2.21">
       <configs>
         <hudson.plugins.parameterizedtrigger.BlockableBuildTriggerConfig>
           <configs>
             <hudson.plugins.parameterizedtrigger.PredefinedBuildParameters>
               <properties>GIT_COMMIT_OVERRIDE=$PROMOTED_GIT_COMMIT
-FORCE_INDEX_CHANGES=$FORCE_INDEX_CHANGES
 SKIP_TESTS=1
 CLEAN=$CLEAN
 </properties>
             </hudson.plugins.parameterizedtrigger.PredefinedBuildParameters>
           </configs>
-          <projects>deploy-daily</projects>
+          <projects>deploy-default</projects>
           <condition>ALWAYS</condition>
           <triggerWithNoParameters>false</triggerWithNoParameters>
           <block>

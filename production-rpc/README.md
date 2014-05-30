@@ -10,7 +10,7 @@ Solr:
 
 The configuration files in the solr/ directory are based on the 3.6.0 distribution of Solr (not included), available here:
 
-http://www.apache.org/dyn/closer.cgi/lucene/solr/3.6.0
+http://archive.apache.org/dist/lucene/solr/3.6.0/apache-solr-3.6.0.tgz
 
 The solr.xml file and the conf/ directory come from the example in apache-solr-3.6.0/example/solr, with a number of modifications made to the schema.xml file to handle the fields we want to index.
 

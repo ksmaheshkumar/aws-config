@@ -29,12 +29,20 @@
         </hudson.model.StringParameterDefinition>
       </parameterDefinitions>
     </hudson.model.ParametersDefinitionProperty>
+    <hudson.plugins.throttleconcurrents.ThrottleJobProperty plugin="throttle-concurrents@1.8.2">
+      <maxConcurrentPerNode>0</maxConcurrentPerNode>
+      <maxConcurrentTotal>0</maxConcurrentTotal>
+      <categories/>
+      <throttleEnabled>false</throttleEnabled>
+      <throttleOption>project</throttleOption>
+      <configVersion>1</configVersion>
+    </hudson.plugins.throttleconcurrents.ThrottleJobProperty>
+    <hudson.plugins.disk__usage.DiskUsageProperty plugin="disk-usage@0.23"/>
   </properties>
-  <scm class="hudson.plugins.git.GitSCM" plugin="git@1.3.0">
+  <scm class="hudson.plugins.git.GitSCM" plugin="git@2.1.0">
     <configVersion>2</configVersion>
     <userRemoteConfigs>
       <hudson.plugins.git.UserRemoteConfig>
-        <name></name>
         <refspec>+refs/heads/master:refs/remotes/origin/master</refspec>
         <url>ssh://khanacademy@khanacademy.kilnhg.com/Website/Group/webapp</url>
       </hudson.plugins.git.UserRemoteConfig>
@@ -44,45 +52,35 @@
         <name>master</name>
       </hudson.plugins.git.BranchSpec>
     </branches>
-    <disableSubmodules>false</disableSubmodules>
-    <recursiveSubmodules>true</recursiveSubmodules>
     <doGenerateSubmoduleConfigurations>false</doGenerateSubmoduleConfigurations>
-    <authorOrCommitter>false</authorOrCommitter>
-    <clean>true</clean>
-    <wipeOutWorkspace>false</wipeOutWorkspace>
-    <pruneBranches>false</pruneBranches>
-    <remotePoll>false</remotePoll>
-    <ignoreNotifyCommit>false</ignoreNotifyCommit>
-    <useShallowClone>false</useShallowClone>
-    <buildChooser class="hudson.plugins.git.util.DefaultBuildChooser"/>
-    <gitTool>Default</gitTool>
     <browser class="hudson.plugins.git.browser.KilnGit">
       <url>https://khanacademy.kilnhg.com/Code/Website/Group/webapp/</url>
     </browser>
     <submoduleCfg class="list"/>
-    <relativeTargetDir>webapp</relativeTargetDir>
-    <reference>$JENKINS_HOME/gitcaches/webapp</reference>
-    <excludedRegions></excludedRegions>
-    <excludedUsers></excludedUsers>
-    <gitConfigName></gitConfigName>
-    <gitConfigEmail></gitConfigEmail>
-    <skipTag>false</skipTag>
-    <includedRegions></includedRegions>
-    <scmName></scmName>
+    <extensions>
+      <hudson.plugins.git.extensions.impl.RelativeTargetDirectory>
+        <relativeTargetDir>webapp</relativeTargetDir>
+      </hudson.plugins.git.extensions.impl.RelativeTargetDirectory>
+      <hudson.plugins.git.extensions.impl.SubmoduleOption>
+        <disableSubmodules>false</disableSubmodules>
+        <recursiveSubmodules>true</recursiveSubmodules>
+      </hudson.plugins.git.extensions.impl.SubmoduleOption>
+      <hudson.plugins.git.extensions.impl.CleanCheckout/>
+    </extensions>
   </scm>
   <canRoam>true</canRoam>
-  <disabled>false</disabled>
+  <disabled>true</disabled>
   <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
   <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
   <triggers/>
   <concurrentBuild>false</concurrentBuild>
   <builders>
     <hudson.tasks.Shell>
-      <command>webapp/tools/build-datastore.sh</command>
+      <command>timeout -k 5m 5h webapp/tools/build-datastore.sh</command>
     </hudson.tasks.Shell>
   </builders>
   <publishers>
-    <hudson.plugins.emailext.ExtendedEmailPublisher plugin="email-ext@2.28">
+    <hudson.plugins.emailext.ExtendedEmailPublisher plugin="email-ext@2.37.2.2">
       <recipientList>$DEFAULT_RECIPIENTS</recipientList>
       <configuredTriggers>
         <hudson.plugins.emailext.plugins.trigger.FirstFailureTrigger>
@@ -98,6 +96,7 @@
             <attachBuildLog>false</attachBuildLog>
             <compressBuildLog>false</compressBuildLog>
             <replyTo></replyTo>
+            <contentType>project</contentType>
           </email>
           <failureCount>1</failureCount>
         </hudson.plugins.emailext.plugins.trigger.FirstFailureTrigger>
@@ -114,6 +113,7 @@
             <attachBuildLog>false</attachBuildLog>
             <compressBuildLog>false</compressBuildLog>
             <replyTo></replyTo>
+            <contentType>project</contentType>
           </email>
         </hudson.plugins.emailext.plugins.trigger.FixedTrigger>
       </configuredTriggers>
@@ -125,6 +125,7 @@
       <attachBuildLog>false</attachBuildLog>
       <compressBuildLog>false</compressBuildLog>
       <replyTo>$DEFAULT_RECIPIENTS</replyTo>
+      <saveOutput>false</saveOutput>
     </hudson.plugins.emailext.ExtendedEmailPublisher>
     <jenkins.plugins.hipchat.HipChatNotifier plugin="hipchat@0.1.5-SNAPSHOT">
       <authToken>${HIPCHAT_AUTH_TOKEN}</authToken>
@@ -134,7 +135,7 @@
     </jenkins.plugins.hipchat.HipChatNotifier>
   </publishers>
   <buildWrappers>
-    <EnvInjectPasswordWrapper plugin="envinject@1.85">
+    <EnvInjectPasswordWrapper plugin="envinject@1.89">
       <injectGlobalPasswords>true</injectGlobalPasswords>
       <passwordEntries/>
     </EnvInjectPasswordWrapper>

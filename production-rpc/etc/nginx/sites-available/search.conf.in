@@ -1,0 +1,41 @@
+# This file is processed by the install_solr.bash script to replace the {{...}}
+# placeholders with appropriate values.
+
+server {
+    listen *:80;
+    server_name search-rpc.khanacademy.org;
+
+    # See below for information on this
+    set $cloudsearch_document_endpoint {{CLOUDSEARCH_DOCUMENT_ENDPOINT}};
+
+    # CloudSearch accepts bulk requests up to 5 MB, we'll allow a bit over this
+    client_max_body_size 6M;
+
+    location ~ ^/solr/(select|secure-update/{{SECRET}})/ {
+        rewrite ^/solr/secure-update/[^/]+/(.*)$ /solr/update/$1 break;
+
+        proxy_pass http://127.0.0.1:9001;
+    }
+
+    location /cloudsearch/secure-update/{{SECRET}}/ {
+        rewrite ^/cloudsearch/secure-update/[^/]+(/.*)$ $1 break;
+
+        # Use Google's public DNS servers when resolving the CloudSearch
+        # domain. We have to hardcode a value here because nginx won't use
+        # libc and this DNS server will be available regardless of what machine
+        # you're on.
+        resolver 8.8.8.8;
+
+        # It is important that this is a variable. It forces nginx to
+        # re-resolve the endpoint each time (otherwise it would cache the
+        # lookup forever). It does actually cache the endpoint based on the
+        # answer's TTL though. See
+        # http://www.jethrocarr.com/2013/11/02/nginx-reverse-proxies-and-dns-resolution/
+        proxy_pass $cloudsearch_document_endpoint;
+    }
+
+    # Catch-all for anything that doesn't match above
+    location / {
+        return 404;
+    }
+}

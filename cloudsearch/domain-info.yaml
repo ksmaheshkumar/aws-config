@@ -1,0 +1,97 @@
+# This configuration file is meant to be read by the provision-domain.py script
+# and is used to set up a CloudSearch domain. See that script for more
+# information on the provisioning process.
+# Also see
+# https://sites.google.com/a/khanacademy.org/forge/for-developers/developing-search/working-with-cloudsearch-domains
+
+analysis_schemes:
+    # These are the analysis schemes we use. Creating and using analysis
+    # schemes is how we configure CloudSearch features such as algorithmic
+    # stemming, dictionary stemming, stop words, and a few others. See the
+    # Configuring Text Analysis Schemes for Amazon CloudSearch document in
+    # AWS CloudSearch's documentation for more information.
+
+    - name: ka_english
+      lang: en
+      algorithmic_stemming: full
+      stopwords: dictionaries/en-stopwords.yaml
+
+    - name: ka_spanish
+      lang: es
+      algorithmic_stemming: light
+      stopwords: dictionaries/es-stopwords.yaml
+
+    - name: ka_portuguese
+      lang: pt
+      algorithmic_stemming: light
+      stopwords: dictionaries/pt-stopwords.yaml
+
+fields:
+    # These are the fields that documents in the index will contain. Possible
+    # traits are: search, highlight, sort, return, and facet. If an
+    # analysis_scheme is specified, the scheme with that name will be applied
+    # to the field. If the special locale_specific scheme is specified, a
+    # field will be created for every locale (content_en, content_es_es, ...)
+    # and the analysis_scheme specified in locales dict below will be applied
+    # to the field.
+    #
+    # Some useful information regarding indexing options are available under
+    # Configuring Index Options in AWS Cloud Search's documentation.
+
+    - name: title
+      type: text
+      traits: [search, return, sort, highlight]
+      analysis_scheme: locale_specific
+
+    # A relative URL (ie: what's after 'http://khanacademy.org') to the entity
+    - name: relative_url
+      type: literal
+      traits: [return]
+
+    # This field contains the description of the entity which might not exist
+    # (in which case it is omitted). For example, this field is omitted for
+    # articles.
+    - name: description
+      type: text
+      traits: [search, highlight]
+      analysis_scheme: locale_specific
+
+    # This field contains the "content" of the entity. For an article, this is
+    # literally its content (stripped of HTML tags), but for a video it is the
+    # subtitles of the video, this will be omitted for topics.
+    - name: content
+      type: text-array
+      traits: [search, highlight]
+      analysis_scheme: locale_specific
+
+    # This field is only specified for videos.
+    - name: keywords
+      type: text-array
+      traits: [search, return, highlight]
+      analysis_scheme: ka_english
+
+    # This field will contain one of: Video, Article, Program, Exercise, or
+    # Topic.
+    - name: kind
+      type: literal
+      traits: [search, facet, return]
+
+    # Example value: ["Test prep", "GMAT"]
+    - name: breadcrumbs
+      type: literal-array
+      traits: [return]
+
+    # This is a hash of all of the search data used when updating the search
+    # index. It should not be used outside of the publish process.
+    - name: hash
+      type: literal
+      traits: [return]
+
+locales:
+    # Maps the locale name (with any non-alphanumeric character transformed
+    # into an underscore and all alphabetic characters converted to lowercase)
+    # to the analysis scheme we'll use for it.
+
+    en: ka_english
+    es_es: ka_spanish
+    pt_br: ka_portuguese
