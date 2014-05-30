@@ -353,6 +353,9 @@ install_publish_notifier() {
 }
 
 install_gae_dashboard() {
+    sudo apt-get install -y python-dev libxml2-dev libxslt1-dev
+    sudo pip install lxml cssselect        # to parse GAE dashboard output
+    sudo pip install GChartWrapper
     echo "Put the value of hostedgraphite_api_key from secrets.py"
     echo "in $HOME/hostedgraphite_secret"
     echo "Also put the password for khanbackups@gmail.com"
