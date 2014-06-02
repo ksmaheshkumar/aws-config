@@ -340,18 +340,6 @@ install_beep_boop() {
     read prompt
 }
 
-install_publish_notifier() {
-    echo "Installing publish-notifier"
-    git clone git://github.com/Khan/publish-notifier.git || \
-        ( cd publish-notifier && git pull )
-    echo "For now, set up $HOME/publish-notifier/secrets.py based"
-    echo "on secrets.py.example and the 'real' secrets.py."
-    # TODO(csilvers): instead, control this via monit(1).
-    echo "Then run: nohup python notify.py </dev/null >/dev/null 2>&1 &"
-    echo "Hit <enter> when this is done:"
-    read prompt
-}
-
 install_gae_dashboard() {
     sudo apt-get install -y python-dev libxml2-dev libxslt1-dev
     sudo pip install lxml cssselect        # to parse GAE dashboard output
@@ -434,7 +422,6 @@ install_repo_backup
 install_phabricator
 install_gae_default_version_notifier
 install_beep_boop
-install_publish_notifier
 install_gae_dashboard
 install_kahntube_ouath_collector
 install_exercise_icons
