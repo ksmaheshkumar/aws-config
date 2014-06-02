@@ -1,4 +1,0 @@
-/dev/xvdg    /ebs/kalogs         auto   defaults,nobootwait,comment=cloudconfig02
-/dev/xvdh    /ebs/kadata         auto   defaults,nobootwait,comment=cloudconfig02
-/dev/xvdi    /ebs/kadata2        auto   defaults,nobootwait,comment=cloudconfig02
-/dev/xvdf    /ebs/modeling       auto   defaults,nobootwait,comment=cloudconfig02
