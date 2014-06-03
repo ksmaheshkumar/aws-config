@@ -7,10 +7,10 @@ PATH = /usr/local/bin:/usr/bin:/bin
   */5 *  *   *   *     sh -c '/usr/bin/timeout 4m python internal-webserver/update_phabricator_repositories.py $HOME/phabricator/repositories' || echo "Failed to update phabricator's repository-list"
 
 # Check for elevated issue rates on Google Code.
-  10 *  *   *   *     sh -c 'python $HOME/beep-boop/google_code_reports.py' >> $HOME/logs/beep-boop-gcode.log || echo "Failed to run beep-boop for google-code; see $HOME/logs/beep-boop-gcode.log"
+  10 *  *   *   *     sh -c '/usr/bin/timeout 55m python $HOME/beep-boop/google_code_reports.py' >> $HOME/logs/beep-boop-gcode.log || echo "Failed to run beep-boop for google-code; see $HOME/logs/beep-boop-gcode.log"
 
 # Check for elevated issue rates on Github.
-  16 *  *   *   *     sh -c 'python $HOME/beep-boop/github_reports.py' >> $HOME/logs/beep-boop-github.log || echo "Failed to run beep-boop for github; see $HOME/logs/beep-boop-github.log"
+  16 *  *   *   *     sh -c '/usr/bin/timeout 55m python $HOME/beep-boop/github_reports.py' >> $HOME/logs/beep-boop-github.log || echo "Failed to run beep-boop for github; see $HOME/logs/beep-boop-github.log"
 
 # Do a backup every day.  (12:00 UTC is 4am PST)
   0  12  *   *   *     sh -c 'echo "--- `date`"; $HOME/aws-config/internal-webserver/snapshot_toby.sh' >> $HOME/logs/aws-snapshot.log || echo "Failed to snapshot toby's data; see $HOME/logs/aws-snapshot.log"
@@ -18,10 +18,10 @@ PATH = /usr/local/bin:/usr/bin:/bin
 # --- Fetch stats and send them to graphite
 # Fetch GAE usage reports every day. Reports are generated at about 1430 PST
 # which is 2130 UTC, and we allow for a bit of wiggle room.
-00 22 * * * sh -c 'echo "--- `date`"; $HOME/internal-webserver/gae_dashboard/fetch_usage.sh' >> $HOME/logs/gae_dashboard_usage.log || echo "gae_dashboard_usage run failed; see $HOME/logs/gae_dashboard_usage.log"
+00 22 * * * sh -c 'echo "--- `date`"; /usr/bin/timeout 55m $HOME/internal-webserver/gae_dashboard/fetch_usage.sh' >> $HOME/logs/gae_dashboard_usage.log || echo "gae_dashboard_usage run failed; see $HOME/logs/gae_dashboard_usage.log"
 
 # Fetch GAE admin UI stats every 5 minutes.
-*/5 * * * * sh -c 'echo "--- `date`"; $HOME/internal-webserver/gae_dashboard/fetch_stats.sh' >> $HOME/logs/gae_dashboard_stats.log
+*/5 * * * * sh -c 'echo "--- `date`"; /usr/bin/timeout 4m $HOME/internal-webserver/gae_dashboard/fetch_stats.sh' >> $HOME/logs/gae_dashboard_stats.log
 # Once a day, don't write to the datastore but email on failure to
 # keep a pulse on this process.
-00 23 * * * sh -c 'echo "--- `date`"; $HOME/internal-webserver/gae_dashboard/fetch_stats.sh -n' >> $HOME/logs/gae_dashboard_stats.log || echo "gae_dashboard_stats run failed; see $HOME/logs/gae_dashboard_stats.log"
+00 23 * * * sh -c 'echo "--- `date`"; /usr/bin/timeout 4m $HOME/internal-webserver/gae_dashboard/fetch_stats.sh -n' >> $HOME/logs/gae_dashboard_stats.log || echo "gae_dashboard_stats run failed; see $HOME/logs/gae_dashboard_stats.log"
