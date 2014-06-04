@@ -120,6 +120,7 @@ install_user_config_files() {
     sudo chown www-data.www-data /opt/logs
     ln -snf /opt/logs "$HOME/logs"
     ln -snf /var/tmp/phd/log/daemons.log "$HOME/logs/phd-daemons.log"
+    ln -snf /var/log/nginx/error.log "$HOME/logs/nginx-error.log"
 }
 
 install_appengine() {
