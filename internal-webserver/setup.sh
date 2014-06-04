@@ -64,13 +64,15 @@ install_ec2_tools() {
     # TODO(csilvers): pip install boto instead.
     sudo apt-get install -y ec2-api-tools
     mkdir -p "$HOME/aws"
-    echo "Copy the pk-backup-role-account.pem and cert-backup-role-account.pem"
-    echo "files from dropbox to $HOME/aws:"
-    echo "   https://www.dropbox.com/home/Khan%20Academy%20All%20Staff/Secrets"
-    echo "Also, make sure there is an IAM user called 'backup-role-account"
-    echo "with permissions from 'backup-role-account-permissions'."
-    echo "Then hit enter to continue"
-    read prompt
+    if [ ! -s "$HOME/aws/pk-backup-role-account.pem" ]; then
+        echo "Copy the pk-backup-role-account.pem and cert-backup-role-account.pem"
+        echo "files from dropbox to $HOME/aws:"
+        echo "   https://www.dropbox.com/home/Khan%20Academy%20All%20Staff/Secrets"
+        echo "Also, make sure there is an IAM user called 'backup-role-account"
+        echo "with permissions from 'backup-role-account-permissions'."
+        echo "Then hit enter to continue"
+        read prompt
+    fi
 }
 
 install_repositories() {
@@ -302,7 +304,7 @@ EOF
     cat <<EOF
 To finish phabricator installation:
 1) Visit http://phabricator.khanacademy.org, sign in as admin, visit
-   http://phabricator.khanacademy.org/auth/config/new/, and follow 
+   http://phabricator.khanacademy.org/auth/config/new/, and follow
    the directions to enable Google OAuth.
 2) Sign out, then sign in again via oauth, create a new account for
    yourself, sign out, sign in as admin, and visit
@@ -321,7 +323,7 @@ install_gae_default_version_notifier() {
         ( cd gae-default-version-notifier && git pull )
     echo "For now, set up $HOME/gae-default-version-notifier/secrets.py based"
     echo "on secrets.py.example and the 'real' secrets.py."
-    # TODO(csilvers): instead, control this via monit(1).
+    # TODO(csilvers): instead, run this via upstart.
     echo "Then run: nohup python notify.py </dev/null >/dev/null 2>&1 &"
     echo "Hit <enter> when this is done:"
     read prompt
@@ -333,23 +335,38 @@ install_beep_boop() {
     git clone git://github.com/Khan/beep-boop.git || \
         ( cd beep-boop && git pull )
     sudo pip install -r beep-boop/requirements.txt
-    echo "Put hipchat.cfg in beep-boop/ if it's not already there."
-    echo "This is a file with the contents 'token = <hipchat id>',"
-    echo "where the hipchat id comes from secrets.py."
-    echo "Hit <enter> when this is done:"
-    read prompt
+    if [ ! -s "$HOME/beep-boop/hipchat.cfg" ]; then
+        echo "Put hipchat.cfg in $HOME/beep-boop/."
+        echo "This is a file with the contents 'token = <hipchat id>',"
+        echo "where the hipchat id comes from secrets.py."
+        echo "Hit <enter> when this is done:"
+        read prompt
+    fi
+    if [ ! -s "$HOME/beep-boop/uservoice.cfg" ]; then
+        echo "Put uservoice.cfg in $HOME/beep-boop/."
+        echo "This is a file with the contents '<uservoice_api_key>',"
+        echo "where the api key comes from secrets.py."
+        echo "Hit <enter> when this is done:"
+        read prompt
+    fi
 }
 
 install_gae_dashboard() {
     sudo apt-get install -y python-dev libxml2-dev libxslt1-dev
     sudo pip install lxml cssselect        # to parse GAE dashboard output
     sudo pip install GChartWrapper
-    echo "Put the value of hostedgraphite_api_key from secrets.py"
-    echo "in $HOME/hostedgraphite_secret"
-    echo "Also put the password for khanbackups@gmail.com"
-    echo "in $HOME/private_pw"
-    echo "Hit <enter> when this is done:"
-    read prompt
+    if [ ! -s "$HOME/hostedgraphite_secret" ]; then
+        echo "Put the value of hostedgraphite_api_key from secrets.py"
+        echo "in $HOME/hostedgraphite_secret"
+        echo "Hit <enter> when this is done:"
+        read prompt
+    fi
+    if [ ! -s "$HOME/private_pw" ]; then
+        echo "Put the password for khanbackups@gmail.com"
+        echo "in $HOME/private_pw"
+        echo "Hit <enter> when this is done:"
+        read prompt
+    fi
 }
 
 install_kahntube_ouath_collector() {
