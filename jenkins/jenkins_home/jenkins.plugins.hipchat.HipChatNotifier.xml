@@ -1,7 +1,0 @@
-<?xml version='1.0' encoding='UTF-8'?>
-<jenkins.plugins.hipchat.HipChatNotifier_-DescriptorImpl plugin="hipchat@0.1.5-SNAPSHOT">
-  <token>${HIPCHAT_AUTH_TOKEN}</token>
-  <room>1s and 0s</room>
-  <buildServerUrl>http://jenkins.khanacademy.org/</buildServerUrl>
-  <sendAs>Jenny Jenkins</sendAs>
-</jenkins.plugins.hipchat.HipChatNotifier_-DescriptorImpl>

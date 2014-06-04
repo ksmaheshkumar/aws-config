@@ -78,7 +78,8 @@ install_basic_packages() {
 }
 
 install_user_env() {
-    cp -a "$CONFIG_DIR/.gitconfig" "$HOME/.gitconfig"
+    cp -av "$CONFIG_DIR/.gitconfig" "$HOME/.gitconfig"
+    cp -av "$CONFIG_DIR/.ssh" "$HOME/.ssh"
 }
 
 install_phantomjs() {
@@ -247,14 +248,22 @@ install_nginx() {
 }
 
 install_jenkins_home() {
+    if [ ! -d jenkins_home ]; then
+        # This uses a trick in .ssh/config to connect to github but with
+        # the right auth file.  It requires .ssh/id_rsa.ReadWriteKiln to
+        # be installed.
+        git clone git://github.com-jenkins/Khan/jenkins
+    fi
+    ( cd jenkins_home && git pull )
+
     # We install jenkins_home/jobs on a separate disk, so sync it separately.
-    rsync -av --exclude jobs "${CONFIG_DIR}/jenkins_home/" "${JENKINS_HOME}/"
+    rsync -av --exclude jobs "jenkins_home/" "${JENKINS_HOME}/"
     if [ -e "${JENKINS_HOME}/jobs" && ! -L "${JENKINS_HOME}/jobs" ]; then
         echo "Config ERROR: jobs should be a symlink.  Fix manually!"
         exit 1
     fi
     ln -snf /mnt/jenkins/jobs "${JENKINS_HOME}/jobs"
-    rsync -av "${CONFIG_DIR}/jenkins_home/jobs/" "${JENKINS_HOME}/jobs/"
+    rsync -av "jenkins_home/jobs/" "${JENKINS_HOME}/jobs/"
 }
 
 update_aws_config_env
