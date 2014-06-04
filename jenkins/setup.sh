@@ -80,7 +80,8 @@ install_basic_packages() {
 install_user_env() {
     sudo cp -av "$CONFIG_DIR/.gitconfig" "$JENKINS_HOME/.gitconfig"
     sudo cp -av "$CONFIG_DIR/.ssh" "$JENKINS_HOME/"
-    sudo chown -R jenkins "$JENKINS_HOME/.gitconfig" "$JENKINS_HOME/.ssh"
+    sudo chown -R jenkins.nogroup "$JENKINS_HOME/.gitconfig"
+    sudo chown -R jenkins.nogroup "$JENKINS_HOME/.ssh"
 }
 
 install_phantomjs() {
@@ -253,7 +254,7 @@ install_jenkins_home() {
         # This uses a trick in .ssh/config to connect to github but with
         # the right auth file.  It requires .ssh/id_rsa.ReadWriteKiln to
         # be installed.
-        git clone git://github.com-jenkins/Khan/jenkins
+        git clone git://github.com-jenkins/Khan/jenkins jenkins_home
     fi
     ( cd jenkins_home && git pull )
 
