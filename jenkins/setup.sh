@@ -79,7 +79,7 @@ install_basic_packages() {
 
 install_user_env() {
     sudo cp -av "$CONFIG_DIR/.gitconfig" "$JENKINS_HOME/.gitconfig"
-    sudo cp -av "$CONFIG_DIR/.ssh" "$JENKINS_HOME/.ssh"
+    sudo cp -av "$CONFIG_DIR/.ssh" "$JENKINS_HOME/"
     sudo chown -R jenkins "$JENKINS_HOME/.gitconfig" "$JENKINS_HOME/.ssh"
 }
 
