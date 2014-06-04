@@ -82,6 +82,7 @@ install_user_env() {
     sudo cp -av "$CONFIG_DIR/.ssh" "$JENKINS_HOME/"
     sudo chown -R jenkins.nogroup "$JENKINS_HOME/.gitconfig"
     sudo chown -R jenkins.nogroup "$JENKINS_HOME/.ssh"
+    sudo chmod 600 "$JENKINS_HOME/.ssh/config"
 }
 
 install_phantomjs() {
