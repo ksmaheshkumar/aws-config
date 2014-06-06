@@ -52,7 +52,7 @@ sub vcl_recv {
         unset req.http.User-Agent;
 
         # Check URL whitelist
-        if (!req.url ~ "^/cs/exec($|\?)|^(/genfiles/translations/[^/]*)?/javascript|^/stylesheets") {
+        if (!req.url ~ "^/cs/exec($|\?)|^(/genfiles/translations/[^/]*)?/javascript|^/stylesheets|^/third_party/javascript-khansrc") {
             error 403 "Forbidden";
         }
     }
