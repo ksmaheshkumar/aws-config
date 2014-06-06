@@ -1,9 +1,0 @@
-/home/ci/gae-continuous-deploy/log/*.log {
-  daily
-  dateext
-  olddir archives
-  copytruncate
-  rotate 200
-  compress
-  delaycompress
-}
