@@ -294,6 +294,13 @@ EOF
     python "$HOME/internal-webserver/update_phabricator_repositories.py" -v \
         "$HOME/phabricator/repositories"
 
+    # But we store the files on the same disk as mysql so that they get backed
+    # up alongside the database data
+    sudo mkdir -p /opt/phabricator_files
+    sudo chmod -R a+rX /opt/phabricator_files
+    sudo chown -R www-data /opt/phabricator_files
+    ln -snf /opt/phabricator_files "$HOME/phabricator/files"
+
     # Start the daemons.
     sudo mkdir -p /var/tmp/phd/log
     sudo chown -R ubuntu /var/tmp/phd
