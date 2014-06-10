@@ -14,15 +14,7 @@
 set -e
 
 CONFIG_DIR="$HOME"/aws-config/jenkins
-# Installing jenkins creates a jenkins user whose $HOME is this directory.
-JENKINS_HOME=/var/lib/jenkins
-
-# Some builds need secrets.py from the webapp project. We create a place to
-# store the secrets.py.cast5 decryption password, and to store secrets.py so
-# it can be added to PYTHONPATH.
-# TODO(chris): store the password securely.
-SECRETS_DIR="${JENKINS_HOME}"/secrets_py
-SECRETS_PW="${SECRETS_DIR}"/secrets.py.cast5.password
+JENKINS_HOME="$HOME"
 
 cd "$HOME"
 
