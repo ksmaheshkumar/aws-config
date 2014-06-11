@@ -251,6 +251,12 @@ install_nginx() {
     sudo service nginx restart
 }
 
+install_redis() {
+    # We use redis as a simple db to store what tests have passed.
+    echo "Installing redis"
+    sudo apt-get install -y redis-server
+}
+
 install_jenkins_home() {
     if [ ! -d jenkins_home ]; then
         # This uses a trick in .ssh/config to connect to github but with
@@ -277,6 +283,7 @@ install_build_deps
 install_google_app_engine
 install_jenkins
 install_nginx
+install_redis
 install_jenkins_home
 
 echo
