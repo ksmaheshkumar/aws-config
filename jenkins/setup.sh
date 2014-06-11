@@ -129,6 +129,7 @@ install_build_deps() {
     # Ruby deps
     sudo apt-get install -y ruby1.8-dev ruby1.8 ri1.8 rdoc1.8 irb1.8
     sudo apt-get install -y libreadline-ruby1.8 libruby1.8 libopenssl-ruby
+    sudo apt-get install -y ruby-bundler
     # nokogiri requirements (gem install does not suffice on Ubuntu)
     # See http://nokogiri.org/tutorials/installing_nokogiri.html
     sudo apt-get install -y libxslt-dev libxml2-dev
