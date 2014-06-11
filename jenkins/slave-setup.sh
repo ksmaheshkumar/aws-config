@@ -116,6 +116,8 @@ install_jenkins_slave() {
     # Set up a compatible Java.
     sudo apt-get install -y openjdk-6-jre openjdk-6-jdk
     sudo ln -snf /usr/lib/jvm/java-6-openjdk /usr/lib/jvm/default-java
+
+    mkdir -p webapp-workspace
 }
 
 update_aws_config_env
@@ -125,3 +127,4 @@ install_build_deps
 install_jenkins_slave
 
 echo "TODO: copy jenkins:/var/lib/jenkins/.ssh/id_rsa.ReadWriteKiln* to .ssh"
+echo "TODO: cd webapp-workspace && git clone ssh://khanacademy@khanacademy.kilnhg.com/Website/Group/webapp"
