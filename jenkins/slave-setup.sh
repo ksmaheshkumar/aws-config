@@ -96,13 +96,13 @@ install_build_deps() {
     # Ruby deps
     sudo apt-get install -y ruby1.8-dev ruby1.8 ri1.8 rdoc1.8 irb1.8
     sudo apt-get install -y libreadline-ruby1.8 libruby1.8 libopenssl-ruby
-    sudo apt-get install -y ruby-bundler
     # nokogiri requirements (gem install does not suffice on Ubuntu)
     # See http://nokogiri.org/tutorials/installing_nokogiri.html
     sudo apt-get install -y libxslt-dev libxml2-dev
     # NOTE: version 2.x of uglifier has unexpected behavior that causes
     # khan-exercises/build/pack.rb to fail.
     sudo gem install --conservative nokogiri:1.5.7 json:1.7.7 uglifier:1.3.0 therubyracer:0.11.4
+    sudo gem install bundler
 
     # jstest deps
     install_phantomjs
@@ -126,4 +126,4 @@ install_jenkins_slave
 
 echo "TODO: copy jenkins:/var/lib/jenkins/.ssh/id_rsa.ReadWriteKiln* to .ssh"
 echo "TODO: cd webapp-workspace && git clone ssh://khanacademy@khanacademy.kilnhg.com/Website/Group/webapp"
-echo "      and then (optional): cd webapp && sudo make deps"
+echo "      and then (optional): cd webapp && sudo make deps && sudo chown -R ubuntu genfiles"
