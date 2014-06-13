@@ -11,6 +11,11 @@ backend ka {
     .port = "80";
 }
 
+backend appspot {
+    .host = "khan-academy.appspot.com";
+    .port = "80";
+}
+
 backend cs_scratchpad_audio_s3 {
     .host = "ka-cs-scratchpad-audio.s3.amazonaws.com";
     .port = "80";
@@ -44,8 +49,51 @@ sub vcl_recv {
         set req.url = regsub(req.url, "/s3/ka-cs-scratchpad-audio", "");
         
     } else if (req.http.Host ~ "(?:^|\.)kasandbox\.org$") {
-        set req.http.Host = "www.khanacademy.org";
-        set req.backend = ka;
+        if (req.url ~ "(\?|&)host=([a-zA-Z-_.]*)") {
+            # We want to make it possible for kasandbox.org requests to get
+            # proxied to the correct version/module of the site.  In order to do
+            # this, we have the client pass a host parameter, which might be a
+            # user-facing site like es.khanacademy.org (to ensure that the
+            # request gets proxied to the i18n module) or a dev version like
+            # staging.khan-academy.appspot.com (so that we can test the
+            # kasandbox.org setup), and then proxy through to that host.
+            #
+            # As of June 2014, GAE routes requests based on the HTTP Host
+            # header, as long as the request was sent to *.khanacademy.org if
+            # the Host is *.khanacademy.org and likewise for *.appspot.com.  So
+            # rather than trying to actually send the request to the requested
+            # host, we just send it to www.khanacademy.org or
+            # khan-academy.appspot.com, and set the HTTP Host header to
+            # whatever the client requested.  This way, we don't have to try to
+            # get Varnish to let us set an arbitrary backend hostname, which
+            # seems to be hard or impossible.  It is also potentially more
+            # secure since we will never actually send a request to anything
+            # other than a fixed list of hosts (namely, the backends defined at
+            # the top of this file).
+            set req.http.Host = regsub(req.url, ".*(\?|&)host=([a-zA-Z-_.]*)(&.*|$)", "\2");
+            if (req.http.Host ~ "(^|\.)khanacademy\.org$") {
+                set req.backend = ka;
+            } else if (req.http.Host ~ "(^|\.|-dot-)khan-academy\.appspot\.com$") {
+                # GAE *does* distinguish between appspot.com and
+                # khanacademy.org URLs, and will 404 if the Host uses one but
+                # the request is sent to the other, so if the user (in this
+                # case probably a dev) asked for *.khan-academy.appspot.com,
+                # send them there instead.
+                set req.backend = appspot;
+            } else {
+                # If the host is neither *.khanacademy.org nor
+                # *.khan-academy.appspot.com, someone is probably trying to do
+                # something sketchy, so to be safe, let's redirect them to
+                # www.khanacademy.org.
+                set req.http.Host = "www.khanacademy.org";
+                set req.backend = ka;
+            }
+        } else {
+            # If don't ask for a particular host, send them to
+            # www.khanacademy.org.
+            set req.http.Host = "www.khanacademy.org";
+            set req.backend = ka;
+        }
 
         # We unset User-Agent so that our ssl_for_spdy decorator doesn't
         # redirect to HTTPS, which Varnish would subsequently cache.
