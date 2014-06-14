@@ -49,7 +49,7 @@ sub vcl_recv {
         set req.url = regsub(req.url, "/s3/ka-cs-scratchpad-audio", "");
         
     } else if (req.http.Host ~ "(?:^|\.)kasandbox\.org$") {
-        if (req.url ~ "(\?|&)host=([a-zA-Z-_.]*)") {
+        if (req.url ~ "(\?|&)host=([a-zA-Z0-9-_.]*)") {
             # We want to make it possible for kasandbox.org requests to get
             # proxied to the correct version/module of the site.  In order to do
             # this, we have the client pass a host parameter, which might be a
@@ -70,7 +70,7 @@ sub vcl_recv {
             # secure since we will never actually send a request to anything
             # other than a fixed list of hosts (namely, the backends defined at
             # the top of this file).
-            set req.http.Host = regsub(req.url, ".*(\?|&)host=([a-zA-Z-_.]*)(&.*|$)", "\2");
+            set req.http.Host = regsub(req.url, ".*(\?|&)host=([a-zA-Z0-9-_.]*)(&.*|$)", "\2");
             if (req.http.Host ~ "(^|\.)khanacademy\.org$") {
                 set req.backend = ka;
             } else if (req.http.Host ~ "(^|\.|-dot-)khan-academy\.appspot\.com$") {
