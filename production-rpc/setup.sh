@@ -4,10 +4,6 @@
 # ec2.  It has things that are needed for our production services,
 # such as search.
 #
-# Note that solr setup is done separately from this file, via
-# install_solr.bash and update_solr_config.bash.
-# (TODO(csilvers): remove this comment once we've removed use of solr.)
-#
 # NOTE: to run udp-relay, the aws machine's firewall must be set up to
 # pass through UDP packets on ports 2003 and 2004.
 

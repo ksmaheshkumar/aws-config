@@ -15,10 +15,9 @@ sudo apt-get -y update
 
 sudo apt-get -y install git
 
-# Install the "secret" (literally the text secret). The tee trick is given in
-# install_solr.bash and is used to write to the file with sudo privileges
-sudo mkdir -p /etc/lighttpd
-echo 'secret' | sudo tee "$HOME/solr_secret" > /dev/null
+# Install the "secret" (literally the text secret). The tee trick is used to
+# write to the file with sudo privileges.
+echo 'secret' | sudo tee "$HOME/cloudsearch_secret" > /dev/null
 
 # Clone the aws-config repo into our home directory (note that we're root if
 # vagrant is doing the provisioning so home is probably /root). We do a copy
@@ -33,10 +32,3 @@ sudo cp -af /var/local/aws-config "$HOME"
 # directory, so we'll do a little hackery here.
 sudo ln -fs "$HOME/aws-config/production-rpc/data/cloudsearch-publish-dev-endpoint" "$HOME/aws-config/production-rpc/data/cloudsearch-publish-endpoint"
 sudo chmod -R a+rx "$HOME"
-
-# The postfix installer is going to try to grab the screen and display some
-# fancy curses menu. This ends up doing some very bad things so we seed it with
-# some values here.
-# http://serverfault.com/questions/143968/automate-the-installation-of-postfix-on-ubuntu
-debconf-set-selections <<< "postfix postfix/mailname string localhost"
-debconf-set-selections <<< "postfix postfix/main_mailer_type string 'Internet Site'"
