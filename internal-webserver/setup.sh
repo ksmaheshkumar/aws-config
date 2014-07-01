@@ -100,6 +100,13 @@ install_root_config_files() {
     grep -xqf /etc/fstab.extra /etc/fstab || \
         cat /etc/fstab.extra | sudo tee -a /etc/fstab >/dev/null
 
+    # Stuff in /etc/init needs to be owned by root, so we copy instead of
+    # symlinking there.
+    for initfile in "$HOME"/aws-config/internal-webserver/etc/init/*; do
+        rm -f "/etc/init/`basename "$initfile"`"
+        sudo install -m644 "$initfile" /etc/init
+    done
+
     # Make sure all the disks in the fstab are mounted.
     sudo mount -a
 }
@@ -337,6 +344,21 @@ install_gae_default_version_notifier() {
     read prompt
 }
 
+install_culture_cow() {
+    echo "Installing culture cow"
+    git clone git://github.com/Khan/culture-cow.git || \
+        ( cd culture-cow && git pull )
+    cd culture-cow
+    npm install
+    if [ ! -s "$HOME/culture-cow/bin/secrets" ]; then
+        echo "Put secrets in $HOME/culture-cow/bin."
+        echo "This is a shell script that lives in dropbox:"
+        echo "   https://www.dropbox.com/home/Khan%20Academy%20All%20Staff/Secrets/culture%20cow"
+        echo "and contains keys for connecting to hipchat and trello."
+        echo "Hit <enter> when this is done:"
+        read prompt
+    fi
+}
 
 install_beep_boop() {
     echo "Installing beep-boop"
@@ -435,6 +457,14 @@ install_exercise_icons() {
     )
 }
 
+start_daemons() {
+    echo "Starting daemons in $HOME/aws-config/internal-webserver/etc/init"
+    for daemon in $HOME/aws-config/internal-webserver/etc/init/*.conf; do
+        sudo stop `basename $daemon .conf` || true
+        sudo start `basename $daemon .conf`
+    done
+}
+
 cd "$HOME"
 install_basic_packages
 install_ec2_tools
@@ -446,6 +476,7 @@ install_repo_backup
 #install_gerrit
 install_phabricator
 install_gae_default_version_notifier
+install_culture_cow
 install_beep_boop
 install_gae_dashboard
 install_kahntube_ouath_collector
@@ -457,3 +488,6 @@ install_root_config_files
 # Finally, we can start the crontab!
 echo "Installing the crontab"
 crontab "$HOME/aws-config/internal-webserver/crontab"
+
+echo "Starting daemons"
+start_daemons
