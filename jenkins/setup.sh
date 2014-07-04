@@ -195,13 +195,6 @@ install_jenkins() {
 
     sudo apt-get install -y jenkins     # http://jenkins-ci.org
 
-    # Authorize Jenkins to access kiln repos.
-    # TODO(chris): right now this uses the personal auth of whatever
-    # gets entered at the auth prompt. There should be a read-only
-    # account for accessing the kiln repos.
-    sudo -u jenkins sh -c "echo \"[extensions]
-kilnauth = ${HOME}/kiln_extensions/kilnauth.py\" > \"${JENKINS_HOME}\"/.hgrc"
-
     # Ensure plugins directory exists.
     sudo -u jenkins mkdir -p "${JENKINS_HOME}"/plugins
 
