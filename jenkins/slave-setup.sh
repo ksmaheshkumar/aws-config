@@ -125,5 +125,5 @@ install_build_deps
 install_jenkins_slave
 
 echo "TODO: copy jenkins:/var/lib/jenkins/.ssh/id_rsa.ReadWriteKiln* to .ssh"
-echo "TODO: cd webapp-workspace && git clone ssh://khanacademy@khanacademy.kilnhg.com/Website/Group/webapp"
+echo "TODO: cd webapp-workspace && git clone git@github.com:Khan/webapp"
 echo "      and then (optional): source env/bin/activate; cd webapp && make deps"
