@@ -26,11 +26,18 @@ JENKINS_HOME=/var/lib/jenkins
 # TODO(chris): store the password securely.
 SECRETS_DIR="${JENKINS_HOME}"/secrets_py
 SECRETS_PW="${SECRETS_DIR}"/secrets.py.cast5.password
+PROD_SECRETS_PW="${JENKINS_HOME}/prod-deploy.pw"
 
 cd "$HOME"
 
 update_aws_config_env() {
     echo "Update aws-config codebase and installation environment"
+    # To get the most recent git, later.
+    if ! ls /etc/apt/sources.list.d/ 2>&1 | grep -q git-core-ppa; then
+        sudo add-apt-repository -y ppa:git-core/ppa
+        updated_apt_repo=yes
+    fi
+
     # Make sure the system is up-to-date.
     sudo apt-get update
     sudo apt-get install -y git
@@ -77,38 +84,8 @@ install_basic_packages() {
     sudo perl -pli -e s/^SHOWWARNING/#SHOWWARNING/ /etc/tmpreaper.conf
 }
 
-install_user_env() {
-    sudo cp -av "$CONFIG_DIR/.gitconfig" "$JENKINS_HOME/.gitconfig"
-    sudo cp -av "$CONFIG_DIR/.ssh" "$JENKINS_HOME/"
-    sudo chown -R jenkins.nogroup "$JENKINS_HOME/.gitconfig"
-    sudo chown -R jenkins.nogroup "$JENKINS_HOME/.ssh"
-    sudo chmod 600 "$JENKINS_HOME/.ssh/config"
-}
-
-install_phantomjs() {
-    if ! which phantomjs >/dev/null; then
-        (
-            cd /usr/local/share
-            case `uname -m` in
-                i?86) mach=i686;;
-                *) mach=x86_64;;
-            esac
-            sudo rm -rf phantomjs
-            wget "https://phantomjs.googlecode.com/files/phantomjs-1.9.2-linux-${mach}.tar.bz2" -O- | sudo tar xfj -
-
-            sudo ln -snf /usr/local/share/phantomjs-1.9.2-linux-${mach}/bin/phantomjs /usr/local/bin/phantomjs
-        )
-        which phantomjs >/dev/null
-    fi
-}
-
 install_build_deps() {
     echo "Installing build dependencies"
-
-    if [ ! -e "$HOME"/kiln_extensions/kilnauth.py ]; then
-        echo "Installing the kilnauth Mercurial plugin"
-        curl https://khanacademy.kilnhg.com/Tools/Downloads/Extensions > /tmp/extensions.zip && unzip /tmp/extensions.zip kiln_extensions/kilnauth.py
-    fi
 
     sudo apt-get install -y g++ make
 
@@ -138,42 +115,19 @@ install_build_deps() {
     sudo gem install bundler
 
     # jstest deps
-    install_phantomjs
-}
+    if ! which phantomjs >/dev/null; then
+        (
+            cd /usr/local/share
+            case `uname -m` in
+                i?86) mach=i686;;
+                *) mach=x86_64;;
+            esac
+            sudo rm -rf phantomjs
+            wget "https://phantomjs.googlecode.com/files/phantomjs-1.9.2-linux-${mach}.tar.bz2" -O- | sudo tar xfj -
 
-install_google_app_engine() {
-    # TODO(benkomalo): Would be nice to always get the latest version here.
-    # See http://stackoverflow.com/questions/15487357/how-to-get-the-current-dev-appserver-version/15489674
-    # See https://developers.google.com/appengine/downloads to find the most
-    # recent version.  You should be able to simply bump $LATESTVERSION and the
-    # rest will work.
-    LATESTVERSION="1.8.0"
-    GAEFILENAME="google_appengine_${LATESTVERSION}.zip"
-    GAEDOWNLOADLINK="http://googleappengine.googlecode.com/files/${GAEFILENAME}"
-    INSTALLGAE="false"
-    INSTALLDIR="/usr/local/google_appengine"
-
-    if [ ! -d "$INSTALLDIR" ]; then
-        INSTALLGAE="true"
-    fi
-
-    if [ "$INSTALLGAE" != "true" ]; then
-        INSTALLEDVERSION=`cat "$INSTALLDIR"/VERSION | grep release | cut -d: -f 2 | cut -d\" -f 2`
-        if [ "$INSTALLEDVERSION" != "$LATESTVERSION" ]; then
-            INSTALLGAE="true"
-        fi
-    fi
-
-    if [ "$INSTALLGAE" = "true" ]; then
-        echo "Installing Google AppEngine"
-        ( cd /tmp
-          rm -rf "$GAEFILENAME" google_appengine
-          wget "$GAEDOWNLOADLINK"
-          unzip -o "$GAEFILENAME"
-          rm "$GAEFILENAME"
-          sudo rm -rf "$INSTALLDIR"
-          sudo mv -T google_appengine "$INSTALLDIR"
+            sudo ln -snf /usr/local/share/phantomjs-1.9.2-linux-${mach}/bin/phantomjs /usr/local/bin/phantomjs
         )
+        which phantomjs >/dev/null
     fi
 }
 
@@ -198,41 +152,146 @@ install_jenkins() {
     # Ensure plugins directory exists.
     sudo -u jenkins mkdir -p "${JENKINS_HOME}"/plugins
 
-    # Install plugins (versions initially chosen for Jenkins v1.512).
+    # I created this on a running jenkins install like so (on 7/7/2014):
+    # find /var/lib/jenkins/plugins/ -name 'MANIFEST.MF' | xargs grep -h -e Extension-Name -e Plugin-Version | tr -d '\015' | awk 'NR % 2 { n=$2 } NR % 2 == 0 { printf("        \"%s/%s/%s.hpi\" \\\n", n, $2, n) }' | grep -v SNAPSHOT
     for plugin in \
-        "build-user-vars-plugin/1.1/build-user-vars-plugin.hpi" \
-        "cobertura/1.8/cobertura.hpi" \
-        "disk-usage/0.19/disk-usage.hpi" \
-        "email-ext/2.28/email-ext.hpi" \
-        "envinject/1.85/envinject.hpi" \
-        "git-client/1.0.5/git-client.hpi" \
-        "git/1.3.0/git.hpi" \
-        "htmlpublisher/1.2/htmlpublisher.hpi" \
-        "mercurial/1.45/mercurial.hpi" \
-        "monitoring/1.45.0/monitoring.hpi" \
-        "openid/1.6/openid.hpi" \
-        "parameterized-trigger/2.18/parameterized-trigger.hpi" \
+        "any-buildstep/0.1/any-buildstep.hpi" \
+        "artifactdeployer/0.29/artifactdeployer.hpi" \
+        "mailer/1.8/mailer.hpi" \
+        "external-monitor-job/1.2/external-monitor-job.hpi" \
+        "timestamper/1.5.12/timestamper.hpi" \
+        "ldap/1.10.2/ldap.hpi" \
         "postbuild-task/1.8/postbuild-task.hpi" \
-        "role-strategy/1.1.2/role-strategy.hpi" \
+        "token-macro/1.10/token-macro.hpi" \
+        "build-user-vars-plugin/1.3/build-user-vars-plugin.hpi" \
+        "ec2/1.21/ec2.hpi" \
+        "role-strategy/2.2.0/role-strategy.hpi" \
+        "antisamy-markup-formatter/1.2/antisamy-markup-formatter.hpi" \
         "simple-theme-plugin/0.3/simple-theme-plugin.hpi" \
-        ;
+        "git-client/1.9.1/git-client.hpi" \
+        "throttle-concurrents/1.8.3/throttle-concurrents.hpi" \
+        "scm-api/0.2/scm-api.hpi" \
+        "translation/1.11/translation.hpi" \
+        "flexible-publish/0.12/flexible-publish.hpi" \
+        "maven-plugin/2.4/maven-plugin.hpi" \
+        "matrix-project/1.2/matrix-project.hpi" \
+        "pollscm/1.2/pollscm.hpi" \
+        "envinject/1.89/envinject.hpi" \
+        "github-api/1.55/github-api.hpi" \
+        "node-iterator-api/1.5/node-iterator-api.hpi" \
+        "parameterized-trigger/2.25/parameterized-trigger.hpi" \
+        "monitoring/1.51.0/monitoring.hpi" \
+        "build-name-setter/1.3/build-name-setter.hpi" \
+        "build-flow-plugin/0.12/build-flow-plugin.hpi" \
+        "cobertura/1.9.5/cobertura.hpi" \
+        "github/1.9/github.hpi" \
+        "ssh-credentials/1.7.1/ssh-credentials.hpi" \
+        "parallel-test-executor/1.4/parallel-test-executor.hpi" \
+        "ssh-slaves/1.6/ssh-slaves.hpi" \
+        "subversion/2.4/subversion.hpi" \
+        "openid4java/0.9.8.0/openid4java.hpi" \
+        "mercurial/1.50/mercurial.hpi" \
+        "javadoc/1.1/javadoc.hpi" \
+        "build-pipeline-plugin/1.4.3/build-pipeline-plugin.hpi" \
+        "windows-slaves/1.0/windows-slaves.hpi" \
+        "mapdb-api/1.0.1.0/mapdb-api.hpi" \
+        "htmlpublisher/1.3/htmlpublisher.hpi" \
+        "jenkins-multijob-plugin/1.13/jenkins-multijob-plugin.hpi" \
+        "git/2.2.2/git.hpi" \
+        "groovy-postbuild/1.9/groovy-postbuild.hpi" \
+        "promoted-builds/2.17/promoted-builds.hpi" \
+        "ansicolor/0.3.1/ansicolor.hpi" \
+        "groovy/1.19/groovy.hpi" \
+        "openid/2.1/openid.hpi" \
+        "pam-auth/1.1/pam-auth.hpi" \
+        "changes-since-last-success/0.5/changes-since-last-success.hpi" \
+        "scm-sync-configuration/0.0.7.5/scm-sync-configuration.hpi" \
+        "job-poll-action-plugin/1.0/job-poll-action-plugin.hpi" \
+        "build-with-parameters/1.1/build-with-parameters.hpi" \
+        "disk-usage/0.23/disk-usage.hpi" \
+        "rebuild/1.19/rebuild.hpi" \
+        "matrix-auth/1.2/matrix-auth.hpi" \
+        "credentials/1.14/credentials.hpi" \
+        "ant/1.2/ant.hpi" \
+        "jquery/1.7.2-1/jquery.hpi" \
+        "ssh-agent/1.4.1/ssh-agent.hpi" \
+        "jclouds-jenkins/2.8/jclouds-jenkins.hpi" \
+        "email-ext/2.38.1/email-ext.hpi" \
+        "cvs/2.12/cvs.hpi" \
+        "conditional-buildstep/1.3.3/conditional-buildstep.hpi" \
+        "run-condition/1.0/run-condition.hpi" \
+        ; \
     do
         plugin_url="${jenkins_plugin_url}/${plugin}"
         plugin_file=`basename "${plugin}"`
         plugin_dir=`echo "${plugin_file}" | sed 's/\.hpi//'`
+        echo "Fetching $plugin_file plugin from $plugin_url"
         sudo -u jenkins sh -c "cd \"${JENKINS_HOME}\"/plugins && rm -rf \"${plugin_file}\" \"${plugin_dir}\" && wget \"${plugin_url}\""
     done
 
-    # secrets.py is needed by the translations build and deployment
-    sudo -u jenkins mkdir -p "${SECRETS_DIR}"
-    if [ ! -e "$SECRETS_PW" ]; then
-        sudo -u jenkins sh -c "echo \"<PASSWORD>\nPut the password to decrypt secrets.py on the first line of this file.\nSee https://www.dropbox.com/home/Khan%20Academy%20All%20Staff/Secrets\" >'${SECRETS_PW}'"
-        sudo -u jenkins chmod 600 "${SECRETS_PW}"
-    fi
+    # We have a custom hipchat plugin, so do that separately.  We also
+    # use a custom version of the ec2 plugin, that is modified to
+    # (correctly) support infinite waiting for slaves to come up.
+    sudo apt-get install -y maven
+    (
+        cd /tmp
+        git clone https://github.com/chrisklaiber/jenkins-hipchat-plugin.git
+        cd jenkins-hipchat-plugin && git checkout khan-custom-plugin
+        mkdir -p target/classes
+        mvn hpi:hpi -DskipTests
+        sudo cp target/hipchat.hpi "${JENKINS_HOME}/plugins/"
+        sudo chown jenkins:nogroup "${JENKINS_HOME}/plugins/hipchat.hpi"
+
+        cd /tmp
+        git clone https://github.com/Khan/ec2-plugin
+        cd ec2-plugin
+        mkdir -p target/classes
+        mvn package -DskipTests
+        sudo cp target/ec2.hpi "${JENKINS_HOME}/plugins/"
+        sudo chown jenkins:nogroup "${JENKINS_HOME}/plugins/ec2.hpi"
+    )
 
     # Start the daemon
     sudo update-rc.d jenkins defaults
     sudo service jenkins restart || sudo service jenkins start
+}
+
+install_user_env() {
+    sudo cp -av "$CONFIG_DIR/.gitconfig" "$JENKINS_HOME/.gitconfig"
+    sudo cp -av "$CONFIG_DIR/.ssh" "$JENKINS_HOME/"
+    sudo chmod 600 "$JENKINS_HOME/.ssh/config"
+
+    # This is needed to fetch from private github repos
+    if [ ! -e "$JENKINS_HOME/.ssh/id_rsa.ReadWriteKiln" ]; then
+        echo "Copy id_rsa.ReadWriteKiln* from the dropbox Secrets folder to"
+        echo "   $JENKINS_HOME/.ssh/"
+        echo "Hit enter when done"
+        read prompt
+    fi
+    sudo chmod 600 "$JENKINS_HOME/.ssh/id_rsa.ReadWriteKiln"
+
+    # secrets.py is needed by the translations build and deployment.
+    sudo -u jenkins mkdir -p "${SECRETS_DIR}"
+    if [ ! -e "$SECRETS_PW" ]; then
+        echo "Put the password to decrypt secrets.py on the first line of"
+        echo "   $SECRETS_PW"
+        echo "See https://www.dropbox.com/home/Khan%20Academy%20All%20Staff/Secrets"
+        echo "Hit enter when done"
+        read prompt
+    fi
+    sudo chmod 600 "${SECRETS_PW}"
+
+    # This is needed for the deploy jenkins jobs.
+    if [ ! -e "$PROD_SECRETS_PW" ]; then
+        echo "Put the prod-deploy secret in $PROD_SECRETS_PW"
+        echo "(If you don't know what it is, ask chris or kamens)."
+        echo "Hit enter when done"
+        read prompt
+    fi
+    sudo chmod 600 "${PROD_SECRETS_PW}"
+
+    # Make sure we own everything in our homedir
+    sudo chown -R jenkins:nogroup "$JENKINS_HOME"
 }
 
 install_nginx() {
@@ -251,67 +310,42 @@ install_redis() {
 }
 
 install_jenkins_home() {
+    # We need the same ssh stuff that jenkins has, to access this private repo.
+    sudo rsync -av "$JENKINS_HOME/.ssh/" .ssh/
+    sudo chown -R ubuntu:ubuntu .ssh/
     if [ ! -d jenkins_home ]; then
-        # This uses a trick in .ssh/config to connect to github but with
-        # the right auth file.  It requires .ssh/id_rsa.ReadWriteKiln to
-        # be installed.
-        git clone git://github.com-jenkins/Khan/jenkins jenkins_home
+        git clone git@github.com:Khan/jenkins jenkins_home
     fi
     ( cd jenkins_home && git pull )
 
     # We install jenkins_home/jobs on a separate disk, so sync it separately.
-    rsync -av --exclude jobs "jenkins_home/" "${JENKINS_HOME}/"
-    if [ -e "${JENKINS_HOME}/jobs" && ! -L "${JENKINS_HOME}/jobs" ]; then
+    sudo rsync -av --exclude jobs "jenkins_home/" "${JENKINS_HOME}/"
+    sudo chown -R jenkins:nogroup "${JENKINS_HOME}"/*   # avoid dot-files
+    # Delete the empty jobs dir jenkins created at setup.
+    sudo rmdir "$JENKINS_HOME/jobs"
+    if [ -e "${JENKINS_HOME}/jobs" -a ! -L "${JENKINS_HOME}/jobs" ]; then
         echo "Config ERROR: jobs should be a symlink.  Fix manually!"
         exit 1
     fi
-    ln -snf /mnt/jenkins/jobs "${JENKINS_HOME}/jobs"
-    rsync -av "jenkins_home/jobs/" "${JENKINS_HOME}/jobs/"
+    sudo mkdir -p /mnt/jenkins/jobs
+    sudo chown -R jenkins:nogroup /mnt/jenkins
+    sudo -u jenkins ln -snf /mnt/jenkins/jobs "${JENKINS_HOME}/jobs"
+    sudo rsync -av "jenkins_home/jobs/" "${JENKINS_HOME}/jobs/"
+    sudo chown -R jenkins:nogroup "${JENKINS_HOME}"/jobs/*
 }
 
 update_aws_config_env
-install_user_env
 install_basic_packages
 install_build_deps
-install_google_app_engine
 install_jenkins
+install_user_env
 install_nginx
 install_redis
 install_jenkins_home
 
-echo
-echo "TODO: install a custom version of the Jenkins hipchat plugin that supports"
-echo "      secure password storage. You may need to create ~/.m2/settings.xml "
-echo "      as decribed in https://wiki.jenkins-ci.org/display/JENKINS/Plugin+tutorial#Plugintutorial-SettingUpEnvironment"
-echo "        $ git clone https://github.com/chrisklaiber/jenkins-hipchat-plugin.git"
-echo "        $ cd jenkins-hipchat-plugin && git checkout khan-custom-plugin"
-echo "        $ mkdir target/classes"
-echo "        $ mvn hpi:hpi -DskipTests"
-echo "        $ cp target/hipchat.hpi ${JENKINS_HOME}/plugins/"
-echo "        $ sudo service jenkins restart"
-echo "      Once restarted, set the global password HIPCHAT_AUTH_TOKEN in"
-echo "      either the EnvInject plugin configuration section or the Mask"
-echo "      Passwords plugin configuration section (but don't use both! Mask"
-echo "      Passwords plugins are revealed by the EnvInject plugin, at least as"
-echo "      of v2.7.2 of Mask Passwords) for use by the global HipChat"
-echo "      configuration section."
-echo "TODO: install a custom version of the Jenkins ec2-plugin that supports an"
-echo "      infinite timeout. You may need to create ~/.m2/settings.xml "
-echo "      as decribed in https://wiki.jenkins-ci.org/display/JENKINS/Plugin+tutorial#Plugintutorial-SettingUpEnvironment"
-echo "        $ git clone https://github.com/Khan/ec2-plugin"
-echo "        $ cd ec2-plugin"
-echo "        $ mkdir target/classes"
-echo "        $ mvn hpi:hpi -DskipTests"
-echo "        $ cp target/ec2.hpi ${JENKINS_HOME}/plugins"
-echo "        $ sudo service jenkins restart"
-echo "TODO: Set the password for secrets.py: sudo -u jenkins vi ${SECRETS_PW}"
-echo "TODO: Copy id_rsa.ReadWriteKiln* from the dropbox Secrets folder to"
-echo "      .ssh, and register that key as the Kiln user ReadWriteKiln, and"
-echo "      as an ssh key for the github user ka-role (see secrets.py for"
-echo "      username/password)."
-echo "TODO: Set up the prod-deploy password: get it from word of mouth and"
-echo "      put it in ${JENKINS_HOME}/prod-deploy.pw"
-echo "TODO: Clone the webapp repo to a temporary cache to speed up cloning in"
-echo "      jobs (it will be used as the --reference flag to git clone):"
-echo "        $ git clone https://khanacademy.kilnhg.com/Code/Website/Group/webapp.git ${JENKINS_HOME}/gitcaches/webapp"
-echo "TODO: copy files from jenkins_home/ to ${JENKINS_HOME}. Don't forget the dot files!"
+echo " TODO: Once restarted, add HIPCHAT_AUTH_TOKEN as a global password:"
+echo "       1) Visit http://jenkins.khanacademy.org/configure"
+echo "       2) Scroll to 'Global Passwords' section and click 'add'."
+echo "       3) Name is 'HIPCHAT_AUTH_TOKEN',"
+echo "          password is 'hipchat_notify_token' from secrets.py."
+
