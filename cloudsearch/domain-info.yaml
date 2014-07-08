@@ -76,6 +76,13 @@ fields:
       type: literal
       traits: [search, facet, return]
 
+    # A coded, numerical value of the kind so it can be used in ranking
+    # expressions. The mapping of kind to kind_ordinal should be stable and
+    # specified in the main repository's search/server.py
+    - name: kind_ordinal
+      type: int
+      traits: [sort]
+
     # Example value: ["Test prep", "GMAT"]
     - name: breadcrumbs
       type: literal-array
