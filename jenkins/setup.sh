@@ -73,6 +73,10 @@ install_basic_packages() {
                 /etc/postfix/main.cf
     sudo service postfix restart
 
+    # Set the timezone to PST/PDT.  The 'tee' trick writes via sudo.
+    echo "America/Los_Angeles" | sudo tee /etc/timezone
+    sudo dpkg-reconfigure -f noninteractive tzdata
+
     # Some KA tests write to /tmp and don't clean up after themselves,
     # on purpose (see kake/server_client.py:rebuild_if_needed().  We
     # install tmpreaper to clean up those files "eventually".
