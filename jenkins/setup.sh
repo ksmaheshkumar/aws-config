@@ -135,6 +135,20 @@ install_build_deps() {
     fi
 }
 
+install_global_env() {
+    # Deploys and tests regularly run out of memory because they do
+    # fork+exec (to run nodejs, etc), and the process they are forking
+    # uses a lot of memory, so the fork uses the same amount of memory
+    # even though it's immediately replaced by some exec-ed process
+    # that uses almost no memory.  This means we have to have twice as
+    # much memory available as we actually use: suckasaurus.  The
+    # solution is to allow memory overcommitting, which works because
+    # the memory in the forked process is never touched (it's
+    # immediately freed when we exec).  cf.
+    # http://stackoverflow.com/questions/15608347/fork-failing-with-out-of-memory-error
+    sudo sysctl vm.overcommit_memory=1
+}
+
 install_jenkins() {
     echo "Installing Jenkins"
 
@@ -341,6 +355,7 @@ install_jenkins_home() {
 update_aws_config_env
 install_basic_packages
 install_build_deps
+install_global_env
 install_jenkins
 install_user_env
 install_nginx
