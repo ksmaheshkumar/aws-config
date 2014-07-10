@@ -275,7 +275,8 @@ install_jenkins() {
 }
 
 install_user_env() {
-    sudo cp -av "$CONFIG_DIR/.gitconfig" "$JENKINS_HOME/.gitconfig"
+    sudo cp -av "$CONFIG_DIR/.gitconfig" "$JENKINS_HOME/"
+    sudo cp -av "$CONFIG_DIR/.gitignore_global" "$JENKINS_HOME/"
     sudo cp -av "$CONFIG_DIR/.ssh" "$JENKINS_HOME/"
     sudo chmod 600 "$JENKINS_HOME/.ssh/config"
 
