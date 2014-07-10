@@ -149,6 +149,12 @@ install_global_env() {
     sudo sysctl vm.overcommit_memory=1
 }
 
+install_ubuntu_user_env() {
+    sudo cp -av "$CONFIG_DIR/Makefile" "$HOME/"
+    make symlinks
+}
+
+
 install_jenkins() {
     echo "Installing Jenkins"
 
@@ -274,7 +280,7 @@ install_jenkins() {
     sudo service jenkins restart || sudo service jenkins start
 }
 
-install_user_env() {
+install_jenkins_user_env() {
     sudo cp -av "$CONFIG_DIR/.gitconfig" "$JENKINS_HOME/"
     sudo cp -av "$CONFIG_DIR/.gitignore_global" "$JENKINS_HOME/"
     sudo cp -av "$CONFIG_DIR/.ssh" "$JENKINS_HOME/"
@@ -356,9 +362,10 @@ install_jenkins_home() {
 update_aws_config_env
 install_basic_packages
 install_build_deps
-install_global_env
 install_jenkins
-install_user_env
+install_jenkins_user_env
+install_ubuntu_user_env   # should happen after jenkins jobs dir is set up
+install_global_env
 install_nginx
 install_redis
 install_jenkins_home
