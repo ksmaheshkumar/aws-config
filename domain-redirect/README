@@ -1,0 +1,7 @@
+This directory's .htaccess file provides a simple redirect for khanacademy.org --> www.khanaacademy.org, maintaining query params and such. We use this because:
+
+1) App Engine doesn't support naked domains
+2) Amazon's Route 53 DNS doesn't provide a redirect service
+3) Google Apps' 'naked domain redirection' service doesn't maintain query parameters.
+
+Current Amazon Elastic IP for this instance: 107.20.223.238
