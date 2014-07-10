@@ -1,3 +1,7 @@
-Options +FollowSymLinks 
-RewriteEngine on 
+Options +FollowSymLinks
+RewriteEngine on
+
+RewriteCond %{HTTPS} =on
+RewriteRule ^(.*)$ https://www.khanacademy.org/$1 [L,R=301]
+
 RewriteRule ^(.*)$ http://www.khanacademy.org/$1 [L,R=301]
