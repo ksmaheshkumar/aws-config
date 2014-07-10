@@ -48,6 +48,28 @@ update_aws_config_env() {
     ( cd aws-config && git pull )
 }
 
+install_global_env() {
+    # Deploys and tests regularly run out of memory because they do
+    # fork+exec (to run nodejs, etc), and the process they are forking
+    # uses a lot of memory, so the fork uses the same amount of memory
+    # even though it's immediately replaced by some exec-ed process
+    # that uses almost no memory.  This means we have to have twice as
+    # much memory available as we actually use: suckasaurus.  The
+    # solution is to allow memory overcommitting, which works because
+    # the memory in the forked process is never touched (it's
+    # immediately freed when we exec).  cf.
+    # http://stackoverflow.com/questions/15608347/fork-failing-with-out-of-memory-error
+    sudo sysctl vm.overcommit_memory=1
+
+    # Make sure that we've added the info we need to the fstab.
+    # ('tee -a' is the way to do '>>' that works with sudo.)
+    grep -xqf "$CONFIG_DIR/fstab.extra" /etc/fstab || \
+        cat "$CONFIG_DIR/fstab.extra" | sudo tee -a /etc/fstab >/dev/null
+
+    # Make sure all the disks in the fstab are mounted.
+    sudo mount -a
+}
+
 install_basic_packages() {
     echo "Installing basic packages"
     sudo apt-get install -y ntp
@@ -133,20 +155,6 @@ install_build_deps() {
         )
         which phantomjs >/dev/null
     fi
-}
-
-install_global_env() {
-    # Deploys and tests regularly run out of memory because they do
-    # fork+exec (to run nodejs, etc), and the process they are forking
-    # uses a lot of memory, so the fork uses the same amount of memory
-    # even though it's immediately replaced by some exec-ed process
-    # that uses almost no memory.  This means we have to have twice as
-    # much memory available as we actually use: suckasaurus.  The
-    # solution is to allow memory overcommitting, which works because
-    # the memory in the forked process is never touched (it's
-    # immediately freed when we exec).  cf.
-    # http://stackoverflow.com/questions/15608347/fork-failing-with-out-of-memory-error
-    sudo sysctl vm.overcommit_memory=1
 }
 
 install_ubuntu_user_env() {
@@ -360,12 +368,12 @@ install_jenkins_home() {
 }
 
 update_aws_config_env
+install_global_env
 install_basic_packages
 install_build_deps
 install_jenkins
 install_jenkins_user_env
 install_ubuntu_user_env   # should happen after jenkins jobs dir is set up
-install_global_env
 install_nginx
 install_redis
 install_jenkins_home
