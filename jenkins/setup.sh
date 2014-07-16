@@ -157,6 +157,19 @@ install_build_deps() {
     fi
 }
 
+install_image_tools() {
+    echo "Installing image tools"
+    # These image tools are used for the Jenkins build that periodically
+    # optimizes our image sizes.
+    sudo apt-get install -y pngquant optipng pngcrush
+    if [ ! -s /usr/local/bin/pngout ]; then
+      ( cd /tmp \
+        && wget http://static.jonof.id.au/dl/kenutils/pngout-20130221-linux.tar.gz \
+        && tar -zxf pngout-20130221-linux.tar.gz \
+        && sudo install -m 755 pngout-20130221-linux/`uname -m`/pngout /usr/local/bin )
+    fi
+}
+
 install_ubuntu_user_env() {
     sudo cp -av "$CONFIG_DIR/Makefile" "$HOME/"
     make symlinks
@@ -371,6 +384,7 @@ update_aws_config_env
 install_global_env
 install_basic_packages
 install_build_deps
+install_image_tools
 install_jenkins
 install_jenkins_user_env
 install_ubuntu_user_env   # should happen after jenkins jobs dir is set up
