@@ -397,6 +397,18 @@ install_gae_dashboard() {
         echo "Hit <enter> when this is done:"
         read prompt
     fi
+
+    sudo pip install bigquery              # to report from BigQuery
+    khan_project_id=124072386181
+    bq_credential_file="$HOME/.bigquerv2.token"
+    if [ ! -s "$bq_credential_file" ]; then
+        echo "Log into Google as the user prod-read@khanacademy.org,"
+        echo "the password is in secrets.py."
+        echo "Hit <enter> when this is done.  The next prompt will"
+        echo "have you visit a URL as prod-read and get an auth code."
+        read prompt
+        bq ls --project_id="$khan_project_id" --credential_file="$bq_credential_file"
+    fi
 }
 
 install_kahntube_ouath_collector() {
