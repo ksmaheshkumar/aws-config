@@ -27,4 +27,4 @@ PATH = /usr/local/bin:/usr/bin:/bin
 00 23 * * * sh -c 'echo "--- `date`"; /usr/bin/timeout 4m $HOME/internal-webserver/gae_dashboard/fetch_stats.sh -n' >> $HOME/logs/gae_dashboard_stats.log || echo "gae_dashboard_stats run failed; see $HOME/logs/gae_dashboard_stats.log"
 
 # Fetch bigquery stats every day, and send them via email.
-00 32 * * * sh -c 'echo "--- `date`"; /usr/bin/timeout 30m $HOME/internal-webserver/gae_dashboard/email_bq_data.py' >> $HOME/logs/email_bq_data.log || echo "email_bq_data run failed; see $HOME/logs/email_bq_data.log"
+00 1 * * * sh -c 'echo "--- `date`"; /usr/bin/timeout 30m $HOME/internal-webserver/gae_dashboard/email_bq_data.py' >> $HOME/logs/email_bq_data.log || echo "email_bq_data run failed; see $HOME/logs/email_bq_data.log"
