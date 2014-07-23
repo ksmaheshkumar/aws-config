@@ -10,7 +10,7 @@ PATH = /usr/local/bin:/usr/bin:/bin
   10 *  *   *   *     sh -c '/usr/bin/timeout 55m env PYTHONPATH=$HOME/beep-boop/alertlib:$HOME/alertlib_secret python $HOME/beep-boop/uservoice_reports.py' >> $HOME/logs/beep-boop-uservoice.log || echo "Failed to run beep-boop for UserVoice; see $HOME/logs/beep-boop-uservoice.log"
 
 # Check for elevated issue rates on Github.
-  16 *  *   *   *     sh -c '/usr/bin/timeout 55m python PYTHONPATH=$HOME/beep-boop/alertlib:$HOME/alertlib_secret $HOME/beep-boop/github_reports.py' >> $HOME/logs/beep-boop-github.log || echo "Failed to run beep-boop for github; see $HOME/logs/beep-boop-github.log"
+  16 *  *   *   *     sh -c '/usr/bin/timeout 55m env PYTHONPATH=$HOME/beep-boop/alertlib:$HOME/alertlib_secret python $HOME/beep-boop/github_reports.py' >> $HOME/logs/beep-boop-github.log || echo "Failed to run beep-boop for github; see $HOME/logs/beep-boop-github.log"
 
 # Do a backup every day.  (12:00 UTC is 4am PST)
   0  12  *   *   *     sh -c 'echo "--- `date`"; $HOME/aws-config/internal-webserver/snapshot_toby.sh' >> $HOME/logs/aws-snapshot.log || echo "Failed to snapshot toby's data; see $HOME/logs/aws-snapshot.log"
