@@ -245,9 +245,16 @@ read prompt
 
 _install_alertlib_secret() {
     if [ ! -s "alertlib_secret/secrets.py" ]; then
-        echo "Run"
-        echo "  mkdir -p ~/alertlib_secret; echo 'hipchat_alertlib_token = "\""<value>"\""' > ~/alertlib_secret/secrets.py"
-        echo "where this line is taken from secrets.py."
+        echo "Run:"
+        echo "---"
+        echo "mkdir -p ~/alertlib_secret"
+        echo "chmod 700 ~/alertlib_secret"
+        echo "cat <<EOF > ~/alertlib_secret/secrets.py"
+        echo 'hipchat_alertlib_token = "<value>"'
+        echo 'hostedgraphite_api_key = "<value>"'
+        echo 'EOF'
+        echo "---"
+        echo "where these lines are taken from secrets.py."
         echo "Hit <enter> when this is done:"
         read prompt
     fi
