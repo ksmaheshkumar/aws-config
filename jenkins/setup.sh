@@ -45,7 +45,7 @@ update_aws_config_env() {
     if [ ! -d aws-config ]; then
         git clone git://github.com/Khan/aws-config
     fi
-    ( cd aws-config && git pull )
+    ( cd aws-config && git pull && git submodule update --init --recursive )
 }
 
 install_global_env() {
@@ -362,7 +362,7 @@ install_jenkins_home() {
     if [ ! -d jenkins_home ]; then
         git clone git@github.com:Khan/jenkins jenkins_home
     fi
-    ( cd jenkins_home && git pull )
+    ( cd jenkins_home && git pull && git submodule update --init --recursive )
 
     # We install jenkins_home/jobs on a separate disk, so sync it separately.
     sudo rsync -av --exclude jobs "jenkins_home/" "${JENKINS_HOME}/"

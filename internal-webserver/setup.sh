@@ -61,7 +61,6 @@ install_basic_packages() {
 }
 
 install_ec2_tools() {
-    # TODO(csilvers): pip install boto instead.
     sudo apt-get install -y ec2-api-tools
     mkdir -p "$HOME/aws"
     if [ ! -s "$HOME/aws/pk-backup-role-account.pem" ]; then
@@ -79,9 +78,9 @@ install_repositories() {
     echo "Syncing internal-webserver codebase"
     sudo apt-get install -y git
     git clone git://github.com/Khan/aws-config || \
-        ( cd aws-config && git pull )
+        ( cd aws-config && git pull && git submodule update --init --recursive )
     git clone git://github.com/Khan/internal-webserver || \
-        ( cd internal-webserver && git pull )
+        ( cd internal-webserver && git pull && git submodule update --init --recursive )
 }
 
 install_root_config_files() {
@@ -118,8 +117,6 @@ install_user_config_files() {
     # re-create if there's need.  And this data is big!
     sudo cp -sav --backup=numbered "$HOME"/internal-webserver/*_mirrors \
         /mnt
-    ln -snf /mnt/git_mirrors "$HOME/git_mirrors"
-    ln -snf /mnt/hg_mirrors "$HOME/hg_mirrors"
 
     echo "Creating logs directory (for webserver logs)"
     sudo mkdir -p /opt/logs
@@ -131,94 +128,15 @@ install_user_config_files() {
 }
 
 install_appengine() {
-    # TODO(benkomalo): would be nice to always get the latest version here
-    sudo apt-get install -y zip
-    if [ ! -d "/usr/local/google_appengine" ]; then
-        echo "Installing appengine"
-        ( cd /tmp
-          rm -rf google_appengine_1.7.4.zip google_appengine
-          wget http://googleappengine.googlecode.com/files/google_appengine_1.7.4.zip
-          unzip -o google_appengine_1.7.4.zip
-          rm google_appengine_1.7.4.zip
-          sudo mv -T google_appengine /usr/local/google_appengine
+    if [ -d "/usr/local/google_appengine" ]; then
+        ( cd /usr/local/frankenserver && sudo git pull && sudo git submodule update --init --recursive )
+    else
+        echo "Installing frankenserver appengine"
+        ( cd /usr/local
+          sudo git clone https://github.com/Khan/frankenserver
+          sudo ln -snf frankenserver/python google_appengine
         )
     fi
-}
-
-install_repo_backup() {
-    echo "Installing packages: Mirroring repositories"
-    sudo apt-get install -y git mercurial   # for backups
-    sudo apt-get install -y fdupes      # for hardlink-ifying kiln repos
-    sudo pip install mercurial
-
-    echo "Starting the git daemon"
-    # You'll also need to allow access to port 9148 on the ec2 console:
-    #    https://console.aws.amazon.com/ec2/home#s=SecurityGroups
-    sudo update-rc.d git-daemon defaults
-    service git-daemon restart
-
-    echo "Getting permissions for the kiln repository"
-    # TODO(csilvers): figure out how to do this automatically.  The
-    # 'hg clone' will prompt for a password, and kiln-local-backup may
-    # prompt for an API token.
-    (
-        cd hg_mirrors
-        rm -rf /tmp/test_repo
-        hg clone --noupdate \
-             https://khanacademy.kilnhg.com/Code/Mobile-Apps/Group/android \
-             /tmp/test_repo
-        # If this doesn't work, make sure there's only one token here.
-        token=`find ~/.hgcookies -print0 | xargs -0 grep -h -o 'fbToken.*' \
-               | tail -n1 | cut -f2`
-        echo "Using kiln token $token"
-        # We only need to do this for long enough to cache the token,
-        # so future runs of kiln_local_backup.py don't need --token.
-        timeout 10s python kiln_local_backup.py \
-            --token="$token" --server="khanacademy.kilnhg.com" . \
-            || true
-    )
-
-    # TODO(csilvers): figure out some way to make sure the user does this...
-    echo "Getting permissions for the git repository"
-    # Make sure we have a ssh key
-    mkdir -p ~/.ssh
-    if [ ! -e ~/.ssh/id_rsa ]; then
-        ssh-keygen -q -N "" -t rsa -f ~/.ssh/id_rsa
-    fi
-    # Add khanacademy.kilnhg.com to knownhosts so ssh doesn't prompt.
-    ssh -oStrictHostKeyChecking=no khanacademy.kilnhg.com >/dev/null 2>&1 || true
-    echo "Visit https://khanacademy.kilnhg.com/Keys"
-    echo "Log in as user ReadOnlyKiln (ask kamens for the password),"
-    echo "   click 'Add a New Key', paste the contents of $HOME/.ssh/id_rsa.pub"
-    echo "   into the box, and hit 'Save key'"
-}
-
-install_gerrit() {
-    echo "Installing packages: Gerrit"
-    sudo apt-get install -y git
-    sudo apt-get install -y postgresql
-    sudo apt-get install -y openjdk-7-jre-headless git
-    # Set up the postgres user.
-    # TODO(csilvers): figure out how to not prompt for a password.
-    # Will need to use psql directly.  Dunno the right options.  See
-    # http://postgresql.1045698.n5.nabble.com/Password-as-a-command-line-argument-to-createuser-td1894162.html
-    # password 'codereview'
-    sudo su postgres -c 'createuser -A -D -P -E gerrit2 && createdb -E UTF-8 -O gerrit2 reviewdb'
-
-    # Taken from http://gerrit-documentation.googlecode.com/svn/Documentation/2.3/install.html
-    # TODO(csilvers): don't prompt for passwords
-    sudo passwd mail         # passwd 'smtp'
-    sudo adduser gerrit2     # password 'codereview'
-    # TODO(csilvers): don't prompt for all this information:
-    #   location of git repositories: default
-    #   database server type: postgresql, then all default (password 'codereview')
-    #   user authentication: default
-    #   email delivery: default, smtp username 'mail', password 'smtp'
-    #   container process: default
-    #   ssh daemon: default
-    #   http daemon: default, except url is http://gerrit.khanacademy.org:8080/
-    sudo su - gerrit2 -c 'java -jar gerrit-2.3-rc0.war init -d review_site'
-    sudo su - gerrit2 -c 'git config --file review_site/etc/gerrit.config auth.type OpenID'
 }
 
 install_phabricator() {
@@ -291,13 +209,6 @@ EOF
     sudo chmod -R a+rX /mnt/phabricator
     sudo chown -R ubuntu /mnt/phabricator
     ln -snf /mnt/phabricator/repositories "$HOME/phabricator/repositories"
-    # TODO(csilvers): this may ask for an hg password to set up the cookie
-    rm -rf /tmp/test_repo
-    hg clone --noupdate \
-        https://khanacademy.kilnhg.com/Code/Mobile-Apps/Group/android \
-        /tmp/test_repo
-    echo "Here is the token you may need for the next step:"
-    find ~/.hgcookies | xargs grep -h -o 'fbToken.*'
     python "$HOME/internal-webserver/update_phabricator_repositories.py" -v \
         "$HOME/phabricator/repositories"
 
@@ -332,22 +243,28 @@ echo "Hit enter when this is done:"
 read prompt
 }
 
+_install_alertlib_secret() {
+    if [ ! -s "alertlib_secret/secrets.py" ]; then
+        echo "Run"
+        echo "  mkdir -p ~/alertlib_secret; echo 'hipchat_alertlib_token = "\""<value>"\""' > ~/alertlib_secret/secrets.py"
+        echo "where this line is taken from secrets.py."
+        echo "Hit <enter> when this is done:"
+        read prompt
+    fi
+}
+
 install_gae_default_version_notifier() {
     echo "Installing gae-default-version-notifier"
     git clone git://github.com/Khan/gae-default-version-notifier.git || \
-        ( cd gae-default-version-notifier && git pull )
-    echo "For now, set up $HOME/gae-default-version-notifier/secrets.py based"
-    echo "on secrets.py.example and the 'real' secrets.py."
-    # TODO(csilvers): instead, run this via upstart.
-    echo "Then run: nohup python notify.py </dev/null >/dev/null 2>&1 &"
-    echo "Hit <enter> when this is done:"
-    read prompt
+        ( cd gae-default-version-notifier && git pull && git submodule update --init --recursive )
+    # This uses alertlib, so make sure the secret is installed.
+    _install_alertlib_secret
 }
 
 install_culture_cow() {
     echo "Installing culture cow"
     git clone git://github.com/Khan/culture-cow.git || \
-        ( cd culture-cow && git pull )
+        ( cd culture-cow && git pull && git submodule update --init --recursive )
     cd culture-cow
     npm install
     if [ ! -s "$HOME/culture-cow/bin/secrets" ]; then
@@ -363,15 +280,10 @@ install_culture_cow() {
 install_beep_boop() {
     echo "Installing beep-boop"
     git clone git://github.com/Khan/beep-boop.git || \
-        ( cd beep-boop && git pull )
+        ( cd beep-boop && git pull && git submodule update --init --recursive )
     sudo pip install -r beep-boop/requirements.txt
-    if [ ! -s "$HOME/beep-boop/hipchat.cfg" ]; then
-        echo "Put hipchat.cfg in $HOME/beep-boop/."
-        echo "This is a file with the contents 'token = <hipchat id>',"
-        echo "where the hipchat id comes from secrets.py."
-        echo "Hit <enter> when this is done:"
-        read prompt
-    fi
+    # This uses alertlib, so make sure the secret is installed.
+    _install_alertlib_secret
     if [ ! -s "$HOME/beep-boop/uservoice.cfg" ]; then
         echo "Put uservoice.cfg in $HOME/beep-boop/."
         echo "This is a file with the contents '<uservoice_api_key>',"
@@ -411,7 +323,7 @@ install_gae_dashboard() {
     fi
 }
 
-install_kahntube_ouath_collector() {
+install_khantube_ouath_collector() {
     # A simple flask server that will collect youtube oauth credentials needed
     # inorder to upload captions to the various youtube accounts
     sudo pip install -r "${HOME}"/internal-webserver/khantube-oauth-collector/requirements.txt
@@ -430,7 +342,7 @@ install_kahntube_ouath_collector() {
 install_exercise_icons() {
     # A utility to generate exercise icons. Currently used at http://khanacademy.org/commoncore/map.
     # https://github.com/Khan/exercise-icons/
-    sudo aptitude -y install gcc-multilib xdg-utils libxml2-dev libcurl4-openssl-dev imagemagick
+    sudo apt-get install -y gcc-multilib xdg-utils libxml2-dev libcurl4-openssl-dev imagemagick
 
     if [ ! -e "/usr/bin/dmd" ]; then
         wget http://downloads.dlang.org/releases/2014/dmd_2.065.0-0_amd64.deb -O /tmp/dmd.deb
@@ -456,7 +368,7 @@ install_exercise_icons() {
         fi
 
         cd "$HOME"
-        git clone git@github.com:Khan/exercise-icons.git || (cd exercise-icons && git pull)
+        git clone git@github.com:Khan/exercise-icons.git || ( cd exercise-icons && git pull && git submodule update --init --recursive )
         if [ ! -e "$HOME/exercise-icons/secrets.txt" ]; then
             echo "Add $HOME/exercise-icons/secrets.txt"
             echo "according to the instructions in README.md."
@@ -484,14 +396,12 @@ install_repositories
 install_root_config_files
 install_user_config_files
 install_appengine
-install_repo_backup
-#install_gerrit
 install_phabricator
 install_gae_default_version_notifier
 install_culture_cow
 install_beep_boop
 install_gae_dashboard
-install_kahntube_ouath_collector
+install_khantube_ouath_collector
 install_exercise_icons
 
 # Do this again, just in case any of the apt-get installs nuked it.

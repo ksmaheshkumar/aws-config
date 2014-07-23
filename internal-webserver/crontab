@@ -7,10 +7,10 @@ PATH = /usr/local/bin:/usr/bin:/bin
   */5 *  *   *   *     sh -c '/usr/bin/timeout 4m python internal-webserver/update_phabricator_repositories.py $HOME/phabricator/repositories' || echo "Failed to update phabricator's repository-list"
 
 # Check for elevated issue rates on UserVoice.
-  10 *  *   *   *     sh -c '/usr/bin/timeout 55m python $HOME/beep-boop/uservoice_reports.py' >> $HOME/logs/beep-boop-uservoice.log || echo "Failed to run beep-boop for UserVoice; see $HOME/logs/beep-boop-uservoice.log"
+  10 *  *   *   *     sh -c '/usr/bin/timeout 55m env PYTHONPATH=$HOME/beep-boop/alertlib:$HOME/alertlib_secret python $HOME/beep-boop/uservoice_reports.py' >> $HOME/logs/beep-boop-uservoice.log || echo "Failed to run beep-boop for UserVoice; see $HOME/logs/beep-boop-uservoice.log"
 
 # Check for elevated issue rates on Github.
-  16 *  *   *   *     sh -c '/usr/bin/timeout 55m python $HOME/beep-boop/github_reports.py' >> $HOME/logs/beep-boop-github.log || echo "Failed to run beep-boop for github; see $HOME/logs/beep-boop-github.log"
+  16 *  *   *   *     sh -c '/usr/bin/timeout 55m python PYTHONPATH=$HOME/beep-boop/alertlib:$HOME/alertlib_secret $HOME/beep-boop/github_reports.py' >> $HOME/logs/beep-boop-github.log || echo "Failed to run beep-boop for github; see $HOME/logs/beep-boop-github.log"
 
 # Do a backup every day.  (12:00 UTC is 4am PST)
   0  12  *   *   *     sh -c 'echo "--- `date`"; $HOME/aws-config/internal-webserver/snapshot_toby.sh' >> $HOME/logs/aws-snapshot.log || echo "Failed to snapshot toby's data; see $HOME/logs/aws-snapshot.log"
@@ -25,3 +25,6 @@ PATH = /usr/local/bin:/usr/bin:/bin
 # Once a day, don't write to the datastore but email on failure to
 # keep a pulse on this process.
 00 23 * * * sh -c 'echo "--- `date`"; /usr/bin/timeout 4m $HOME/internal-webserver/gae_dashboard/fetch_stats.sh -n' >> $HOME/logs/gae_dashboard_stats.log || echo "gae_dashboard_stats run failed; see $HOME/logs/gae_dashboard_stats.log"
+
+# Fetch bigquery stats every day, and send them via email.
+00 32 * * * sh -c 'echo "--- `date`"; /usr/bin/timeout 30m $HOME/internal-webserver/gae_dashboard/email_bq_data.py' >> $HOME/logs/email_bq_data.log || echo "email_bq_data run failed; see $HOME/logs/email_bq_data.log"

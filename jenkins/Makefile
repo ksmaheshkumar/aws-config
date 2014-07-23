@@ -1,4 +1,4 @@
-symlinks:
+symlinks: clean
 	for i in /var/lib/jenkins/jobs/*; do [ -d "$i/workspace/webapp" ] && ln -snf "$i/workspace/webapp" "`basename "$i"`"; done
 
 clean:
