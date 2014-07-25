@@ -301,7 +301,8 @@ install_beep_boop() {
 }
 
 install_gae_dashboard() {
-    sudo apt-get install -y python-dev libxml2-dev libxslt1-dev
+    # gnuplot is used in email_bq_data
+    sudo apt-get install -y python-dev libxml2-dev libxslt1-dev gnuplot
     sudo pip install lxml cssselect        # to parse GAE dashboard output
     sudo pip install GChartWrapper
     if [ ! -s "$HOME/hostedgraphite_secret" ]; then
