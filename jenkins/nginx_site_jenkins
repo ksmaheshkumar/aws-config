@@ -66,12 +66,6 @@ server {
   }
 
   location / {
-
-     # Optional configuration to detect and redirect iPhones
-      if ($http_user_agent ~* '(iPhone|iPod)') {
-          rewrite ^/$ /view/iphone/ redirect;
-      }
-
       try_files $uri @jenkins;
    }
 }
