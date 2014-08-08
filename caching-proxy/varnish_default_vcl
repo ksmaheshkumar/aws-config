@@ -89,10 +89,17 @@ sub vcl_recv {
                 set req.backend = ka;
             }
         } else {
-            # If don't ask for a particular host, send them to
-            # www.khanacademy.org.
-            set req.http.Host = "www.khanacademy.org";
-            set req.backend = ka;
+            # Otherwise we extract the host from the sub-domain
+            if (req.http.Host ~ "^(?:www\.)?kasandbox\.org$") {
+                # If no host is specified then we default to khanacademy.org
+                set req.http.Host = "www.khanacademy.org";
+                set req.backend = ka;
+            } else if (req.http.Host ~ "^([a-zA-Z0-9-_.]*)\.kasandbox\.org$") {
+                # If a host is specified then we point to the appspot
+                # domain and set an appropriate host
+                set req.http.Host = regsub(req.http.Host, "^([a-zA-Z0-9-_.]*)\.kasandbox\.org$", "\1-dot-khan-academy.appspot.com");
+                set req.backend = appspot;
+            }
         }
 
         # We unset User-Agent so that our ssl_for_spdy decorator doesn't
