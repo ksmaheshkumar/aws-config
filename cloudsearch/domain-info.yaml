@@ -94,6 +94,11 @@ fields:
       type: literal
       traits: [return]
 
+    # This field is 1 if the content is core (not test prep or partner content)
+    - name: is_core_content
+      type: int
+      traits: [sort]
+
 locales:
     # Maps the locale name (with any non-alphanumeric character transformed
     # into an underscore and all alphabetic characters converted to lowercase)

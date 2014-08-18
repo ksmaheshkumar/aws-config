@@ -84,7 +84,7 @@ def maybe_execute_command(command, *args, **kwargs):
 
     pretty_command = command_list_to_str(command)
 
-    # No logging here because we always log 
+    # No logging here because we always log
     if dry_run:
         logging.info("Would execute: %s", pretty_command)
         return
