@@ -26,6 +26,11 @@ analysis_schemes:
       algorithmic_stemming: light
       stopwords: dictionaries/pt-stopwords.yaml
 
+    - name: ka_french
+      lang: fr
+      algorithmic_stemming: light
+      stopwords: dictionaries/fr-stopwords.yaml
+
 fields:
     # These are the fields that documents in the index will contain. Possible
     # traits are: search, highlight, sort, return, and facet. If an
@@ -107,3 +112,4 @@ locales:
     en: ka_english
     es_es: ka_spanish
     pt_br: ka_portuguese
+    fr: ka_french
