@@ -3,349 +3,245 @@
 # See the header of the file linked above for more licensing information, and
 # also http://snowball.tartarus.org/license.php and
 # http://www.opensource.org/licenses/bsd-license.html.
-
 [
                             # The following is a ranked list (commonest to rarest) of stopwords
                             # deriving from a large sample of text.
 
                             # Extra words have been added at the end.
 
-    de,                     #  from, of
-    la,                     #  the, her
-    que,                    #  who, that
-    el,                     #  the
-    en,                     #  in
-    y,                      #  and
-    a,                      #  to
-    los,                    #  the, them
-    del,                    #  de + el
-    se,                     #  himself, from him etc
-    las,                    #  the, them
-    por,                    #  for, by, etc
-    un,                     #  a
-    para,                   #  for
-    con,                    #  with
-    "no",                     #  no
-    una,                    #  a
-    su,                     #  his, her
-    al,                     #  a + el
-                            # es         from SER
-    lo,                     #  him
-    como,                   #  how
-    más,                   #  more
-    pero,                   #  pero
-    sus,                    #  su plural
-    le,                     #  to him, her
-    ya,                     #  already
-    o,                      #  or
-                            # fue        from SER
-    este,                   #  this
-                            # ha         from HABER
-    sí,                    #  himself etc
-    porque,                 #  because
-    esta,                   #  this
-                            # son        from SER
-    entre,                  #  between
-                            # está     from ESTAR
-    cuando,                 #  when
-    muy,                    #  very
-    sin,                    #  without
-    sobre,                  #  on
+    'de',                   #  of, from
+    'a',                    #  the; to, at; her
+    'o',                    #  the; him
+    'que',                  #  who, that
+    'e',                    #  and
+    'do',                   #  de + o
+    'da',                   #  de + a
+    'em',                   #  in
+    'um',                   #  a
+    'para',                 #  for
+                            # é          from SER
+    'com',                  #  with
+    'não',                 #  not, no
+    'uma',                  #  a
+    'os',                   #  the; them
+    'no',                   #  em + o
+    'se',                   #  himself etc
+    'na',                   #  em + a
+    'por',                  #  for
+    'mais',                 #  more
+    'as',                   #  the; them
+    'dos',                  #  de + os
+    'como',                 #  as, like
+    'mas',                  #  but
+                            # foi        from SER
+    'ao',                   #  a + o
+    'ele',                  #  he
+    'das',                  #  de + as
+                            # tem        from TER
+    'à',                   #  a + a
+    'seu',                  #  his
+    'sua',                  #  her
+    'ou',                   #  or
                             # ser        from SER
-                            # tiene      from TENER
-    también,               #  also
-    me,                     #  me
-    hasta,                  #  until
-    hay,                    #  there is/are
-    donde,                  #  where
-                            # han        from HABER
-    quien,                  #  whom, that
-                            # están      from ESTAR
-                            # estado     from ESTAR
-    desde,                  #  from
-    todo,                   #  all
-    nos,                    #  us
-    durante,                #  during
-                            # estados    from ESTAR
-    todos,                  #  all
-    uno,                    #  a
-    les,                    #  to them
-    ni,                     #  nor
-    contra,                 #  against
-    otros,                  #  other
-                            # fueron     from SER
-    ese,                    #  that
-    eso,                    #  that
-                            # había      from HABER
-    ante,                   #  before
-    ellos,                  #  they
-    e,                      #  and (variant of y)
-    esto,                   #  this
-    mí,                    #  me
-    antes,                  #  before
-    algunos,                #  some
-    qué,                   #  what?
-    unos,                   #  a
-    yo,                     #  I
-    otro,                   #  other
-    otras,                  #  other
-    otra,                   #  other
-    él,                    #  he
-    tanto,                  #  so much, many
-    esa,                    #  that
-    estos,                  #  these
-    mucho,                  #  much, many
-    quienes,                #  who
-    nada,                   #  nothing
-    muchos,                 #  many
-    cual,                   #  who
-                            # sea        from SER
-    poco,                   #  few
-    ella,                   #  she
-    estar,                  #  to be
-                            # haber      from HABER
-    estas,                  #  these
-                            # estaba     from ESTAR
-                            # estamos    from ESTAR
-    algunas,                #  some
-    algo,                   #  something
-    nosotros,               #  we
+    'quando',               #  when
+    'muito',                #  much
+                            # há         from HAV
+    'nos',                  #  em + os; us
+    'já',                  #  already, now
+                            # está       from EST
+    'eu',                   #  I
+    'também',              #  also
+    'só',                  #  only, just
+    'pelo',                 #  per + o
+    'pela',                 #  per + a
+    'até',                 #  up to
+    'isso',                 #  that
+    'ela',                  #  he
+    'entre',                #  between
+                            # era        from SER
+    'depois',               #  after
+    'sem',                  #  without
+    'mesmo',                #  same
+    'aos',                  #  a + os
+                            # ter        from TER
+    'seus',                 #  his
+    'quem',                 #  whom
+    'nas',                  #  em + as
+    'me',                   #  me
+    'esse',                 #  that
+    'eles',                 #  they
+                            # estão      from EST
+    'você',                #  you
+                            # tinha      from TER
+                            # foram      from SER
+    'essa',                 #  that
+    'num',                  #  em + um
+    'nem',                  #  nor
+    'suas',                 #  her
+    'meu',                  #  my
+    'às',                  #  a + as
+    'minha',                #  my
+                            # têm        from TER
+    'numa',                 #  em + uma
+    'pelos',                #  per + os
+    'elas',                 #  they
+                            # havia      from HAV
+                            # seja       from SER
+    'qual',                 #  which
+                            # será       from SER
+    'nós',                 #  we
+                            # tenho      from TER
+    'lhe',                  #  to him, her
+    'deles',                #  of them
+    'essas',                #  those
+    'esses',                #  those
+    'pelas',                #  per + as
+    'este',                 #  this
+                            # fosse      from SER
+    'dele',                 #  of him
 
-                            # other forms
+                            # other words. There are many contractions such as naquele = em+aquele,
+                            # mo = me+o, but they are rare.
+                            # Indefinite article plural forms are also rare.
 
-    mi,                     #  me
-    mis,                    #  mi plural
-    tú,                    #  thou
-    te,                     #  thee
-    ti,                     #  thee
-    tu,                     #  thy
-    tus,                    #  tu plural
-    ellas,                  #  they
-    nosotras,               #  we
-    vosotros,               #  you
-    vosotras,               #  you
-    os,                     #  you
-    mío,                   #  mine
-    mía,                   #
-    míos,                  #
-    mías,                  #
-    tuyo,                   #  thine
-    tuya,                   #
-    tuyos,                  #
-    tuyas,                  #
-    suyo,                   #  his, hers, theirs
-    suya,                   #
-    suyos,                  #
-    suyas,                  #
-    nuestro,                #  ours
-    nuestra,                #
-    nuestros,               #
-    nuestras,               #
-    vuestro,                #  yours
-    vuestra,                #
-    vuestros,               #
-    vuestras,               #
-    esos,                   #  those
-    esas,                   #  those
+    'tu',                   #  thou
+    'te',                   #  thee
+    'vocês',               #  you (plural)
+    'vos',                  #  you
+    'lhes',                 #  to them
+    'meus',                 #  my
+    'minhas',
+    'teu',                  #  thy
+    'tua',
+    'teus',
+    'tuas',
+    'nosso',                # our
+    'nossa',
+    'nossos',
+    'nossas',
+
+    'dela',                 #  of her
+    'delas',                #  of them
+
+    'esta',                 #  this
+    'estes',                #  these
+    'estas',                #  these
+    'aquele',               #  that
+    'aquela',               #  that
+    'aqueles',              #  those
+    'aquelas',              #  those
+    'isto',                 #  this
+    'aquilo',               #  that
 
                             # forms of estar, to be (not including the infinitive):
-    estoy,
-    estás,
-    está,
-    estamos,
-    estáis,
-    están,
-    esté,
-    estés,
-    estemos,
-    estéis,
-    estén,
-    estaré,
-    estarás,
-    estará,
-    estaremos,
-    estaréis,
-    estarán,
-    estaría,
-    estarías,
-    estaríamos,
-    estaríais,
-    estarían,
-    estaba,
-    estabas,
-    estábamos,
-    estabais,
-    estaban,
-    estuve,
-    estuviste,
-    estuvo,
-    estuvimos,
-    estuvisteis,
-    estuvieron,
-    estuviera,
-    estuvieras,
-    estuviéramos,
-    estuvierais,
-    estuvieran,
-    estuviese,
-    estuvieses,
-    estuviésemos,
-    estuvieseis,
-    estuviesen,
-    estando,
-    estado,
-    estada,
-    estados,
-    estadas,
-    estad,
+    'estou',
+    'está',
+    'estamos',
+    'estão',
+    'estive',
+    'esteve',
+    'estivemos',
+    'estiveram',
+    'estava',
+    'estávamos',
+    'estavam',
+    'estivera',
+    'estivéramos',
+    'esteja',
+    'estejamos',
+    'estejam',
+    'estivesse',
+    'estivéssemos',
+    'estivessem',
+    'estiver',
+    'estivermos',
+    'estiverem',
 
-                            # forms of haber, to have (not including the infinitive):
-    he,
-    has,
-    ha,
-    hemos,
-    habéis,
-    han,
-    haya,
-    hayas,
-    hayamos,
-    hayáis,
-    hayan,
-    habré,
-    habrás,
-    habrá,
-    habremos,
-    habréis,
-    habrán,
-    habría,
-    habrías,
-    habríamos,
-    habríais,
-    habrían,
-    había,
-    habías,
-    habíamos,
-    habíais,
-    habían,
-    hube,
-    hubiste,
-    hubo,
-    hubimos,
-    hubisteis,
-    hubieron,
-    hubiera,
-    hubieras,
-    hubiéramos,
-    hubierais,
-    hubieran,
-    hubiese,
-    hubieses,
-    hubiésemos,
-    hubieseis,
-    hubiesen,
-    habiendo,
-    habido,
-    habida,
-    habidos,
-    habidas,
+                            # forms of haver, to have (not including the infinitive):
+    'hei',
+    'há',
+    'havemos',
+    'hão',
+    'houve',
+    'houvemos',
+    'houveram',
+    'houvera',
+    'houvéramos',
+    'haja',
+    'hajamos',
+    'hajam',
+    'houvesse',
+    'houvéssemos',
+    'houvessem',
+    'houver',
+    'houvermos',
+    'houverem',
+    'houverei',
+    'houverá',
+    'houveremos',
+    'houverão',
+    'houveria',
+    'houveríamos',
+    'houveriam',
 
                             # forms of ser, to be (not including the infinitive):
-    soy,
-    eres,
-    es,
-    somos,
-    sois,
-    son,
-    sea,
-    seas,
-    seamos,
-    seáis,
-    sean,
-    seré,
-    serás,
-    será,
-    seremos,
-    seréis,
-    serán,
-    sería,
-    serías,
-    seríamos,
-    seríais,
-    serían,
-    era,
-    eras,
-    éramos,
-    erais,
-    eran,
-    fui,
-    fuiste,
-    fue,
-    fuimos,
-    fuisteis,
-    fueron,
-    fuera,
-    fueras,
-    fuéramos,
-    fuerais,
-    fueran,
-    fuese,
-    fueses,
-    fuésemos,
-    fueseis,
-    fuesen,
-    siendo,
-    sido,
-                            #  sed also means 'thirst'
+    'sou',
+    'somos',
+    'são',
+    'era',
+    'éramos',
+    'eram',
+    'fui',
+    'foi',
+    'fomos',
+    'foram',
+    'fora',
+    'fôramos',
+    'seja',
+    'sejamos',
+    'sejam',
+    'fosse',
+    'fôssemos',
+    'fossem',
+    'for',
+    'formos',
+    'forem',
+    'serei',
+    'será',
+    'seremos',
+    'serão',
+    'seria',
+    'seríamos',
+    'seriam',
 
-                            # forms of tener, to have (not including the infinitive):
-    tengo,
-    tienes,
-    tiene,
-    tenemos,
-    tenéis,
-    tienen,
-    tenga,
-    tengas,
-    tengamos,
-    tengáis,
-    tengan,
-    tendré,
-    tendrás,
-    tendrá,
-    tendremos,
-    tendréis,
-    tendrán,
-    tendría,
-    tendrías,
-    tendríamos,
-    tendríais,
-    tendrían,
-    tenía,
-    tenías,
-    teníamos,
-    teníais,
-    tenían,
-    tuve,
-    tuviste,
-    tuvo,
-    tuvimos,
-    tuvisteis,
-    tuvieron,
-    tuviera,
-    tuvieras,
-    tuviéramos,
-    tuvierais,
-    tuvieran,
-    tuviese,
-    tuvieses,
-    tuviésemos,
-    tuvieseis,
-    tuviesen,
-    teniendo,
-    tenido,
-    tenida,
-    tenidos,
-    tenidas,
-    tened,
-
+                            # forms of ter, to have (not including the infinitive):
+    'tenho',
+    'tem',
+    'temos',
+    'tém',
+    'tinha',
+    'tínhamos',
+    'tinham',
+    'tive',
+    'teve',
+    'tivemos',
+    'tiveram',
+    'tivera',
+    'tivéramos',
+    'tenha',
+    'tenhamos',
+    'tenham',
+    'tivesse',
+    'tivéssemos',
+    'tivessem',
+    'tiver',
+    'tivermos',
+    'tiverem',
+    'terei',
+    'terá',
+    'teremos',
+    'terão',
+    'teria',
+    'teríamos',
+    'teriam',
 ]

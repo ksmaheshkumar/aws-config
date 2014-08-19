@@ -59,13 +59,14 @@ for line in sys.stdin:
 
     if word and comment:
         # We're going to try to align the comments. Minus one for the comma.
-        num_spaces = COMMENT_COLUMN - len(word) - len(INDENT) - 1
+        # Minus another 2 for the quotes
+        num_spaces = COMMENT_COLUMN - len(word) - len(INDENT) - 3
         spaces = num_spaces * " "
 
-        result = "{indent}{word},{spaces}{comment}".format(indent=INDENT,
+        result = "{indent}'{word}',{spaces}{comment}".format(indent=INDENT,
             word=word, spaces=spaces, comment=comment)
     elif word and not comment:
-        result = "{indent}{word},".format(indent=INDENT, word=word)
+        result = "{indent}'{word}',".format(indent=INDENT, word=word)
     elif not word and comment:
         spaces = COMMENT_COLUMN * " "
         result = "{spaces}{comment}".format(spaces=spaces, comment=comment)
