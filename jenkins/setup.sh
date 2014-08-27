@@ -160,7 +160,9 @@ install_build_deps() {
 install_image_tools() {
     echo "Installing image tools"
     # These image tools are used for the Jenkins build that periodically
-    # optimizes our image sizes.
+    # optimizes our image sizes.  danmbox is needed to get pngquant 2.0
+    sudo add-apt-repository ppa:danmbox/ppa
+    sudo apt-get update
     sudo apt-get install -y pngquant optipng pngcrush libjpeg-turbo-progs
     if [ ! -s /usr/local/bin/pngout ]; then
       ( cd /tmp \
