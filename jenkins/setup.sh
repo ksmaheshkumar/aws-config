@@ -161,7 +161,7 @@ install_image_tools() {
     echo "Installing image tools"
     # These image tools are used for the Jenkins build that periodically
     # optimizes our image sizes.
-    sudo apt-get install -y pngquant optipng pngcrush
+    sudo apt-get install -y pngquant optipng pngcrush libjpeg-turbo-progs
     if [ ! -s /usr/local/bin/pngout ]; then
       ( cd /tmp \
         && wget http://static.jonof.id.au/dl/kenutils/pngout-20130221-linux.tar.gz \
