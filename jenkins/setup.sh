@@ -163,7 +163,7 @@ install_image_tools() {
     # optimizes our image sizes.  danmbox is needed to get pngquant 2.0
     sudo add-apt-repository ppa:danmbox/ppa
     sudo apt-get update
-    sudo apt-get install -y pngquant optipng pngcrush libjpeg-turbo-progs
+    sudo apt-get install -y pngquant optipng pngcrush libjpeg-turbo-progs imagemagick
     if [ ! -s /usr/local/bin/pngout ]; then
       ( cd /tmp \
         && wget http://static.jonof.id.au/dl/kenutils/pngout-20130221-linux.tar.gz \
