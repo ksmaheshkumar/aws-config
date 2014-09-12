@@ -6,6 +6,9 @@ PATH = /usr/local/bin:/usr/bin:/bin
 # Check for new repositories, and check up on daemons, every 5 minutes.
   */5 *  *   *   *     sh -c '/usr/bin/timeout 4m python internal-webserver/update_phabricator_repositories.py $HOME/phabricator/repositories' || echo "Failed to update phabricator's repository-list"
 
+# Check for new github repositories, and update their teams info, as well.
+  */5 *  *   *   *     sh -c '/usr/bin/timeout 4m python internal-webserver/update_github_teams.py || echo "Failed to update the github team list"
+
 # Check for elevated issue rates on Zendesk
   10 *  *   *   *     sh -c '/usr/bin/timeout 55m env PYTHONPATH=$HOME/beep-boop/alertlib:$HOME/alertlib_secret python $HOME/beep-boop/zendesk_reports.py' >> $HOME/logs/beep-boop-zendesk.log || echo "Failed to run beep-boop for Zendesk; see $HOME/logs/beep-boop-zendesk.log"
 
