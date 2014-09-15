@@ -1,0 +1,18 @@
+server {
+	listen 80;
+
+	root /home/ubuntu/internal-webserver/gae_dashboard/webroot;
+	include mime.types;
+	access_log /home/ubuntu/logs/perf-access.log;
+
+	server_name perf.khanacademy.org;
+
+	index index.html;
+
+	gzip on;
+	gzip_types text/css text/javascript text/plain;
+
+	location / {
+		try_files $uri $uri/ index.html;
+	}
+}

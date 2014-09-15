@@ -28,3 +28,7 @@ PATH = /usr/local/bin:/usr/bin:/bin
 
 # Fetch bigquery stats every day, and send them via email.
 00 1 * * * sh -c 'echo "--- `date`"; /usr/bin/timeout 30m $HOME/internal-webserver/gae_dashboard/email_bq_data.py' >> $HOME/logs/email_bq_data.log || echo "email_bq_data run failed; see $HOME/logs/email_bq_data.log"
+
+# Update latency chart data retrieved from bigquery every day, to be displayed
+# on an in-browser dashboard.
+00 1 * * * sh -c 'echo "--- `date`"; /usr/bin/timeout 60m $HOME/internal-webserver/gae_dashboard/generate_perf_chart_json.py' >> $HOME/logs/generate_perf_chart_json.log || echo "email_bq_data run failed; see $HOME/logs/generate_perf_chart_json.log"
