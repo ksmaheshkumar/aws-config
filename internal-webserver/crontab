@@ -21,17 +21,17 @@ PATH = /usr/local/bin:/usr/bin:/bin
 # --- Fetch stats and send them to graphite
 # Fetch GAE usage reports every day. Reports are generated at about 1430 PST
 # which is 2130 UTC, and we allow for a bit of wiggle room.
-00 22 * * * sh -c 'echo "--- `date`"; /usr/bin/timeout 55m $HOME/internal-webserver/gae_dashboard/fetch_usage.sh' >> $HOME/logs/gae_dashboard_usage.log || echo "gae_dashboard_usage run failed; see $HOME/logs/gae_dashboard_usage.log"
+00 22 * * * sh -c 'echo "--- `date`"; /usr/bin/timeout 55m $HOME/internal-webserver/gae_dashboard/fetch_usage.sh' >> $HOME/logs/gae_dashboard_usage.log || echo "gae_dashboard_usage run failed with error $?; see $HOME/logs/gae_dashboard_usage.log"
 
 # Fetch GAE admin UI stats every 10 minutes.
 */10 * * * * sh -c 'echo "--- `date`"; /usr/bin/timeout 9m $HOME/internal-webserver/gae_dashboard/fetch_stats.sh' >> $HOME/logs/gae_dashboard_stats.log
 # Once a day, don't write to the datastore but email on failure to
 # keep a pulse on this process.
-00 23 * * * sh -c 'echo "--- `date`"; /usr/bin/timeout 4m $HOME/internal-webserver/gae_dashboard/fetch_stats.sh -n' >> $HOME/logs/gae_dashboard_stats.log || echo "gae_dashboard_stats run failed; see $HOME/logs/gae_dashboard_stats.log"
+00 23 * * * sh -c 'echo "--- `date`"; /usr/bin/timeout 4m $HOME/internal-webserver/gae_dashboard/fetch_stats.sh -n' >> $HOME/logs/gae_dashboard_stats.log || echo "gae_dashboard_stats run failed with error $?; see $HOME/logs/gae_dashboard_stats.log"
 
 # Fetch bigquery stats every day, and send them via email.
-00 1 * * * sh -c 'echo "--- `date`"; /usr/bin/timeout 30m $HOME/internal-webserver/gae_dashboard/email_bq_data.py' >> $HOME/logs/email_bq_data.log || echo "email_bq_data run failed; see $HOME/logs/email_bq_data.log"
+00 1 * * * sh -c 'echo "--- `date`"; /usr/bin/timeout 30m $HOME/internal-webserver/gae_dashboard/email_bq_data.py' >> $HOME/logs/email_bq_data.log || echo "email_bq_data run failed with error $?; see $HOME/logs/email_bq_data.log"
 
 # Update latency chart data retrieved from bigquery every day, to be displayed
 # on an in-browser dashboard.
-00 1 * * * sh -c 'echo "--- `date`"; /usr/bin/timeout 60m $HOME/internal-webserver/gae_dashboard/generate_perf_chart_json.py' >> $HOME/logs/generate_perf_chart_json.log || echo "email_bq_data run failed; see $HOME/logs/generate_perf_chart_json.log"
+00 1 * * * sh -c 'echo "--- `date`"; /usr/bin/timeout 60m $HOME/internal-webserver/gae_dashboard/generate_perf_chart_json.py' >> $HOME/logs/generate_perf_chart_json.log || echo "email_bq_data run failed with error $?; see $HOME/logs/generate_perf_chart_json.log"
