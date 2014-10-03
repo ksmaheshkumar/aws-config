@@ -17,9 +17,9 @@ the CloudSearch web console.
 Instructions
 ------------
 
-In order to use this tool you'll need to have the CloudSearch command line
-tools installed. Get them at
-http://docs.aws.amazon.com/cloudsearch/latest/developerguide/using-cloudsearch-command-line-tools.html
+In order to use this tool you'll need to have the aws command line
+tool installed. Get it at
+http://docs.aws.amazon.com/cli/latest/userguide/installing.html
 
 Example use: $ ./provision-domain.py khan-academy-dev domain-info.yaml
 
@@ -45,7 +45,7 @@ import yaml
 
 dry_run = False
 """A global that is flipped within main if we're in a dry run (not actually
-issuing commands to CloudSearch.
+issuing commands to CloudSearch).
 """
 
 
@@ -126,21 +126,16 @@ def command_list_to_str(command):
 
 
 def get_disable_flags(field_type, traits):
-    """The cs-configure-fields tool enables all available traits by default and
-    wants us to disable any traits we don't want using the `--disable-x` flags.
+    """The configure tool enables all available traits by default.
 
     This function takes a list of desired traits (ex: ["sort", "highlight"])
     and a field_type (ex: "text") and returns a list of arguments to pass to
-    cs-configure-fields to make it so (ex: ["--disable-return",
-    "--search-return"]).
+    define-index-field to make it so (ex: ["--return-enabled", "false",
+    "--search-enabled", "false"]).
 
     An error is logged and `sys.exit` is called if a trait is given that is not
     available for a given field type.
     """
-    if field_type == "literal" and "search" not in traits:
-        logging.warning("A bug with CloudSearch's command line tools prevents "
-            "us from disabling search on a literal field. You must go into "
-            "the CloudSearch web console to disable search on this field.")
 
     # Most of the fields have the same available traits so we're going to group
     # the fields into a few categories. Each category will be called a stem.
@@ -185,7 +180,8 @@ def get_disable_flags(field_type, traits):
     # traits.
     disabled_traits = defaults - set(traits)
 
-    return ["--disable-{}".format(i) for i in disabled_traits]
+    return sum([["--{}-enabled".format(i), "false"] 
+        for i in disabled_traits], [])
 
 
 def configure_fields(config, domain):
@@ -194,23 +190,23 @@ def configure_fields(config, domain):
     logging.debug("Loaded locale->scheme mappings: %r", locales)
 
     fields = config["fields"]
-    logging.debug("Loaded fields: %r", [i["name"] for i in fields])
+    logging.debug("Loaded fields: %r", [field["name"] for field in fields])
 
     # A list of lists where each sublist contains all of the arguments that
-    # should be passed to cs-configure-fields to configure that field, with
+    # should be passed to define-index-field to configure that field, with
     # the exception of the --domain flag.
     field_arguments = []
 
-    for i in fields:
-        new_arguments = ["--type", i["type"]]
+    for field in fields:
+        new_arguments = ["--type", field["type"]]
 
         # Configure the traits we want (if any traits can't be applied to this
         # type of field we'll error).
-        new_arguments += get_disable_flags(i["type"], i["traits"])
+        new_arguments += get_disable_flags(field["type"], field["traits"])
 
         # Because of the special "locale_specific" scheme we need to do some
         # fancy processing here.
-        analysis_scheme = i.get("analysis_scheme")
+        analysis_scheme = field.get("analysis_scheme")
         if analysis_scheme == "locale_specific":
             for locale, scheme in locales.iteritems():
                 # Make a clone of the current arguments and add the locale
@@ -218,7 +214,7 @@ def configure_fields(config, domain):
                 cloned_arguments = list(new_arguments)
                 cloned_arguments += [
                     "--analysis-scheme", scheme,
-                    "--name", "{}_{}".format(i["name"], locale)
+                    "--name", "{}_{}".format(field["name"], locale)
                 ]
 
                 field_arguments.append(cloned_arguments)
@@ -226,7 +222,7 @@ def configure_fields(config, domain):
             if analysis_scheme:
                 new_arguments += ["--analysis-scheme", analysis_scheme]
 
-            new_arguments += ["--name", i["name"]]
+            new_arguments += ["--name", field["name"]]
 
             field_arguments.append(new_arguments)
 
@@ -235,7 +231,8 @@ def configure_fields(config, domain):
         name = i[-1]
         logging.info("Configuring field %r.", name)
 
-        command = ["cs-configure-fields", "--domain-name", domain] + i
+        command = ["aws", "cloudsearch", "define-index-field", 
+            "--domain-name", domain] + i
 
         try:
             maybe_execute_command(command)
@@ -244,41 +241,35 @@ def configure_fields(config, domain):
             sys.exit(1)
 
 
+def make_scheme_arg(scheme):
+    if 'Stopwords' in scheme['AnalysisOptions']:
+        stopwords_file = scheme['AnalysisOptions']['Stopwords']
+        with open(stopwords_file) as f:
+            raw = f.read()
+        stopwords_list = yaml.load(raw)
+        scheme['AnalysisOptions']['Stopwords'] = json.dumps(stopwords_list)
+
+    return json.dumps(scheme)
+
+
 def configure_analysis_schemes(config, domain, temp_dir):
     """Configures all of the analysis schemes. Called by main()."""
     analysis_schemes = config["analysis_schemes"]
     logging.debug("Loaded analysis schemes %r.", analysis_schemes)
 
     for i in analysis_schemes:
-        logging.info("Configuring analysis scheme %r.", i["name"])
+        logging.info("Configuring analysis scheme %r.", 
+            i["AnalysisSchemeName"])
 
-        command = ["cs-configure-analysis-scheme",
+        command = ["aws", "cloudsearch", "define-analysis-scheme",
             "--domain-name", domain,
-            "--name", i["name"],
-            "--lang", i["lang"]]
-
-        if "algorithmic_stemming" in i:
-            command += ["--stem-algo", i["algorithmic_stemming"]]
-
-        if "stopwords" in i:
-            # Create a new temporary file that will hold the converted
-            # stopwords.
-            _converted_stopwords = tempfile.NamedTemporaryFile(dir=temp_dir,
-                delete=False)
-
-            # Convert the YAML file into CloudSearch compatible JSON
-            with _converted_stopwords as converted_stopwords:
-                with open(i["stopwords"]) as yaml_stopwords:
-                    stopwords_list = yaml.load(yaml_stopwords)
-                    json.dump(stopwords_list, converted_stopwords)
-
-            command += ["--stopwords", _converted_stopwords.name]
+            "--analysis-scheme", make_scheme_arg(i)]
 
         try:
             maybe_execute_command(command)
         except subprocess.CalledProcessError:
             logging.exception("Could not configure analysis scheme %r.",
-                i["name"])
+                i["AnalysisSchemeName"])
             sys.exit(1)
 
 
@@ -310,7 +301,6 @@ def main(options, domain, domain_config_path):
 
     try:
         configure_analysis_schemes(config, domain, temp_dir)
-
         configure_fields(config, domain)
     finally:
         if options.leave_temp_dir:
