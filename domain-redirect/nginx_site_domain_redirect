@@ -1,0 +1,9 @@
+# This way of redirecting away from the bare hostname is based on
+#    http://stackoverflow.com/questions/7947030/nginx-no-www-to-www-and-www-to-no-www
+# and the pointer in one of the comments to
+#    http://wiki.nginx.org/Pitfalls#Using_if
+
+server {
+    server_name  khanacademy.org;
+    return 301 $scheme://www.khanacademy.org$request_uri;
+}

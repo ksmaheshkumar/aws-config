@@ -2,7 +2,7 @@
 
 # This sets up packages needed on an EC2 machine for the Varnish proxy for
 # Smarthistory and the CS JavaScript sandbox. This expects a machine created
-# from one of the default Amazon Ubuntu 11.10 AMIs. It is idempotent.
+# from one of the default Amazon Ubuntu 12.04 AMIs. It is idempotent.
 #
 # This should be run in the home directory of the user caching-proxy.
 
@@ -13,32 +13,21 @@
 # Bail on any errors
 set -e
 
-cd /home/caching-proxy
-CONFIG_DIR=/home/caching-proxy/aws-config/caching-proxy
+CONFIG_DIR="$HOME"/aws-config/caching-proxy
+. "$HOME"/aws-config/shared/setup_fns.sh
 
-sudo apt-get update
+cd "$HOME"
 
-echo "Installing developer tools"
-sudo apt-get install -y ntp
-sudo apt-get install -y git
+update_aws_config_env       # from setup_fns.sh
+install_basic_packages      # from setup_fns.sh
+install_root_config_files   # from setup_fns.sh
+install_user_config_files   # from setup_fns.sh
+install_nginx               # from setup_fns.sh
+install_varnish             # from setup_fns.sh
 
-echo "Syncing aws-config"
-git clone http://github.com/Khan/aws-config || ( cd aws-config && git pull )
-
-echo "Copying dotfiles"
-for i in $CONFIG_DIR/dot_*; do
-    ln -snf "$i" ".`basename $i | sed 's/dot_//'`";
-done
-
-echo "Installing Varnish"
-sudo apt-get install -y varnish
-sudo ln -snf $CONFIG_DIR/varnish_default_vcl /etc/varnish/default.vcl
-sudo ln -snf $CONFIG_DIR/default_varnish /etc/default/varnish
-sudo /etc/init.d/varnish restart
-
-echo "Installing nginx"
-sudo apt-get install -y nginx
-sudo ln -snf $CONFIG_DIR/nginx_conf /etc/nginx/nginx.conf
-sudo /etc/init.d/nginx restart
-
-echo "Install the ssl certificate and key in /etc/nginx/ssl."
+if [ ! -s /etc/nginx/ssl/kasandbox.key ]; then
+    echo "Install /etc/nginx/ssl/kasandbox.{crt,key}"
+    echo "You can get those from https://www.dropbox.com/home/Khan%20Academy%20All%20Staff/Secrets"
+    echo "Hit enter when done:"
+    read prompt
+fi

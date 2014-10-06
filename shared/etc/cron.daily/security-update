@@ -1,0 +1,10 @@
+#!/bin/sh -e
+
+aptitude=/usr/sbin/aptitude
+[ -x "$aptitude" ]     # -e causes us to exit if this test fails
+
+# Automatically do all 'safe' security updates once a day
+"$aptitude" safe-upgrade -o Aptitude::Delete-Unused=false \
+    --assume-yes --target-release `lsb_release -cs`-security
+
+exit 0

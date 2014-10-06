@@ -21,27 +21,16 @@
 # Bail on any errors
 set -e
 
-# Make sure we have the most recent info for apt.
-sudo apt-get update
+CONFIG_DIR="$HOME/aws-config/production-rpc"
+. "$HOME/aws-config/shared/setup_fns.sh"
 
-install_basic_packages() {
+
+install_basic_packages_prodrpc() {
     echo "Installing packages: Basic setup"
-    sudo apt-get install -y ntp
-    sudo apt-get install -y gcc
-    sudo apt-get install -y make
-    # This is needed so installing postfix doesn't prompt.  See
-    # http://www.ossramblings.com/preseed_your_apt_get_for_unattended_installs
-    # If it prompts anyway, type in the stuff from postfix.preseed manually.
-    sudo apt-get install -y debconf-utils
-    sudo debconf-set-selections aws-config/production-rpc/postfix.preseed
-    sudo apt-get install -y postfix
+    sudo apt-get install -y gcc make
 
-    echo "(Finishing up postfix config)"
-    sudo sed -i -e 's/myorigin = .*/myorigin = khanacademy.org/' \
-                -e 's/myhostname = .*/myhostname = prod-rpc.khanacademy.org/' \
-                -e 's/inet_interfaces = all/inet_interfaces = loopback-only/' \
-                /etc/postfix/main.cf
-    sudo service postfix restart
+    # Rest is standard
+    install_basic_packages    # from setup_fns.sh
 }
 
 install_repositories() {
@@ -63,44 +52,13 @@ install_repositories() {
     fi
 }
 
-install_root_config_files() {
-    echo "Updating config files on the root filesystem (using symlinks)"
-
-    sudo cp -sav --backup=numbered "$HOME/aws-config/production-rpc/etc/" /
-    sudo chown root:root /etc
-
-    # Stuff in /etc/init needs to be owned by root, so we copy instead of
-    # symlinking there.
-    for initfile in "$HOME"/aws-config/production-rpc/etc/init/*; do
-        rm -f "/etc/init/`basename "$initfile"`"
-        sudo install -m644 "$initfile" /etc/init
-    done
-}
-
-install_user_config_files() {
-    echo "Updating dotfiles (using symlinks)"
-    for dotfile in "$HOME"/aws-config/production-rpc/.[!.]*; do
-        ln -snfv "$dotfile"
-    done
-}
-
-start_daemons() {
-    echo "Starting daemons in $HOME/aws-config/internal-webserver/etc/init"
-    for daemon in $HOME/aws-config/production-rpc/etc/init/*.conf; do
-        sudo stop `basename $daemon .conf` || true
-        sudo start `basename $daemon .conf`
-    done
-}
-
 
 cd "$HOME"
-install_basic_packages
+update_aws_config_env              # from setup_fns.sh
+install_basic_packages_prodrpc
 install_repositories
-install_root_config_files
-install_user_config_files
-
-# Do this again, just in case any of the apt-get installs nuked it.
-install_root_config_files
+install_root_config_files          # from setup_fns.sh
+install_user_config_files          # from setup_fns.sh
 
 # Start the daemons!
-start_daemons
+start_daemons                      # from setup_fns.sh

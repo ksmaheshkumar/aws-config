@@ -17,6 +17,8 @@
 set -e
 
 CONFIG_DIR="$HOME"/aws-config/jenkins
+. "$HOME"/aws-config/shared/setup_fns.sh
+
 # Installing jenkins creates a jenkins user whose $HOME is this directory.
 JENKINS_HOME=/var/lib/jenkins
 
@@ -30,25 +32,17 @@ PROD_SECRETS_PW="${JENKINS_HOME}/prod-deploy.pw"
 
 cd "$HOME"
 
-update_aws_config_env() {
-    echo "Update aws-config codebase and installation environment"
-    # To get the most recent git, later.
-    if ! ls /etc/apt/sources.list.d/ 2>&1 | grep -q git-core-ppa; then
-        sudo add-apt-repository -y ppa:git-core/ppa
-        updated_apt_repo=yes
-    fi
+install_basic_packages_jenkins() {
+    echo "Installing basic packages"
 
-    # Make sure the system is up-to-date.
-    sudo apt-get update
-    sudo apt-get install -y git
+    # I'm not sure why these are 'basic', but I'm afraid to remove them now.
+    sudo apt-get install -y ncurses-dev
+    sudo apt-get install -y unzip
 
-    if [ ! -d aws-config ]; then
-        git clone git://github.com/Khan/aws-config
-    fi
-    ( cd aws-config && git pull && git submodule update --init --recursive )
+    install_basic_packages   # from setup_fns.sh
 }
 
-install_global_env() {
+install_root_config_files_jenkins() {
     # Deploys and tests regularly run out of memory because they do
     # fork+exec (to run nodejs, etc), and the process they are forking
     # uses a lot of memory, so the fork uses the same amount of memory
@@ -61,53 +55,8 @@ install_global_env() {
     # http://stackoverflow.com/questions/15608347/fork-failing-with-out-of-memory-error
     sudo sysctl vm.overcommit_memory=1
 
-    # Make sure that we've added the info we need to the fstab.
-    # ('tee -a' is the way to do '>>' that works with sudo.)
-    grep -xqf "$CONFIG_DIR/fstab.extra" /etc/fstab || \
-        cat "$CONFIG_DIR/fstab.extra" | sudo tee -a /etc/fstab >/dev/null
-
-    # Make sure all the disks in the fstab are mounted.
-    sudo mount -a
-}
-
-install_basic_packages() {
-    echo "Installing basic packages"
-    sudo apt-get install -y ntp
-    sudo apt-get install -y curl
-    sudo apt-get install -y ncurses-dev
-    sudo apt-get install -y python-pip
-    sudo apt-get install -y python-dev  # for numpy
-    sudo apt-get install -y git mercurial subversion
-    sudo apt-get install -y unzip
-    sudo apt-get install -y ruby rubygems
-    sudo REALLY_GEM_UPDATE_SYSTEM=1 gem update --system
-
-    # This is needed so installing postfix doesn't prompt.  See
-    # http://www.ossramblings.com/preseed_your_apt_get_for_unattended_installs
-    # If it prompts anyway, type in the stuff from postfix.preseed manually.
-    sudo apt-get install -y debconf-utils
-    sudo debconf-set-selections "${CONFIG_DIR}"/postfix.preseed
-    sudo apt-get install -y postfix
-    echo "(Finishing up postfix config)"
-    sudo sed -i -e 's/myorigin = .*/myorigin = khanacademy.org/' \
-                -e 's/myhostname = .*/myhostname = jenkins.khanacademy.org/' \
-                -e 's/inet_interfaces = all/inet_interfaces = loopback-only/' \
-                /etc/postfix/main.cf
-    sudo service postfix restart
-
-    # Set the timezone to PST/PDT.  The 'tee' trick writes via sudo.
-    echo "America/Los_Angeles" | sudo tee /etc/timezone
-    sudo dpkg-reconfigure -f noninteractive tzdata
-
-    # Some KA tests write to /tmp and don't clean up after themselves,
-    # on purpose (see kake/server_client.py:rebuild_if_needed().  We
-    # install tmpreaper to clean up those files "eventually".
-    # This avoids promppting at install time.
-    echo "tmpreaper tmpreaper/readsecurity note" | sudo debconf-set-selections
-    echo "tmpreaper tmpreaper/readsecurity_upgrading note" | sudo debconf-set-selections
-    sudo apt-get install -y tmpreaper
-    # We need to comment out a line before tmpreaper will actually run.
-    sudo perl -pli -e s/^SHOWWARNING/#SHOWWARNING/ /etc/tmpreaper.conf
+    # Rest is standard.
+    install_root_config_files   # from setup_fns.sh
 }
 
 install_build_deps() {
@@ -116,6 +65,7 @@ install_build_deps() {
     sudo apt-get install -y g++ make
 
     # Python deps
+    sudo apt-get install -y python-dev  # for numpy
     sudo apt-get install -y python-software-properties python
     sudo pip install virtualenv
 
@@ -130,6 +80,8 @@ install_build_deps() {
     sudo npm update
 
     # Ruby deps
+    sudo apt-get install -y ruby rubygems
+    sudo REALLY_GEM_UPDATE_SYSTEM=1 gem update --system
     sudo apt-get install -y ruby1.8-dev ruby1.8 ri1.8 rdoc1.8 irb1.8
     sudo apt-get install -y libreadline-ruby1.8 libruby1.8 libopenssl-ruby
     # nokogiri requirements (gem install does not suffice on Ubuntu)
@@ -342,15 +294,6 @@ install_jenkins_user_env() {
     sudo chown -R jenkins:nogroup "$JENKINS_HOME"
 }
 
-install_nginx() {
-    echo "Installing nginx"
-    sudo apt-get install -y nginx
-    sudo rm -f /etc/nginx/sites-enabled/default
-    sudo ln -sfnv "${CONFIG_DIR}"/nginx_site_jenkins /etc/nginx/sites-available/jenkins
-    sudo ln -sfnv /etc/nginx/sites-available/jenkins /etc/nginx/sites-enabled/jenkins
-    sudo service nginx restart
-}
-
 install_redis() {
     # We use redis as a simple db to store what tests have passed.
     echo "Installing redis"
@@ -382,15 +325,16 @@ install_jenkins_home() {
     sudo chown -R jenkins:nogroup "${JENKINS_HOME}"/jobs/*
 }
 
-update_aws_config_env
-install_global_env
-install_basic_packages
+
+update_aws_config_env    # from setup_fns.sh
+install_basic_packages_jenkins
+install_root_config_files_jenkins
 install_build_deps
 install_image_tools
 install_jenkins
 install_jenkins_user_env
 install_ubuntu_user_env   # should happen after jenkins jobs dir is set up
-install_nginx
+install_nginx   # from setup_fns.sh
 install_redis
 install_jenkins_home
 

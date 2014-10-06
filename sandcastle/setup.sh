@@ -13,75 +13,73 @@
 # Bail on any errors
 set -e
 
-cd /home/sandcastle
-CONFIG_DIR=/home/sandcastle/aws-config/sandcastle
+CONFIG_DIR="$HOME"/aws-config/sandcastle
+. "$HOME"/aws-config/shared/setup_fns.sh
 
-sudo apt-get update
+cd "$HOME"
 
-echo "Installing developer tools"
-sudo apt-get install -y ntp
-sudo apt-get install -y python-pip
-sudo apt-get install -y git mercurial
 
-echo "Syncing sandcastle codebase"
-git clone http://github.com/Khan/aws-config || ( cd aws-config && git pull )
-git clone http://github.com/Khan/sandcastle || ( cd sandcastle && git pull )
+install_repositories() {
+    echo "Syncing youtube-export codebase"
+    sudo apt-get install -y git
+    git clone git://github.com/Khan/sandcastle || \
+        ( cd sandcastle && git pull && git submodule update --init --recursive )
+    # We don't set up virtualenv on this machine, so just install into /usr.
+    sudo pip install -r youtube-export/requirements.txt
+}
 
-# We don't actually create a virtualenv for the user, so this installs
-# it into the system Python's dist-package directory (which requires sudo)
-sudo pip install -r sandcastle/requirements.txt
+install_arcanist() {
+    echo "Setting up arcanist"
+    sudo apt-get install -y php5-cli php5-curl
+    git clone http://github.com/Khan/arcanist.git || ( cd arcanist && git pull )
+    git clone http://github.com/Khan/libphutil.git || ( cd libphutil && git pull )
+}
 
-echo "Copying dotfiles"
-for i in $CONFIG_DIR/dot_*; do
-    cp "$i" ".`basename $i | sed 's/dot_//'`";
-done
+setup_sandcastle() {
+    echo "Setting up sandcastle"
+    mkdir -p sandcastle/apache
+    ln -snf $CONFIG_DIR/sandcastle_apache_django.wsgi sandcastle/apache/django.wsgi
+    ln -snf $CONFIG_DIR/sandcastle_local_settings.py sandcastle/local_settings.py
 
-echo "Installing postfix (along with pre-requisites)"
-# This is needed so installing postfix doesn't prompt.  See
-# http://www.ossramblings.com/preseed_your_apt_get_for_unattended_installs
-sudo apt-get install -y debconf-utils
-sudo debconf-set-selections $CONFIG_DIR/postfix.preseed
-sudo apt-get install -y postfix
+    rm -f sandcastle/*.sqlite3
+    python sandcastle/manage.py syncdb
 
-echo "Setting up postfix config"
-sudo sed -i -e 's/myorigin = .*/myorigin = khanacademy.org/' \
-            -e 's/myhostname = .*/myhostname = sandcastle.khanacademy.org/' \
-            -e 's/inet_interfaces = all/inet_interfaces = loopback-only/' \
-            /etc/postfix/main.cf
-sudo service postfix restart
+    git clone http://github.com/Khan/khan-exercises.git sandcastle/media/repo || \
+        ( cd sandcastle/media/repo/khan-exercises && git pull && git submodule update --init --recursive )
+}
 
-echo "Setting up arcanist"
-sudo apt-get install -y php5-cli php5-curl
-git clone http://github.com/Khan/arcanist.git || ( cd arcanist && git pull )
-git clone http://github.com/Khan/libphutil.git || ( cd libphutil && git pull )
+install_apache() {
+    sudo apt-get install -y apache2 libapache2-mod-wsgi
+    sudo ln -snf $CONFIG_DIR/sandcastle_apache2_ports.conf \
+        /etc/apache2/ports.conf
+    sudo ln -snf $CONFIG_DIR/sandcastle_apache2_site \
+        /etc/apache2/sites-available/sandcastle
+    sudo ln -snf $CONFIG_DIR/sandcastle_apache2_envvars \
+        /etc/apache2/envvars
+    sudo a2enmod rewrite
+    sudo a2dissite default
+    sudo a2ensite sandcastle
+    sudo service apache2 restart
+}
 
-echo "Setting up sandcastle"
-mkdir -p sandcastle/apache
-ln -snf $CONFIG_DIR/sandcastle_apache_django.wsgi sandcastle/apache/django.wsgi
-ln -snf $CONFIG_DIR/sandcastle_local_settings.py sandcastle/local_settings.py
 
-rm -f sandcastle/*.sqlite3
-python sandcastle/manage.py syncdb
+update_aws_config_env          # from setup_fns.sh
+install_basic_packages         # from setup_fns.sh
+install_root_config_files      # from setup_fns.sh
+install_user_config_files      # from setup_fns.sh
+install_arcanist
+install_repositories
+setup_sandcastle
+install_apache
 
-git config --global user.email "sandcastle@khanacademy.org"
-git config --global user.name "sandcastle"
-
-git clone http://github.com/Khan/khan-exercises.git \
-  sandcastle/media/repo || true
-
-sudo apt-get install -y apache2 libapache2-mod-wsgi
-sudo ln -snf $CONFIG_DIR/sandcastle_apache2_ports.conf \
-  /etc/apache2/ports.conf
-sudo ln -snf $CONFIG_DIR/sandcastle_apache2_site \
-  /etc/apache2/sites-available/sandcastle
-sudo ln -snf $CONFIG_DIR/sandcastle_apache2_envvars \
-  /etc/apache2/envvars
-sudo a2enmod rewrite
-sudo a2dissite default
-sudo a2ensite sandcastle
-sudo service apache2 restart
-
-echo "To finish setting up arc, copy sandcastle_dot_arcrc from Dropbox to"
-echo "/home/sandcastle/.arcrc and chmod to 600"
+if [ ! -s "$HOME"/.arcrc ]; then
+    echo "To finish setting up arc, copy sandcastle_dot_arcrc from"
+    echo "   https://www.dropbox.com/home/Khan%20Academy%20All%20Staff/Secrets"
+    echo "to"
+    echo "   $HOME/.arcrc"
+    echo "and then chmod to 600"
+    echo "Hit enter when done:"
+    read prompt
+fi
 
 # TODO(alpert): better sandcastle logging setup

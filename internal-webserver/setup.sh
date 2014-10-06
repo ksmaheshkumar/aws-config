@@ -31,36 +31,13 @@
 # Bail on any errors
 set -e
 
-# Activate the multiverse!  Needed for ec2-api-tools
-sudo perl -pi.orig -e 'next if /-backports/; s/^# (deb .* multiverse)$/$1/' \
-    /etc/apt/sources.list
-if ! grep -q nginx/stable /etc/apt/sources.list; then
-  sudo add-apt-repository -y "deb http://ppa.launchpad.net/nginx/stable/ubuntu `lsb_release -cs` main"
-fi
-sudo apt-get update
+CONFIG_DIR="$HOME/aws-config/internal-webserver"
+. "$HOME/aws-config/shared/setup_fns.sh"
 
-install_basic_packages() {
-    echo "Installing packages: Basic setup"
-    sudo apt-get install -y python-pip
-    sudo apt-get install -y ntp
-    sudo apt-get install -y nginx  # uses ppa added above
-    sudo apt-get install -y php5-fpm
-    # This is needed so installing postfix doesn't prompt.  See
-    # http://www.ossramblings.com/preseed_your_apt_get_for_unattended_installs
-    # If it prompts anyway, type in the stuff from postfix.preseed manually.
-    sudo apt-get install -y debconf-utils
-    sudo debconf-set-selections aws-config/internal-webserver/postfix.preseed
-    sudo apt-get install -y postfix
-
-    echo "(Finishing up postfix config)"
-    sudo sed -i -e 's/myorigin = .*/myorigin = khanacademy.org/' \
-                -e 's/myhostname = .*/myhostname = toby.khanacademy.org/' \
-                -e 's/inet_interfaces = all/inet_interfaces = loopback-only/' \
-                /etc/postfix/main.cf
-    sudo service postfix restart
-}
 
 install_ec2_tools() {
+    # Activate the multiverse!  Needed for ec2-api-tools
+    activate_multiverse       # from setup_fns.sh
     sudo apt-get install -y ec2-api-tools
     mkdir -p "$HOME/aws"
     if [ ! -s "$HOME/aws/pk-backup-role-account.pem" ]; then
@@ -83,7 +60,7 @@ install_repositories() {
         ( cd internal-webserver && git pull && git submodule update --init --recursive )
 }
 
-install_root_config_files() {
+install_root_config_files_toby() {
     echo "Updating config files on the root filesystem (using symlinks)"
     # This will fail (causing the script to fail) if python isn't
     # python2.7.  If that happens, update the symlinks below to point
@@ -92,32 +69,11 @@ install_root_config_files() {
     sudo ln -snf "$HOME/internal-webserver/python-hipchat/hipchat" \
                  /usr/local/lib/python2.7/dist-packages/
 
-    sudo cp -sav --backup=numbered "$HOME/aws-config/internal-webserver/etc/" /
-    sudo chown root:root /etc
-    # Make sure that we've added the info we need to the fstab.
-    # ('tee -a' is the way to do '>>' that works with sudo.)
-    grep -xqf /etc/fstab.extra /etc/fstab || \
-        cat /etc/fstab.extra | sudo tee -a /etc/fstab >/dev/null
-
-    # Stuff in /etc/init needs to be owned by root, so we copy instead of
-    # symlinking there.
-    for initfile in "$HOME"/aws-config/internal-webserver/etc/init/*; do
-        rm -f "/etc/init/`basename "$initfile"`"
-        sudo install -m644 "$initfile" /etc/init
-    done
-
-    # Make sure all the disks in the fstab are mounted.
-    sudo mount -a
+    # Rest is standard'
+    install_root_config_files    # from setup_fns.sh
 }
 
 install_user_config_files() {
-    echo "Updating dotfiles (using symlinks)"
-    cp -sav --backup=numbered "$HOME"/internal-webserver/.hgrc "$HOME"
-    # We want the mirrors to live on ephemeral disk: they're easy to
-    # re-create if there's need.  And this data is big!
-    sudo cp -sav --backup=numbered "$HOME"/internal-webserver/*_mirrors \
-        /mnt
-
     echo "Creating logs directory (for webserver logs)"
     sudo mkdir -p /opt/logs
     sudo chmod 1777 /opt/logs
@@ -148,7 +104,7 @@ install_phabricator() {
     # The envvar here keeps apt-get from prompting for a password.
     # TODO(csilvers): should we give the root mysql user a password?
     sudo env DEBIAN_FRONTEND=noninteractive apt-get install -y mysql-server
-    sudo apt-get install -y php5 php5-mysql php5-cgi php5-gd php5-curl
+    sudo apt-get install -y php5 php5-mysql php5-cgi php5-fpm php5-gd php5-curl
     sudo apt-get install -y libpcre3-dev php-pear    # needed to install apc
     # php is dog-slow without APC
     pecl list | grep -q APC || yes "" | sudo pecl install apc
@@ -243,29 +199,12 @@ echo "Hit enter when this is done:"
 read prompt
 }
 
-_install_alertlib_secret() {
-    if [ ! -s "alertlib_secret/secrets.py" ]; then
-        echo "Run:"
-        echo "---"
-        echo "mkdir -p ~/alertlib_secret"
-        echo "chmod 700 ~/alertlib_secret"
-        echo "cat <<EOF > ~/alertlib_secret/secrets.py"
-        echo 'hipchat_alertlib_token = "<value>"'
-        echo 'hostedgraphite_api_key = "<value>"'
-        echo 'EOF'
-        echo "---"
-        echo "where these lines are taken from secrets.py."
-        echo "Hit <enter> when this is done:"
-        read prompt
-    fi
-}
-
 install_gae_default_version_notifier() {
     echo "Installing gae-default-version-notifier"
     git clone git://github.com/Khan/gae-default-version-notifier.git || \
         ( cd gae-default-version-notifier && git pull && git submodule update --init --recursive )
     # This uses alertlib, so make sure the secret is installed.
-    _install_alertlib_secret
+    install_alertlib_secret    # from setup_fns.sh
 }
 
 install_culture_cow() {
@@ -290,7 +229,7 @@ install_beep_boop() {
         ( cd beep-boop && git pull && git submodule update --init --recursive )
     sudo pip install -r beep-boop/requirements.txt
     # This uses alertlib, so make sure the secret is installed.
-    _install_alertlib_secret
+    install_alertlib_secret    # from setup_fns.sh
     if [ ! -s "$HOME/beep-boop/uservoice.cfg" ]; then
         echo "Put uservoice.cfg in $HOME/beep-boop/."
         echo "This is a file with the contents '<uservoice_api_key>',"
@@ -398,10 +337,12 @@ start_daemons() {
 }
 
 cd "$HOME"
-install_basic_packages
+
+update_aws_config_env     # from setup_fns.sh
+install_basic_packages    # from setup_fns.sh
 install_ec2_tools
 install_repositories
-install_root_config_files
+install_root_config_files_toby
 install_user_config_files
 install_appengine
 install_phabricator
@@ -413,11 +354,10 @@ install_khantube_ouath_collector
 install_exercise_icons
 
 # Do this again, just in case any of the apt-get installs nuked it.
-install_root_config_files
+install_root_config_files_toby
 
 # Finally, we can start the crontab!
-echo "Installing the crontab"
-crontab "$HOME/aws-config/internal-webserver/crontab"
+install_crontab    # from setup_fns.sh
 
 echo "Starting daemons"
-start_daemons
+start_daemons    # from setup_fns.sh

@@ -1,0 +1,12 @@
+This directory has scripts and files that are useful for many ec2 machines.
+
+In general, an ec2 directory should not use scripts in 'shared'
+directly.  Rather, they should symlink from their own
+aws-config/<whatever>/ directory:
+
+    aws-config/mymachine% ln -snf ../shared/etc/nginx.conf etc/nginx/confg
+
+This way, we have a record of what shared functionality is used where.
+
+However, setup.sh should feel free to source shared/setup_fns.sh
+directly.
