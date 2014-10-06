@@ -25,11 +25,11 @@ server {
 	# pass the PHP scripts to FastCGI server listening on 127.0.0.1:9000
 
 	location ~ \.php$ {
-                # The good version (when it works!)
+		# The good version (when it works!)
 #!!		fastcgi_pass 127.0.0.1:9000;
-                # The slow-but-safe version (must run fastcgi.sh first)
+		# The slow-but-safe version (must run fastcgi.sh first)
 		fastcgi_pass unix:/opt/phabricator_repositories/fcgi.sock
-                fastcgi_param  SCRIPT_FILENAME    $document_root$fastcgi_script_name;
+		fastcgi_param  SCRIPT_FILENAME    $document_root$fastcgi_script_name;
 
 		fastcgi_index index.php;
 		fastcgi_param PHABRICATOR_ENV khan;
