@@ -50,7 +50,7 @@ install_basic_packages() {
         sudo apt-get install -y postfix
 
         echo "(Finishing up postfix config)"
-        hostname=`cut -f3 "$CONFIG_DIR"/postfix.preseed | grep khanacademy.org`
+        hostname=`env LC_ALL=C grep -o '[!-~]*.khanacademy.org' "$CONFIG_DIR"/postfix.preseed`
         sudo sed -i -e 's/myorigin = .*/myorigin = khanacademy.org/' \
                     -e 's/myhostname = .*/myhostname = '"$hostname"'/' \
                     -e 's/inet_interfaces = all/inet_interfaces = loopback-only/' \
@@ -91,9 +91,9 @@ install_root_config_files() {
             sudo install -m644 "$initfile" "`_to_fs "$initfile"`"
         done
     fi
-    # Same for stuff in /etc/crontab.*
-    if [ -n "`ls "$CONFIG_DIR"/etc/crontab.*`" ]; then
-        for cronfile in "$CONFIG_DIR"/etc/crontab.*/*; do
+    # Same for stuff in /etc/cron.*
+    if [ -n "`ls "$CONFIG_DIR"/etc/cron.*`" ]; then
+        for cronfile in "$CONFIG_DIR"/etc/cron.*/*; do
             rm -f "`_to_fs "$cronfile"`"
             sudo install -m755 "$cronfile" "`_to_fs "$cronfile"`"
         done

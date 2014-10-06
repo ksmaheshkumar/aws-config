@@ -1,6 +1,6 @@
 #!/bin/sh -e
 
-aptitude=/usr/sbin/aptitude
+aptitude=/usr/bin/aptitude
 [ -x "$aptitude" ]     # -e causes us to exit if this test fails
 
 # Automatically do all 'safe' security updates once a day
