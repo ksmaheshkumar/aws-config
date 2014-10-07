@@ -23,3 +23,13 @@ update_aws_config_env       # from setup_fns.sh
 install_basic_packages      # from setup_fns.sh
 install_root_config_files   # from setup_fns.sh
 install_nginx               # from setup_fns.sh
+
+if [ ! -s "/etc/nginx/ka-wild-13.key" ]; then
+    echo "To finish setting up nginx, copy ka-wild-13.* from"
+    echo "   https://www.dropbox.com/home/Khan%20Academy%20All%20Staff/Secrets"
+    echo "to"
+    echo "   /etc/nginx/"
+    echo "(as root) and then chmod 600 /etc/nginx/ka-wild-13.*"
+    echo "Hit enter when done:"
+    read prompt
+fi
