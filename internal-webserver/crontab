@@ -15,13 +15,12 @@ PATH = /usr/local/bin:/usr/bin:/bin
 # Check for elevated issue rates on Github.
   16 *  *   *   *     sh -c '/usr/bin/timeout 55m env PYTHONPATH=$HOME/beep-boop/alertlib:$HOME/alertlib_secret python $HOME/beep-boop/github_reports.py' >> $HOME/logs/beep-boop-github.log || echo "Failed to run beep-boop for github; see $HOME/logs/beep-boop-github.log"
 
-# Do a backup every day.  (12:00 UTC is 4am PST)
-  0  12  *   *   *     sh -c 'echo "--- `date`"; $HOME/aws-config/internal-webserver/snapshot_toby.sh' >> $HOME/logs/aws-snapshot.log || echo "Failed to snapshot toby's data; see $HOME/logs/aws-snapshot.log"
+# Do a backup every day.
+  0  4  *   *   *     sh -c 'echo "--- `date`"; $HOME/aws-config/internal-webserver/snapshot_toby.sh' >> $HOME/logs/aws-snapshot.log || echo "Failed to snapshot toby's data; see $HOME/logs/aws-snapshot.log"
 
 # --- Fetch stats and send them to graphite
-# Fetch GAE usage reports every day. Reports are generated at about 1430 PST
-# which is 2130 UTC, and we allow for a bit of wiggle room.
-00 22 * * * sh -c 'echo "--- `date`"; /usr/bin/timeout 55m $HOME/internal-webserver/gae_dashboard/fetch_usage.sh' >> $HOME/logs/gae_dashboard_usage.log || echo "gae_dashboard_usage run failed with error $?; see $HOME/logs/gae_dashboard_usage.log"
+# Fetch GAE usage reports every day. Reports are generated at about 1430 PST.
+00 15 * * * sh -c 'echo "--- `date`"; /usr/bin/timeout 55m $HOME/internal-webserver/gae_dashboard/fetch_usage.sh' >> $HOME/logs/gae_dashboard_usage.log || echo "gae_dashboard_usage run failed with error $?; see $HOME/logs/gae_dashboard_usage.log"
 
 # Fetch GAE admin UI stats every 7 minutes.
 */7 * * * * sh -c 'echo "--- `date`"; /usr/bin/timeout 6m $HOME/internal-webserver/gae_dashboard/fetch_stats.sh' >> $HOME/logs/gae_dashboard_stats.log
@@ -34,4 +33,4 @@ PATH = /usr/local/bin:/usr/bin:/bin
 
 # Update latency chart data retrieved from bigquery every day, to be displayed
 # on an in-browser dashboard.
-00 1 * * * sh -c 'echo "--- `date`"; /usr/bin/timeout 60m $HOME/internal-webserver/gae_dashboard/generate_perf_chart_json.py' >> $HOME/logs/generate_perf_chart_json.log || echo "email_bq_data run failed with error $?; see $HOME/logs/generate_perf_chart_json.log"
+00 2 * * * sh -c 'echo "--- `date`"; /usr/bin/timeout 60m $HOME/internal-webserver/gae_dashboard/generate_perf_chart_json.py' >> $HOME/logs/generate_perf_chart_json.log || echo "email_bq_data run failed with error $?; see $HOME/logs/generate_perf_chart_json.log"
