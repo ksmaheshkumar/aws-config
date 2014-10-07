@@ -45,7 +45,7 @@ setup_sandcastle() {
     python sandcastle/manage.py syncdb
 
     git clone http://github.com/Khan/khan-exercises.git sandcastle/media/repo || \
-        ( cd sandcastle/media/repo/khan-exercises && git pull && git submodule update --init --recursive )
+        ( cd sandcastle/media/repo && git pull && git submodule update --init --recursive )
 }
 
 install_apache() {
