@@ -59,74 +59,10 @@ install_root_config_files_jenkins() {
     install_root_config_files   # from setup_fns.sh
 }
 
-install_build_deps() {
-    echo "Installing build dependencies"
-
-    sudo apt-get install -y g++ make
-
-    # Python deps
-    sudo apt-get install -y python-dev  # for numpy
-    sudo apt-get install -y python-software-properties python
-    sudo pip install virtualenv
-
-    # Node deps
-    # see https://github.com/joyent/node/wiki/Installing-Node.js-via-package-manager
-    add_ppa chris-lea/node.js        # in setup_fns.sh
-    sudo apt-get install -y nodejs
-    # If npm is not installed, log in to the jenkins machine and run this command:
-    # TODO(mattfaus): Automate this (ran into problems with /dev/tty)
-    # wget -q -O- https://npmjs.org/install.sh | sudo sh
-    sudo npm update
-
-    # Ruby deps
-    sudo apt-get install -y ruby rubygems
-    sudo REALLY_GEM_UPDATE_SYSTEM=1 gem update --system
-    sudo apt-get install -y ruby1.8-dev ruby1.8 ri1.8 rdoc1.8 irb1.8
-    sudo apt-get install -y libreadline-ruby1.8 libruby1.8 libopenssl-ruby
-    # nokogiri requirements (gem install does not suffice on Ubuntu)
-    # See http://nokogiri.org/tutorials/installing_nokogiri.html
-    sudo apt-get install -y libxslt-dev libxml2-dev
-    # NOTE: version 2.x of uglifier has unexpected behavior that causes
-    # khan-exercises/build/pack.rb to fail.
-    sudo gem install --conservative nokogiri:1.5.7 json:1.7.7 uglifier:1.3.0 therubyracer:0.11.4
-    sudo gem install bundler
-
-    # jstest deps
-    if ! which phantomjs >/dev/null; then
-        (
-            cd /usr/local/share
-            case `uname -m` in
-                i?86) mach=i686;;
-                *) mach=x86_64;;
-            esac
-            sudo rm -rf phantomjs
-            wget "https://phantomjs.googlecode.com/files/phantomjs-1.9.2-linux-${mach}.tar.bz2" -O- | sudo tar xfj -
-
-            sudo ln -snf /usr/local/share/phantomjs-1.9.2-linux-${mach}/bin/phantomjs /usr/local/bin/phantomjs
-        )
-        which phantomjs >/dev/null
-    fi
-}
-
-install_image_tools() {
-    echo "Installing image tools"
-    # These image tools are used for the Jenkins build that periodically
-    # optimizes our image sizes.  danmbox is needed to get pngquant 2.0
-    add_ppa danmbox/ppa        # in setup_fns.sh
-    sudo apt-get install -y pngquant optipng pngcrush libjpeg-turbo-progs imagemagick
-    if [ ! -s /usr/local/bin/pngout ]; then
-      ( cd /tmp \
-        && wget http://static.jonof.id.au/dl/kenutils/pngout-20130221-linux.tar.gz \
-        && tar -zxf pngout-20130221-linux.tar.gz \
-        && sudo install -m 755 pngout-20130221-linux/`uname -m`/pngout /usr/local/bin )
-    fi
-}
-
 install_ubuntu_user_env() {
     sudo cp -av "$CONFIG_DIR/Makefile" "$HOME/"
     make symlinks
 }
-
 
 install_jenkins() {
     echo "Installing Jenkins"
@@ -327,7 +263,7 @@ install_jenkins_home() {
 update_aws_config_env    # from setup_fns.sh
 install_basic_packages_jenkins
 install_root_config_files_jenkins
-install_build_deps
+install_build_deps       # from setup_fns.sh
 install_image_tools
 install_jenkins
 install_jenkins_user_env

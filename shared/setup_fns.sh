@@ -117,6 +117,66 @@ install_user_config_files() {
     fi
 }
 
+install_build_deps() {
+    # Note this just installs the system deps.  You still need to
+    # check out the webapp repo yourself, then run 'make deps' to
+    # install the next (application) layer of deps.
+    echo "Installing system deps needed to 'make build'/'make check' in webapp"
+
+    sudo apt-get install -y g++ make
+
+    # Python deps
+    sudo apt-get install -y python-dev  # for numpy
+    sudo apt-get install -y python-software-properties python
+    sudo pip install virtualenv
+
+    # Node deps
+    # see https://github.com/joyent/node/wiki/Installing-Node.js-via-package-manager
+    add_ppa chris-lea/node.js        # in setup_fns.sh
+    sudo apt-get install -y nodejs
+    # If npm is not installed, log in to the jenkins machine and run this command:
+    # TODO(mattfaus): Automate this (ran into problems with /dev/tty)
+    # wget -q -O- https://npmjs.org/install.sh | sudo sh
+    sudo npm update
+
+    # Ruby deps
+    sudo apt-get install -y ruby rubygems
+    sudo REALLY_GEM_UPDATE_SYSTEM=1 gem update --system
+    sudo apt-get install -y ruby1.8-dev ruby1.8 ri1.8 rdoc1.8 irb1.8
+    sudo apt-get install -y libreadline-ruby1.8 libruby1.8 libopenssl-ruby
+    # nokogiri requirements (gem install does not suffice on Ubuntu)
+    # See http://nokogiri.org/tutorials/installing_nokogiri.html
+    sudo apt-get install -y libxslt-dev libxml2-dev
+    sudo gem install bundler
+
+    # jstest deps
+    if ! which phantomjs >/dev/null; then
+        (
+            cd /usr/local/share
+            case `uname -m` in
+                i?86) mach=i686;;
+                *) mach=x86_64;;
+            esac
+            sudo rm -rf phantomjs
+            wget "https://phantomjs.googlecode.com/files/phantomjs-1.9.2-linux-${mach}.tar.bz2" -O- | sudo tar xfj -
+
+            sudo ln -snf /usr/local/share/phantomjs-1.9.2-linux-${mach}/bin/phantomjs /usr/local/bin/phantomjs
+        )
+        which phantomjs >/dev/null
+    fi
+
+    # Some KA tests write to /tmp and don't clean up after themselves,
+    # on purpose (see kake/server_client.py:rebuild_if_needed().  We
+    # install tmpreaper to clean up those files "eventually".
+    # This avoids prompting at install time.
+    sudo apt-get install -y debconf-utils
+    echo "tmpreaper tmpreaper/readsecurity note" | sudo debconf-set-selections
+    echo "tmpreaper tmpreaper/readsecurity_upgrading note" | sudo debconf-set-selections
+    sudo apt-get install -y tmpreaper
+    # We need to comment out a line before tmpreaper will actually run.
+    sudo perl -pli -e s/^SHOWWARNING/#SHOWWARNING/ /etc/tmpreaper.conf
+}
+
 # Needed for ec2-api-tools
 activate_multiverse() {
     sudo perl -pi~ -e 'next if /-backports/; s/^# (deb .* multiverse)$/$1/' \
