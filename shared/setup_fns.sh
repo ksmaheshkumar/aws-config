@@ -66,6 +66,9 @@ install_basic_packages() {
     echo "America/Los_Angeles" | sudo tee /etc/timezone
     sudo dpkg-reconfigure -f noninteractive tzdata
 
+    # Let's make sure we have a reasonable hostname!
+    sudo hostname "`basename "$CONFIG_DIR"`"
+
     # Not needed, but useful
     sudo apt-get install -y curl
 }
