@@ -31,3 +31,14 @@ install_root_config_files      # from setup_fns.sh
 install_user_config_files      # from setup_fns.sh
 install_repositories
 install_crontab                # from setup_fns.sh
+
+if [ ! -s "$HOME"/s3_secret_key ]; then
+    echo "Run the following commands to set up the s3 secrets,"
+    echo "where the values in braces are taken from webapp's secrets.py."
+    echo "   echo '<youtube_export_s3_access_key>' > ~/s3_access_key"
+    echo "   echo '<youtube_export_s3_secret_key>' > ~/s3_secret_key"
+    echo "   chmod 600 ~/s3_*"
+    echo "Hit <enter> when this is done:"
+    read prompt
+fi
+
