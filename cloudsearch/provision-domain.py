@@ -5,11 +5,6 @@
 Additional information is available at
 https://sites.google.com/a/khanacademy.org/forge/for-developers/developing-search/working-with-cloudsearch-domains
 
-WARNING: Running this script will cause the domain to enter the
-"Needs Indexing" state, regardless if anything actually changed! Being in this
-state does not adversely affect the domain's performance, but should be avoided
-regardless. See below for instructions on indexing (to get out of this state).
-
 WARNING: This script will not currently delete fields. If you remove a field
 from the configuration, make sure to remove the field manually by going into
 the CloudSearch web console.
@@ -27,9 +22,8 @@ After Running the Script
 ------------------------
 
 You will want to go into the Amazon Cloud Search web console to verify that all
-the settings were set as expected. When you are confident that everything is as
-expected, click the large "Run Indexing" button that is present at the top of
-every page. Indexing will take some time so be patient.
+the settings were set as expected.
+https://console.aws.amazon.com/cloudsearch/
 """
 
 import json
@@ -37,16 +31,14 @@ import logging
 import optparse
 import os
 import pipes
-import shutil
 import subprocess
 import sys
-import tempfile
 import yaml
 
-dry_run = False
 """A global that is flipped within main if we're in a dry run (not actually
 issuing commands to CloudSearch).
 """
+dry_run = False
 
 
 def parse_arguments(raw_args=sys.argv[1:]):
@@ -54,21 +46,21 @@ def parse_arguments(raw_args=sys.argv[1:]):
     parser = optparse.OptionParser(
         usage="usage: %prog [OPTIONS] DOMAIN_NAME DOMAIN_CONFIG_FILE",
         description="A tool for provisioning a Khan Academy CloudSearch "
-            "domain."
-    )
+            "domain.")
 
     parser.add_option("-v", "--verbose", action="store_true", default=False,
         help="If specified, DEBUG messages will be printed and more "
-            "information will be printed with each log message."
-    )
+            "information will be printed with each log message.")
 
     parser.add_option("--leave-temp-dir", action="store_true", default=False,
         help="If specified, the created temporary directory will not be "
-            "deleted when the script exits."
-    )
+            "deleted when the script exits.")
 
     parser.add_option("-n", "--dry-run", action="store_true", default=False,
         help="If specified, no commands will actually be executed.")
+
+    parser.add_option("--no-reindex", action="store_true", default=False,
+        help="If specified, will only update the config, without reindexing.")
 
     options, args = parser.parse_args(raw_args)
 
@@ -79,7 +71,7 @@ def parse_arguments(raw_args=sys.argv[1:]):
     return (options, args[0], args[1])
 
 
-def maybe_execute_command(command, *args, **kwargs):
+def maybe_execute_command(command, error_msg):
     """Runs a CloudSearch command (or not if its a dry run)."""
 
     pretty_command = command_list_to_str(command)
@@ -90,7 +82,12 @@ def maybe_execute_command(command, *args, **kwargs):
         return
     else:
         logging.info("Executing: %s", pretty_command)
-        return subprocess.check_call(command, *args, **kwargs)
+        try:
+            ret_val = subprocess.check_call(command)
+        except subprocess.CalledProcessError:
+            logging.exception(error_msg)
+            sys.exit(1)
+        return ret_val
 
 
 def setup_logging(verbose):
@@ -139,8 +136,10 @@ def get_disable_flags(field_type, traits):
 
     # Most of the fields have the same available traits so we're going to group
     # the fields into a few categories. Each category will be called a stem.
-    # The available traits were found by playing with the AWS console,
-    # selecting each field type and seeing which fields were enabled.
+    # The available traits are listed at
+    # http://docs.aws.amazon.com/cloudsearch/latest/developerguide/configuring-index-fields.html
+    # They can be verified by playing with the AWS console,
+    # selecting each field type and seeing which fields are enabled.
     STEM_TO_FIELD = {
         "plain": {"int", "double", "literal", "date", "latlong"},
         "plain-array": {"int-array", "double-array", "literal-array",
@@ -234,11 +233,8 @@ def configure_fields(config, domain):
         command = ["aws", "cloudsearch", "define-index-field", 
             "--domain-name", domain] + i
 
-        try:
-            maybe_execute_command(command)
-        except subprocess.CalledProcessError:
-            logging.exception("Could not configure field %r.", name)
-            sys.exit(1)
+        maybe_execute_command(command,
+            "Could not configure field {}.".format(name))
 
 
 def make_scheme_arg(scheme):
@@ -252,7 +248,7 @@ def make_scheme_arg(scheme):
     return json.dumps(scheme)
 
 
-def configure_analysis_schemes(config, domain, temp_dir):
+def configure_analysis_schemes(config, domain):
     """Configures all of the analysis schemes. Called by main()."""
     analysis_schemes = config["analysis_schemes"]
     logging.debug("Loaded analysis schemes %r.", analysis_schemes)
@@ -265,12 +261,22 @@ def configure_analysis_schemes(config, domain, temp_dir):
             "--domain-name", domain,
             "--analysis-scheme", make_scheme_arg(i)]
 
-        try:
-            maybe_execute_command(command)
-        except subprocess.CalledProcessError:
-            logging.exception("Could not configure analysis scheme %r.",
-                i["AnalysisSchemeName"])
-            sys.exit(1)
+        maybe_execute_command(command,
+            "Could not configure analysis scheme {}.".format(
+                i["AnalysisSchemeName"]))
+
+
+def reindex(domain, no_reindex):
+    if no_reindex:
+        logging.info("The index is now in a partial state. Reindex from the "
+        "console or by re-running this script.")
+        return
+
+    command = ["aws", "cloudsearch", "index-documents", "--domain-name",
+        domain]
+    logging.info("Running reindex.")
+    maybe_execute_command(command,
+            "Reindex failed.")
 
 
 def main(options, domain, domain_config_path):
@@ -293,24 +299,9 @@ def main(options, domain, domain_config_path):
     if options.dry_run:
         dry_run = True
 
-    # Some of our configuration require temporary files, so we create a
-    # temporary directory here that will contain all of our other temporary
-    # files and directories for easy cleanup.
-    temp_dir = tempfile.mkdtemp()
-    logging.debug("Created temporary directory at %r.", temp_dir)
-
-    try:
-        configure_analysis_schemes(config, domain, temp_dir)
-        configure_fields(config, domain)
-    finally:
-        if options.leave_temp_dir:
-            logging.info("Leaving temporary directory at %r.", temp_dir)
-        else:
-            shutil.rmtree(temp_dir)
-            logging.debug("Deleted temporary directory at %r.", temp_dir)
-
-    logging.info("Be sure to follow the directions under the 'After Running "
-        "the Script' section located in the docstring of this module.")
+    configure_analysis_schemes(config, domain)
+    configure_fields(config, domain)
+    reindex(domain, options.no_reindex)
 
 
 if __name__ == "__main__":
