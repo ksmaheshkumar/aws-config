@@ -20,9 +20,9 @@ _to_fs() {
 add_ppa() {
     if ! ls /etc/apt/sources.list.d/ 2>&1 | grep -q `echo $1 | tr / .`; then
         sudo add-apt-repository -y ppa:"$1"
-    fi
-    sudo apt-get update
-}
+        sudo apt-get update
+   fi
+ }
 
 update_aws_config_env() {
     echo "Update aws-config codebase and installation environment"
