@@ -11,5 +11,6 @@ SANDCASTLE_REPO = 'khan-exercises'
 
 ADMINS = (
     ('Ben Alpert', 'alpert@khanacademy.org'),
-    ('Emily Eisenberg', 'emily@khanacademy.org')
+    ('Emily Eisenberg', 'emily@khanacademy.org'),
+    ('Ben Eater', 'eater@khanacademy.org'),
 )
