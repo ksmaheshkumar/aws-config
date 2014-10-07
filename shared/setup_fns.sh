@@ -16,15 +16,19 @@ _to_fs() {
 }
 
 
+# $1: name of the ppa, eg. "chris-lea/node.js"
+add_ppa() {
+    if ! ls /etc/apt/sources.list.d/ 2>&1 | grep -q `echo $1 | tr / .`; then
+        sudo add-apt-repository -y ppa:"$1"
+    fi
+    sudo apt-get update
+}
+
 update_aws_config_env() {
     echo "Update aws-config codebase and installation environment"
     # To get the most recent git, later.
-    if ! ls /etc/apt/sources.list.d/ 2>&1 | grep -q git-core-ppa; then
-        sudo add-apt-repository -y ppa:git-core/ppa
-    fi
+    add_ppa git-core/ppa
 
-    # Make sure the system is up-to-date.
-    sudo apt-get update
     sudo apt-get install -y git
 
     if [ ! -d "$HOME/aws-config" ]; then
@@ -147,10 +151,7 @@ install_nginx() {
     if [ -n "`ls "$CONFIG_DIR"/nginx_site_*`" ]; then
         echo "Installing nginx"
         # Sometimes we need a more modern nginx than ubuntu 12.04 provides.
-        if ! grep -q nginx/stable /etc/apt/sources.list; then
-            sudo add-apt-repository -y "deb http://ppa.launchpad.net/nginx/stable/ubuntu `lsb_release -cs` main"
-        fi
-        sudo apt-get update
+        add_ppa nginx/stable
         sudo apt-get install -y nginx
         sudo rm -f /etc/nginx/sites-enabled/default
         for f in "${CONFIG_DIR}"/nginx_site_*; do

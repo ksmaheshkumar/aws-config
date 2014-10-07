@@ -71,8 +71,7 @@ install_build_deps() {
 
     # Node deps
     # see https://github.com/joyent/node/wiki/Installing-Node.js-via-package-manager
-    sudo add-apt-repository -y ppa:chris-lea/node.js
-    sudo apt-get update
+    add_ppa chris-lea/node.js        # in setup_fns.sh
     sudo apt-get install -y nodejs
     # If npm is not installed, log in to the jenkins machine and run this command:
     # TODO(mattfaus): Automate this (ran into problems with /dev/tty)
@@ -113,8 +112,7 @@ install_image_tools() {
     echo "Installing image tools"
     # These image tools are used for the Jenkins build that periodically
     # optimizes our image sizes.  danmbox is needed to get pngquant 2.0
-    sudo add-apt-repository -y ppa:danmbox/ppa
-    sudo apt-get update
+    add_ppa danmbox/ppa        # in setup_fns.sh
     sudo apt-get install -y pngquant optipng pngcrush libjpeg-turbo-progs imagemagick
     if [ ! -s /usr/local/bin/pngout ]; then
       ( cd /tmp \
