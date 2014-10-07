@@ -60,7 +60,7 @@ install_repositories
 install_root_config_files          # from setup_fns.sh
 install_user_config_files          # from setup_fns.sh
 # We have a script to start nginx so it can be run from vagrant as well
-"$CONFIG_DIR"/scripts/isntall_nginx.sh
+sh "$CONFIG_DIR"/scripts/install_nginx.sh
 
 # Start the daemons!
 start_daemons                      # from setup_fns.sh
