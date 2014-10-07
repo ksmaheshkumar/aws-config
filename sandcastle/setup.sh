@@ -20,12 +20,12 @@ cd "$HOME"
 
 
 install_repositories() {
-    echo "Syncing youtube-export codebase"
+    echo "Syncing sandcastle codebase"
     sudo apt-get install -y git
     git clone git://github.com/Khan/sandcastle || \
         ( cd sandcastle && git pull && git submodule update --init --recursive )
     # We don't set up virtualenv on this machine, so just install into /usr.
-    sudo pip install -r youtube-export/requirements.txt
+    sudo pip install -r sandcastle/requirements.txt
 }
 
 install_arcanist() {
