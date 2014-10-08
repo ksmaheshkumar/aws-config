@@ -1,1 +1,3 @@
-1 0 * * * $HOME/youtube-export/cron/convert.sh
+MAILTO = toby-admin+crontab@khanacademy.org
+
+1 0 * * * $HOME/youtube-export/cron/convert.sh || echo "Failed to run youtube-export; see $HOME/youtube-export/logs"
