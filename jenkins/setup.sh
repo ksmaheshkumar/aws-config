@@ -82,6 +82,12 @@ install_jenkins() {
 
     sudo apt-get install -y jenkins     # http://jenkins-ci.org
 
+    # We don't want the security cronjob to automatically update
+    # jenkins whenever there's a reported security hole (updating
+    # jenkins, along with its plugins, is a delicate process, and we
+    # can't automate it!)
+    sudo apt-mark hold jenkins
+
     # Ensure plugins directory exists.
     sudo -u jenkins mkdir -p "${JENKINS_HOME}"/plugins
 
