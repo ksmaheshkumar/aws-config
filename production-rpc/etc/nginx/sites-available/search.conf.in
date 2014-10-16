@@ -7,6 +7,7 @@ server {
 
     # See below for information on this
     set $cloudsearch_document_endpoint {{CLOUDSEARCH_DOCUMENT_ENDPOINT}};
+    set $cloudsearch_document_endpoint_2 {{CLOUDSEARCH_DOCUMENT_ENDPOINT_2}}
 
     # CloudSearch accepts bulk requests up to 5 MB, we'll allow a bit over this
     client_max_body_size 6M;
@@ -32,6 +33,22 @@ server {
         # answer's TTL though. See
         # http://www.jethrocarr.com/2013/11/02/nginx-reverse-proxies-and-dns-resolution/
         proxy_pass $cloudsearch_document_endpoint;
+    }
+
+    location /cloudsearch/secure-update-primary/{{SECRET}}/ {
+        rewrite ^/cloudsearch/secure-update-primary/[^/]+(/.*)$ $1 break;
+
+        resolver 8.8.8.8;
+
+        proxy_pass $cloudsearch_document_endpoint;
+    }
+
+    location /cloudsearch/secure-update-secondary/{{SECRET}}/ {
+        rewrite ^/cloudsearch/secure-update-secondary/[^/]+(/.*)$ $1 break;
+
+        resolver 8.8.8.8;
+
+        proxy_pass $cloudsearch_document_endpoint_2;
     }
 
     # Catch-all for anything that doesn't match above

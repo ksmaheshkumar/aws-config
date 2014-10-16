@@ -34,6 +34,7 @@ sudo rm -f /etc/nginx/sites-available/default /etc/nginx/sites-available/default
 SITES_AVAILABLE="$REPO_ROOT/etc/nginx/sites-available"
 sed -e s,{{SECRET}},`cat "$HOME/cloudsearch_secret"`,g \
 	-e s,{{CLOUDSEARCH_DOCUMENT_ENDPOINT}},`cat "$REPO_ROOT/data/cloudsearch-publish-endpoint"`,g \
+	-e s,{{CLOUDSEARCH_DOCUMENT_ENDPOINT_2}},`cat "$REPO_ROOT/data/cloudsearch-publish-endpoint-2"`,g \
 	< "$REPO_ROOT/etc/nginx/sites-available/search.conf.in" \
 	> /etc/nginx/sites-available/search.conf
 
