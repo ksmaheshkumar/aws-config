@@ -12,9 +12,6 @@ PATH = /usr/local/bin:/usr/bin:/bin
 # Check for elevated issue rates on Zendesk
   10 *  *   *   *     sh -c '/usr/bin/timeout 55m env PYTHONPATH=$HOME/beep-boop/alertlib:$HOME/alertlib_secret python $HOME/beep-boop/zendesk_reports.py' >> $HOME/logs/beep-boop-zendesk.log || echo "Failed to run beep-boop for Zendesk; see $HOME/logs/beep-boop-zendesk.log"
 
-# Check for elevated issue rates on Github.
-  16 *  *   *   *     sh -c '/usr/bin/timeout 55m env PYTHONPATH=$HOME/beep-boop/alertlib:$HOME/alertlib_secret python $HOME/beep-boop/github_reports.py' >> $HOME/logs/beep-boop-github.log || echo "Failed to run beep-boop for github; see $HOME/logs/beep-boop-github.log"
-
 # Do a backup every day.
   0  4  *   *   *     sh -c 'echo "--- `date`"; $HOME/aws-config/internal-webserver/snapshot_toby.sh' >> $HOME/logs/aws-snapshot.log || echo "Failed to snapshot toby's data; see $HOME/logs/aws-snapshot.log"
 
