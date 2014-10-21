@@ -108,7 +108,9 @@ sub vcl_recv {
 
         # Check URL whitelist
         if (!req.url ~ "^/cs/exec($|\?)|^/cs/csp_reporter($|\?)|^(/genfiles/translations/[^/]*)?/javascript|^/stylesheets|^(/genfiles/translations/[^/]*)?/third_party/javascript-khansrc") {
-            error 403 "Forbidden";
+            if (!req.url ~ "^/computer-programming/exec($|\?)|^/computer-programming/csp_reporter($|\?)|^(/genfiles/translations/[^/]*)?/javascript|^/stylesheets|^(/genfiles/translations/[^/]*)?/third_party/javascript-khansrc") {
+                error 403 "Forbidden";
+            }
         }
     }
 }
