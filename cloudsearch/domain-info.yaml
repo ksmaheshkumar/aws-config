@@ -11,17 +11,41 @@ analysis_schemes:
     # Configuring Text Analysis Schemes for Amazon CloudSearch document in
     # AWS CloudSearch's documentation for more information.
 
+    - AnalysisSchemeName: ka_bulgarian
+      AnalysisSchemeLanguage: bg
+      AnalysisOptions:
+        AlgorithmicStemming: full
+        Stopwords: dictionaries/bg-stopwords.yaml
+
+    - AnalysisSchemeName: ka_danish
+      AnalysisSchemeLanguage: da
+      AnalysisOptions:
+        AlgorithmicStemming: full
+        Stopwords: dictionaries/da-stopwords.yaml
+
     - AnalysisSchemeName: ka_english
       AnalysisSchemeLanguage: en
       AnalysisOptions:
         AlgorithmicStemming: full
         Stopwords: dictionaries/en-stopwords.yaml
 
-    - AnalysisSchemeName: ka_spanish
-      AnalysisSchemeLanguage: es
+    - AnalysisSchemeName: ka_french
+      AnalysisSchemeLanguage: fr
       AnalysisOptions:
         AlgorithmicStemming: light
-        Stopwords: dictionaries/es-stopwords.yaml
+        Stopwords: dictionaries/fr-stopwords.yaml
+
+    - AnalysisSchemeName: ka_hebrew
+      AnalysisSchemeLanguage: he
+      AnalysisOptions:
+        AlgorithmicStemming: full
+        Stopwords: dictionaries/he-stopwords.yaml
+
+    - AnalysisSchemeName: ka_polish
+      AnalysisSchemeLanguage: pl
+      AnalysisOptions:
+        AlgorithmicStemming: full
+        Stopwords: dictionaries/pl-stopwords.yaml
 
     - AnalysisSchemeName: ka_portuguese
       AnalysisSchemeLanguage: pt
@@ -29,11 +53,17 @@ analysis_schemes:
         AlgorithmicStemming: light
         Stopwords: dictionaries/pt-stopwords.yaml
 
-    - AnalysisSchemeName: ka_french
-      AnalysisSchemeLanguage: fr
+    - AnalysisSchemeName: ka_spanish
+      AnalysisSchemeLanguage: es
       AnalysisOptions:
         AlgorithmicStemming: light
-        Stopwords: dictionaries/fr-stopwords.yaml
+        Stopwords: dictionaries/es-stopwords.yaml
+
+    - AnalysisSchemeName: ka_turkish
+      AnalysisSchemeLanguage: tr
+      AnalysisOptions:
+        AlgorithmicStemming: full
+        Stopwords: dictionaries/tr-stopwords.yaml
 
 fields:
     # These are the fields that documents in the index will contain. Possible
@@ -113,7 +143,13 @@ locales:
     # into an underscore and all alphabetic characters converted to lowercase)
     # to the analysis scheme we'll use for it.
 
+    bg: ka_bulgarian
+    da: ka_danish
     en: ka_english
-    es_es: ka_spanish
-    pt_br: ka_portuguese
     fr: ka_french
+    he: ka_hebrew
+    pl: ka_polish
+    pt_br: ka_portuguese
+    es_es: ka_spanish
+    tr: ka_turkish
+

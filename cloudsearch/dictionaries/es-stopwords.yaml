@@ -1,6 +1,6 @@
-# This dictionary was derived from a BSD Licensed prefix file availabale at
-# https://svn.apache.org/repos/asf/lucene/dev/branches/preflexfixes/modules/analysis/common/src/resources/org/apache/lucene/analysis/snowball/portuguese_stop.txt
-# See the header of the file linked above for more licensing information, and
+# This dictionary was derived from a BSD Licensed prefix file available at
+# https://svn.apache.org/repos/asf/lucene/dev/branches/preflexfixes/modules/analysis/common/src/resources/org/apache/lucene/analysis/snowball/spanish_stop.txt
+# # See the header of the file linked above for more licensing information, and
 # also http://snowball.tartarus.org/license.php and
 # http://www.opensource.org/licenses/bsd-license.html.
 [
