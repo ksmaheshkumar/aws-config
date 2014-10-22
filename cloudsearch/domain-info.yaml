@@ -14,7 +14,7 @@ analysis_schemes:
     - AnalysisSchemeName: ka_bulgarian
       AnalysisSchemeLanguage: bg
       AnalysisOptions:
-        AlgorithmicStemming: full
+        AlgorithmicStemming: light
         Stopwords: dictionaries/bg-stopwords.yaml
 
     - AnalysisSchemeName: ka_danish
@@ -40,12 +40,6 @@ analysis_schemes:
       AnalysisOptions:
         AlgorithmicStemming: full
         Stopwords: dictionaries/he-stopwords.yaml
-
-    - AnalysisSchemeName: ka_polish
-      AnalysisSchemeLanguage: pl
-      AnalysisOptions:
-        AlgorithmicStemming: full
-        Stopwords: dictionaries/pl-stopwords.yaml
 
     - AnalysisSchemeName: ka_portuguese
       AnalysisSchemeLanguage: pt
@@ -148,7 +142,6 @@ locales:
     en: ka_english
     fr: ka_french
     he: ka_hebrew
-    pl: ka_polish
     pt_br: ka_portuguese
     es_es: ka_spanish
     tr: ka_turkish
