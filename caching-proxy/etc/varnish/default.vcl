@@ -22,7 +22,7 @@ backend cs_scratchpad_audio_s3 {
 }
 
 backend cs_images {
-    .host = "ka-cs-programming-images";
+    .host = "ka-cs-programming-images.s3.amazonaws.com";
     .port = "80";
 }
 
