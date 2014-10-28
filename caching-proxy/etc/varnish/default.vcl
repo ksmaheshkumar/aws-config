@@ -53,13 +53,13 @@ sub vcl_recv {
         set req.backend = cs_scratchpad_audio_s3;
         set req.url = regsub(req.url, "/s3/ka-cs-scratchpad-audio", "");
         
-    } else if (req.http.Host ~ "(?:^|\.)kasandbox\.org$" && req.url ~ "^/programming-images/.*") {
+    } else if (req.http.Host ~ "(?:^|\.)kasandbox\.org$" && req.url ~ "^/programming-images") {
         # We want the first to proxy to the second
         # http://kasandbox.org/programming-images/animals/fox.png
         # https://ka-cs-programming-images.s3.amazonaws.com/animals/fox.png
         set req.http.Host = "ka-cs-programming-images.s3.amazonaws.com";
         set req.backend = cs_images;
-        set req.url = regsub(req.url, "/programming-images/", "");
+        set req.url = regsub(req.url, "/programming-images", "");
 
     } else if (req.http.Host ~ "(?:^|\.)kasandbox\.org$") {
         if (req.url ~ "(\?|&)host=([a-zA-Z0-9-_.]*)") {
