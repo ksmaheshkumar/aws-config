@@ -120,7 +120,7 @@ sub vcl_recv {
         unset req.http.User-Agent;
 
         # Check URL whitelist
-        if (!req.url ~ "^/(?:cs|computer-programming)/exec($|\?)|^/(?:cs|computer-programming)/csp_reporter($|\?)|^(/genfiles/translations/[^/]*)?/javascript|^/stylesheets|^(/genfiles/translations/[^/]*)?/third_party/javascript-khansrc") {
+        if (!req.url ~ "^/(?:cs|computer-programming)/exec/.*($|\?)|^/(?:cs|computer-programming)/csp_reporter($|\?)|^(/genfiles/translations/[^/]*)?/javascript|^/stylesheets|^(/genfiles/translations/[^/]*)?/third_party/javascript-khansrc") {
             error 403 "Forbidden";
         }
     }
