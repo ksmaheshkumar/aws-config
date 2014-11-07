@@ -7,7 +7,7 @@ server {
 
     # See below for information on this
     set $cloudsearch_document_endpoint {{CLOUDSEARCH_DOCUMENT_ENDPOINT}};
-    set $cloudsearch_document_endpoint_2 {{CLOUDSEARCH_DOCUMENT_ENDPOINT_2}}
+    set $cloudsearch_document_endpoint_2 {{CLOUDSEARCH_DOCUMENT_ENDPOINT_2}};
 
     # CloudSearch accepts bulk requests up to 5 MB, we'll allow a bit over this
     client_max_body_size 6M;
