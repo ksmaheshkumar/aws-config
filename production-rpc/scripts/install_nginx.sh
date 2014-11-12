@@ -42,7 +42,20 @@ sed -e s,{{SECRET}},`cat "$HOME/cloudsearch_secret"`,g \
 ln -snf "$REPO_ROOT/etc/nginx/nginx.conf" /etc/nginx/nginx.conf
 
 # Configure nginx
-sudo ln -snf /etc/nginx/sites-available/search.conf /etc/nginx/sites-enabled/search.conf
+for f in /etc/nginx/sites-available/*.conf; do
+    sudo ln -snfv "$f" /etc/nginx/sites-enabled/
+
+    # Make sure that the server that we're using actually resolve.
+    nginx_hostname=`sed -n 's/^ *server_name //p' $f | tr -d ';'`
+    if [ -n "$nginx_hostname" ]; then
+        host "$nginx_hostname" >/dev/null 2>&1 || {
+            echo "$f listens on $nginx_hostname but that host does not resolve."
+            echo "You should set it up as an A or CNAME on ec2."
+            echo "Hit <enter> to continue"
+            read prompt
+        }
+    fi
+done
 
 # Restart nginx to pick up our changes
 sudo /etc/init.d/nginx restart

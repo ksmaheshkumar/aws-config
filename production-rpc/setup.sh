@@ -33,7 +33,7 @@ install_basic_packages_prodrpc() {
     install_basic_packages    # from setup_fns.sh
 }
 
-install_repositories() {
+install_udp_relay() {
     echo "Syncing udp-relay codebase"
     sudo apt-get install -y git
     git clone git://github.com/Khan/udp-relay || \
@@ -52,11 +52,23 @@ install_repositories() {
     fi
 }
 
+install_error_monitor_db() {
+    echo "Syncing error-monitor-db codebase"
+    sudo apt-get install -y git
+    git clone git://github.com/Khan/error-monitor-db || \
+        ( cd error-monitor-db && git pull )
+
+    apt-get -y install redis-server
+    apt-get -y install python-pip python-dev python-numpy python-scipy
+    pip install -r "$HOME/error-monitor-db/requirements.txt"
+}
+
 
 cd "$HOME"
 update_aws_config_env              # from setup_fns.sh
 install_basic_packages_prodrpc
-install_repositories
+install_udp_relay
+install_error_monitor_db
 install_root_config_files          # from setup_fns.sh
 install_user_config_files          # from setup_fns.sh
 # We have a script to start nginx so it can be run from vagrant as well

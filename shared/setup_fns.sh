@@ -217,12 +217,26 @@ install_nginx() {
         # Sometimes we need a more modern nginx than ubuntu 12.04 provides.
         add_ppa nginx/stable
         sudo apt-get install -y nginx
+
         sudo rm -f /etc/nginx/sites-enabled/default
         for f in "${CONFIG_DIR}"/nginx_site_*; do
             site_name="`basename $f | sed s/nginx_site_//`"
             sudo ln -sfnv "$f" "/etc/nginx/sites-available/$site_name"
             sudo ln -sfnv "/etc/nginx/sites-available/$site_name" "/etc/nginx/sites-enabled/$site_name"
+
+            # Make sure that the server that we're using actually
+            # resolve.
+            nginx_hostname=`sed -n 's/^ *server_name //p' $f | tr -d ';'`
+            if [ -n "$nginx_hostname" ]; then
+                host "$nginx_hostname" >/dev/null 2>&1 || {
+                    echo "$f listens on $nginx_hostname but that host does not resolve."
+                    echo "You should set it up as an A or CNAME on ec2."
+                    echo "Hit <enter> to continue"
+                    read prompt
+                }
+            fi
         done
+
         sudo service nginx restart
     fi
 }

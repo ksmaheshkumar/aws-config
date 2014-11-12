@@ -12,6 +12,8 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
     # Solr will be available at localhost:9001 on the host machine after this
     config.vm.network "forwarded_port", guest: 80, host: 9001
+    # And error-monitor-db will be available at localhost:7000
+    config.vm.network "forwarded_port", guest: 9340, host: 7000
 
     # These are run sequentially. We use the install script in the repo so that
     # we stay consistent with the production server, and just do some steps
