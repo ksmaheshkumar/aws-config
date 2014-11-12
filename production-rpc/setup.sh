@@ -58,9 +58,9 @@ install_error_monitor_db() {
     git clone git://github.com/Khan/error-monitor-db || \
         ( cd error-monitor-db && git pull )
 
-    apt-get -y install redis-server
-    apt-get -y install python-pip python-dev python-numpy python-scipy
-    pip install -r "$HOME/error-monitor-db/requirements.txt"
+    sudo apt-get -y install redis-server
+    sudo apt-get -y install python-pip python-dev python-numpy python-scipy
+    sudo pip install -r "$HOME/error-monitor-db/requirements.txt"
 }
 
 
