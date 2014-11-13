@@ -32,3 +32,6 @@ PATH = /usr/local/bin:/usr/bin:/bin
 # Update latency chart data retrieved from bigquery every day, to be displayed
 # on an in-browser dashboard.
 00 2 * * * sh -c 'echo "--- `date`"; /usr/bin/timeout 60m $HOME/internal-webserver/gae_dashboard/generate_perf_chart_json.py' >> $HOME/logs/generate_perf_chart_json.log || echo "email_bq_data run failed with error $?; see $HOME/logs/generate_perf_chart_json.log"
+
+# Update exercise screenshots every night
+00 1 * * * sh -c '$HOME/exercise-icons/full-run.sh' >> $HOME/logs/exercise-screenshots.log || echo "exercise-icons run failed; see $HOME/logs/exercise-screenshots.log"

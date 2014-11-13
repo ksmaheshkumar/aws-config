@@ -300,30 +300,31 @@ install_exercise_icons() {
         cd /usr/local/share
 
         if [ ! -L "/usr/local/bin/phantomjs" ]; then
-		sudo wget https://phantomjs.googlecode.com/files/phantomjs-1.9.0-linux-x86_64.tar.bz2
-		sudo tar -xjf /usr/local/share/phantomjs-1.9.0-linux-x86_64.tar.bz2
-		sudo rm /usr/local/share/phantomjs-1.9.0-linux-x86_64.tar.bz2
-		sudo ln -sf /usr/local/share/phantomjs-1.9.0-linux-x86_64/bin/phantomjs /usr/local/bin/phantomjs
+            sudo wget https://phantomjs.googlecode.com/files/phantomjs-1.9.8-linux-x86_64.tar.bz2
+            sudo tar -xjf /usr/local/share/phantomjs-1.9.8-linux-x86_64.tar.bz2
+            sudo rm /usr/local/share/phantomjs-1.9.8-linux-x86_64.tar.bz2
+            sudo ln -sf /usr/local/share/phantomjs-1.9.8-linux-x86_64/bin/phantomjs /usr/local/bin/phantomjs
         fi
         if [ ! -L "/usr/local/bin/casperjs" ]; then
-		sudo git clone git://github.com/n1k0/casperjs.git /usr/local/src/casperjs
-		cd /usr/local/src/casperjs/
-		sudo git fetch origin
-		sudo git checkout tags/1.0.2
-		sudo ln -snf /usr/local/src/casperjs/bin/casperjs /usr/local/bin/casperjs
+            sudo git clone git://github.com/n1k0/casperjs.git /usr/local/src/casperjs
+            cd /usr/local/src/casperjs/
+            sudo git fetch origin
+            sudo git checkout tags/1.0.2
+            sudo ln -snf /usr/local/src/casperjs/bin/casperjs /usr/local/bin/casperjs
         fi
 
         cd "$HOME"
         git clone git@github.com:Khan/exercise-icons.git || ( cd exercise-icons && git pull && git submodule update --init --recursive )
-        if [ ! -e "$HOME/exercise-icons/secrets.txt" ]; then
-            echo "Add $HOME/exercise-icons/secrets.txt"
-            echo "according to the instructions in README.md."
-            echo "BUCKET should be set to 'ka-exercise-screenshots-2'."
+        if [ ! -e "$HOME/exercise-icons/full-run.sh" ]; then
+            echo "Add $HOME/exercise-icons/full-run.sh by copying and modifying"
+            echo "$HOME/exercise-icons/full-run.sh.example."
+            echo "S3_BUCKET should be set to 'ka-exercise-screenshots-3'."
             echo "Hit <enter> when this is done:"
             read prompt
         fi
         cd exercise-icons
         make
+        npm install
     )
 }
 
