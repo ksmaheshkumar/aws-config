@@ -109,7 +109,6 @@ install_phabricator() {
     pecl list | grep -q APC || yes "" | sudo pecl install apc
     sudo pip install pygments                      # for syntax highlighting
     sudo ln -snf /usr/local/bin/pygmentize /usr/bin/
-    sudo rm -f /etc/nginx/sites-enabled/default
     mkdir -p "$HOME/internal-webserver/phabricator/support/bin"
     cat <<EOF >"$HOME/internal-webserver/phabricator/support/bin/README"
 Instead of putting binaries that phabricator needs in your $PATH, you can
@@ -344,6 +343,7 @@ install_ec2_tools
 install_repositories
 install_root_config_files_toby
 install_user_config_files
+install_nginx             # from setup_fns.sh
 install_appengine
 install_phabricator
 install_gae_default_version_notifier
