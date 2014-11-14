@@ -3,7 +3,10 @@
 aptitude=/usr/bin/aptitude
 [ -x "$aptitude" ]     # -e causes us to exit if this test fails
 
-# Automatically do all 'safe' security updates once a day
+# Automatically do all 'safe' security updates once a day.
+# We need to do an apt update to get the newest security updates.
+apt-get update >/dev/null
+
 "$aptitude" safe-upgrade -o Aptitude::Delete-Unused=false \
     --assume-yes --target-release `lsb_release -cs`-security
 
