@@ -192,6 +192,9 @@ To finish phabricator installation:
    to make yourself an admin.
 3) On AWS's route53 (or whatever), add phabricator-files.khanacademy.org
    as a CNAME to phabricator.khanacademy.org.
+4) Copy ka-wild-13.* from
+   https://www.dropbox.com/home/Khan%20Academy%20All%20Staff/Secrets
+   to /etc/nginx (as root) and chmod 600 /etc/nginx/ka-wild-13.*.
 EOF
 echo "Hit enter when this is done:"
 read prompt

@@ -1,5 +1,9 @@
 server {
 	listen 80;
+	listen 443 ssl;
+
+	ssl_certificate /etc/nginx/ka-wild-13.crt;
+	ssl_certificate_key /etc/nginx/ka-wild-13.key;
 
 	root /home/ubuntu/internal-webserver/phabricator/webroot;
 	include mime.types;
