@@ -131,10 +131,6 @@ install_npm() {
     # see https://github.com/joyent/node/wiki/Installing-Node.js-via-package-manager
     add_ppa chris-lea/node.js        # in setup_fns.sh
     sudo apt-get install -y nodejs
-    # If npm is not installed, log in to the jenkins machine and run this command:
-    # TODO(mattfaus): Automate this (ran into problems with /dev/tty)
-    # wget -q -O- https://npmjs.org/install.sh | sudo sh
-    npm update
 }
 
 install_build_deps() {
