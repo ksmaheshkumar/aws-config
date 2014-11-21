@@ -171,7 +171,7 @@ install_exercise_icons() {
         fi
 
         cd "$HOME"
-        clone_or_update git@github.com:Khan/exercise-icons.git
+        clone_or_update http://github.com/Khan/exercise-icons
         if [ ! -e "$HOME/exercise-icons/full-run.sh" ]; then
             echo "Add $HOME/exercise-icons/full-run.sh by copying and modifying"
             echo "$HOME/exercise-icons/full-run.sh.example."
