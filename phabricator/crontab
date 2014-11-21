@@ -10,4 +10,4 @@ PATH = /usr/local/bin:/usr/bin:/bin
   */5 *  *   *   *     sh -c '/usr/bin/timeout 4m python internal-webserver/update_github_teams.py' || echo "Failed to update the github team list"
 
 # Do a backup every day.
-  0  4  *   *   *     sh -c 'echo "--- `date`"; $HOME/aws-config/internal-webserver/snapshot_phabricator_data.sh' >> $HOME/logs/aws-snapshot.log || echo "Failed to snapshot phabricator data; see $HOME/logs/aws-snapshot.log"
+  0  4  *   *   *     sh -c 'echo "--- `date`"; $HOME/aws-config/phabricator/snapshot_phabricator_data.sh' >> $HOME/logs/aws-snapshot.log || echo "Failed to snapshot phabricator data; see $HOME/logs/aws-snapshot.log"
