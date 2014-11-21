@@ -157,7 +157,7 @@ install_exercise_icons() {
         cd /usr/local/share
 
         if [ ! -L "/usr/local/bin/phantomjs" ]; then
-            sudo wget https://phantomjs.googlecode.com/files/phantomjs-1.9.8-linux-x86_64.tar.bz2
+            sudo wget https://bitbucket.org/ariya/phantomjs/downloads/phantomjs-1.9.8-linux-x86_64.tar.bz2
             sudo tar -xjf /usr/local/share/phantomjs-1.9.8-linux-x86_64.tar.bz2
             sudo rm /usr/local/share/phantomjs-1.9.8-linux-x86_64.tar.bz2
             sudo ln -sf /usr/local/share/phantomjs-1.9.8-linux-x86_64/bin/phantomjs /usr/local/bin/phantomjs
