@@ -49,7 +49,7 @@ install_appengine() {
     else
         echo "Installing frankenserver appengine"
         ( cd /usr/local
-          sudo clone_or_update https://github.com/Khan/frankenserver
+          sudo git clone https://github.com/Khan/frankenserver
           sudo ln -snf frankenserver/python google_appengine
         )
     fi
@@ -163,7 +163,7 @@ install_exercise_icons() {
             sudo ln -sf /usr/local/share/phantomjs-1.9.8-linux-x86_64/bin/phantomjs /usr/local/bin/phantomjs
         fi
         if [ ! -L "/usr/local/bin/casperjs" ]; then
-            sudo clone_or_update git://github.com/n1k0/casperjs.git /usr/local/src/casperjs
+            sudo git clone git://github.com/n1k0/casperjs.git
             cd /usr/local/src/casperjs/
             sudo git fetch origin
             sudo git checkout tags/1.0.2
