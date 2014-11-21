@@ -40,6 +40,7 @@ install_user_config_files() {
     echo "Creating logs directory (for misc service logs)"
     sudo mkdir -p $HOME/logs
     sudo chmod 1777 $HOME/logs
+    ln -snf /var/log/nginx/error.log "$HOME/logs/nginx-error.log"
 }
 
 # TODO(csilvers): do we still need this?
