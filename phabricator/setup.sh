@@ -201,7 +201,7 @@ install_nginx             # from setup_fns.sh
 install_phabricator
 
 # Do this again, just in case any of the apt-get installs nuked it.
-install_root_config_files_toby # from setup_fns.sh
+install_root_config_files # from setup_fns.sh
 
 # Finally, we can start the crontab!
 install_crontab    # from setup_fns.sh
