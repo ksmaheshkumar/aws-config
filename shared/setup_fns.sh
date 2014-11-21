@@ -134,7 +134,7 @@ install_npm() {
     # If npm is not installed, log in to the jenkins machine and run this command:
     # TODO(mattfaus): Automate this (ran into problems with /dev/tty)
     # wget -q -O- https://npmjs.org/install.sh | sudo sh
-    sudo npm update
+    npm update
 }
 
 install_build_deps() {
