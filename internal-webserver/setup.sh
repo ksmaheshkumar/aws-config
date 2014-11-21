@@ -41,6 +41,8 @@ install_user_config_files() {
     sudo mkdir -p $HOME/logs
     sudo chmod 1777 $HOME/logs
     ln -snf /var/log/nginx/error.log "$HOME/logs/nginx-error.log"
+    ln -snf /var/log/upstart/culture-cow.log "$HOME/logs/"
+    ln -snf /var/log/upstart/gae-default-version-notifier.log "$HOME/logs/"
 }
 
 # TODO(csilvers): do we still need this?
