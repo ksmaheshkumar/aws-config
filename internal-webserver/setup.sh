@@ -65,9 +65,8 @@ install_gae_default_version_notifier() {
 install_culture_cow() {
     echo "Installing culture cow"
     clone_or_update git://github.com/Khan/culture-cow.git
-    cd culture-cow
     install_npm     # from setup_fns.sh
-    npm install
+    ( cd culture-cow && npm install )
     if [ ! -s "$HOME/culture-cow/bin/secrets" ]; then
         echo "Put secrets in $HOME/culture-cow/bin."
         echo "This is a shell script that lives in dropbox:"
