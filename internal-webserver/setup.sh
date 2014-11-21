@@ -110,6 +110,7 @@ install_gae_dashboard() {
         read prompt
     fi
 
+    sudo pip install ez_setup              # needed to install bigquery
     sudo pip install bigquery              # to report from BigQuery
     khan_project_id=124072386181
     bq_credential_file="$HOME/.bigquerv2.token"
