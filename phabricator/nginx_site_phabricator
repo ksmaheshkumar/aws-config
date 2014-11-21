@@ -44,9 +44,13 @@ server {
 
 server {
 	listen 80;
+	listen 443 ssl;
+
+	ssl_certificate /etc/nginx/ka-wild-13.crt;
+	ssl_certificate_key /etc/nginx/ka-wild-13.key;
 
 	server_name codereview.khanacademy.org;
 	server_name cr.khanacademy.org;
 
-	return 301 http://phabricator.khanacademy.org$request_uri;
+	return 301 https://phabricator.khanacademy.org$request_uri;
 }

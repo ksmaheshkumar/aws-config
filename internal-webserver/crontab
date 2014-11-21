@@ -3,19 +3,10 @@
 MAILTO = toby-admin+crontab@khanacademy.org
 PATH = /usr/local/bin:/usr/bin:/bin
 
-# Check for new repositories, and check up on daemons, every 5 minutes.
-  */5 *  *   *   *     sh -c '/usr/bin/timeout 4m python internal-webserver/update_phabricator_repositories.py $HOME/phabricator/repositories' || echo "Failed to update phabricator's repository-list"
-
-# Check for new github repositories, and update their teams info, as well.
-  */5 *  *   *   *     sh -c '/usr/bin/timeout 4m python internal-webserver/update_github_teams.py' || echo "Failed to update the github team list"
-
 # Check for elevated issue rates on Zendesk
   10 *  *   *   *     sh -c '/usr/bin/timeout 55m env PYTHONPATH=$HOME/beep-boop/alertlib:$HOME/alertlib_secret python $HOME/beep-boop/zendesk_reports.py' >> $HOME/logs/beep-boop-zendesk.log || echo "Failed to run beep-boop for Zendesk; see $HOME/logs/beep-boop-zendesk.log"
 
-# Do a backup every day.
-  0  4  *   *   *     sh -c 'echo "--- `date`"; $HOME/aws-config/internal-webserver/snapshot_toby.sh' >> $HOME/logs/aws-snapshot.log || echo "Failed to snapshot toby's data; see $HOME/logs/aws-snapshot.log"
-
-# --- Fetch stats and send them to graphite
+# Fetch stats and send them to graphite
 # Fetch GAE usage reports every day. Reports are generated at about 1430 PST.
 00 15 * * * sh -c 'echo "--- `date`"; /usr/bin/timeout 55m $HOME/internal-webserver/gae_dashboard/fetch_usage.sh' >> $HOME/logs/gae_dashboard_usage.log || echo "gae_dashboard_usage run failed with error $?; see $HOME/logs/gae_dashboard_usage.log"
 

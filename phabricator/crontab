@@ -1,0 +1,13 @@
+# NOTE: make sure the google group is set up to have root@khanacademy.org
+#       as a member, or this mail will bounce!
+MAILTO = phabricator-admin+crontab@khanacademy.org
+PATH = /usr/local/bin:/usr/bin:/bin
+
+# Check for new repositories, and check up on daemons, every 5 minutes.
+  */5 *  *   *   *     sh -c '/usr/bin/timeout 4m python internal-webserver/update_phabricator_repositories.py $HOME/phabricator/repositories' || echo "Failed to update phabricator's repository-list"
+
+# Check for new github repositories, and update their teams info, as well.
+  */5 *  *   *   *     sh -c '/usr/bin/timeout 4m python internal-webserver/update_github_teams.py' || echo "Failed to update the github team list"
+
+# Do a backup every day.
+  0  4  *   *   *     sh -c 'echo "--- `date`"; $HOME/aws-config/internal-webserver/snapshot_phabricator_data.sh' >> $HOME/logs/aws-snapshot.log || echo "Failed to snapshot phabricator data; see $HOME/logs/aws-snapshot.log"
