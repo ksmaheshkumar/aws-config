@@ -26,10 +26,7 @@ update_aws_config_env() {
     sudo apt-get update
     sudo apt-get install -y git
 
-    if [ ! -d aws-config ]; then
-        git clone git://github.com/Khan/aws-config
-    fi
-    ( cd aws-config && git pull )
+    clone_or_update git://github.com/Khan/aws-config
 }
 
 install_basic_packages_jenkins() {
@@ -74,8 +71,7 @@ install_jenkins_slave() {
 setup_webapp() {
     (
         cd webapp-workspace
-        git clone git://github.com/Khan/webapp || \
-            ( cd webapp && git pull && git submodule update --init --recursive )
+        clone_or_update git://github.com/Khan/webapp
         . env/bin/activate
         cd webapp
         make deps

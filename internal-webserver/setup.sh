@@ -32,10 +32,8 @@ CONFIG_DIR="$HOME/aws-config/internal-webserver"
 install_repositories() {
     echo "Syncing internal-webserver codebase"
     sudo apt-get install -y git
-    git clone git://github.com/Khan/aws-config || \
-        ( cd aws-config && git pull && git submodule update --init --recursive )
-    git clone git://github.com/Khan/internal-webserver || \
-        ( cd internal-webserver && git pull && git submodule update --init --recursive )
+    clone_or_update git://github.com/Khan/aws-config
+    clone_or_update git://github.com/Khan/internal-webserver
 }
 
 install_user_config_files() {
@@ -51,7 +49,7 @@ install_appengine() {
     else
         echo "Installing frankenserver appengine"
         ( cd /usr/local
-          sudo git clone https://github.com/Khan/frankenserver
+          sudo clone_or_update https://github.com/Khan/frankenserver
           sudo ln -snf frankenserver/python google_appengine
         )
     fi
@@ -59,16 +57,14 @@ install_appengine() {
 
 install_gae_default_version_notifier() {
     echo "Installing gae-default-version-notifier"
-    git clone git://github.com/Khan/gae-default-version-notifier.git || \
-        ( cd gae-default-version-notifier && git pull && git submodule update --init --recursive )
+    clone_or_update git://github.com/Khan/gae-default-version-notifier.git
     # This uses alertlib, so make sure the secret is installed.
     install_alertlib_secret    # from setup_fns.sh
 }
 
 install_culture_cow() {
     echo "Installing culture cow"
-    git clone git://github.com/Khan/culture-cow.git || \
-        ( cd culture-cow && git pull && git submodule update --init --recursive )
+    clone_or_update git://github.com/Khan/culture-cow.git
     cd culture-cow
     install_npm     # from setup_fns.sh
     npm install
@@ -84,8 +80,7 @@ install_culture_cow() {
 
 install_beep_boop() {
     echo "Installing beep-boop"
-    git clone git://github.com/Khan/beep-boop.git || \
-        ( cd beep-boop && git pull && git submodule update --init --recursive )
+    clone_or_update git://github.com/Khan/beep-boop.git
     sudo pip install -r beep-boop/requirements.txt
     # This uses alertlib, so make sure the secret is installed.
     install_alertlib_secret    # from setup_fns.sh
@@ -168,7 +163,7 @@ install_exercise_icons() {
             sudo ln -sf /usr/local/share/phantomjs-1.9.8-linux-x86_64/bin/phantomjs /usr/local/bin/phantomjs
         fi
         if [ ! -L "/usr/local/bin/casperjs" ]; then
-            sudo git clone git://github.com/n1k0/casperjs.git /usr/local/src/casperjs
+            sudo clone_or_update git://github.com/n1k0/casperjs.git /usr/local/src/casperjs
             cd /usr/local/src/casperjs/
             sudo git fetch origin
             sudo git checkout tags/1.0.2
@@ -176,7 +171,7 @@ install_exercise_icons() {
         fi
 
         cd "$HOME"
-        git clone git@github.com:Khan/exercise-icons.git || ( cd exercise-icons && git pull && git submodule update --init --recursive )
+        clone_or_update git@github.com:Khan/exercise-icons.git
         if [ ! -e "$HOME/exercise-icons/full-run.sh" ]; then
             echo "Add $HOME/exercise-icons/full-run.sh by copying and modifying"
             echo "$HOME/exercise-icons/full-run.sh.example."

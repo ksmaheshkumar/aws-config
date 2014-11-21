@@ -174,7 +174,7 @@ install_jenkins() {
     sudo apt-get install -y maven
     (
         cd /tmp
-        git clone https://github.com/chrisklaiber/jenkins-hipchat-plugin.git
+        clone_or_update https://github.com/chrisklaiber/jenkins-hipchat-plugin.git
         cd jenkins-hipchat-plugin && git checkout khan-custom-plugin
         mkdir -p target/classes
         mvn hpi:hpi -DskipTests
@@ -182,7 +182,7 @@ install_jenkins() {
         sudo chown jenkins:nogroup "${JENKINS_HOME}/plugins/hipchat.hpi"
 
         cd /tmp
-        git clone https://github.com/Khan/ec2-plugin
+        clone_or_update https://github.com/Khan/ec2-plugin
         cd ec2-plugin
         mkdir -p target/classes
         mvn package -DskipTests
@@ -244,10 +244,7 @@ install_jenkins_home() {
     # We need the same ssh stuff that jenkins has, to access this private repo.
     sudo rsync -av "$JENKINS_HOME/.ssh/" .ssh/
     sudo chown -R ubuntu:ubuntu .ssh/
-    if [ ! -d jenkins_home ]; then
-        git clone git@github.com:Khan/jenkins jenkins_home
-    fi
-    ( cd jenkins_home && git pull && git submodule update --init --recursive )
+    clone_or_update git@github.com:Khan/jenkins jenkins_home
 
     # We install jenkins_home/jobs on a separate disk, so sync it separately.
     sudo rsync -av --exclude jobs "jenkins_home/" "${JENKINS_HOME}/"

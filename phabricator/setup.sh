@@ -70,11 +70,9 @@ install_ec2_tools() {
 install_repositories() {
     echo "Syncing internal-webserver codebase"
     sudo apt-get install -y git
-    git clone git://github.com/Khan/aws-config || \
-        ( cd aws-config && git pull && git submodule update --init --recursive )
-    # TODO(csilvers): move phabricator stuff to a separate phabricator repo.
-    git clone git://github.com/Khan/internal-webserver || \
-        ( cd internal-webserver && git pull && git submodule update --init --recursive )
+    clone_or_update git://github.com/Khan/aws-config
+    # TODO(csilvers): move phabricator stuff to a separate phabricator repo?
+    clone_or_update git://github.com/Khan/internal-webserver
 }
 
 install_user_config_files() {

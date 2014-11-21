@@ -22,8 +22,7 @@ cd "$HOME"
 install_repositories() {
     echo "Syncing sandcastle codebase"
     sudo apt-get install -y git
-    git clone git://github.com/Khan/sandcastle || \
-        ( cd sandcastle && git pull && git submodule update --init --recursive )
+    clone_or_update git://github.com/Khan/sandcastle
     # We don't set up virtualenv on this machine, so just install into /usr.
     sudo pip install -r sandcastle/requirements.txt
 }
@@ -31,8 +30,8 @@ install_repositories() {
 install_arcanist() {
     echo "Setting up arcanist"
     sudo apt-get install -y php5-cli php5-curl
-    git clone http://github.com/Khan/arcanist.git || ( cd arcanist && git pull )
-    git clone http://github.com/Khan/libphutil.git || ( cd libphutil && git pull )
+    clone_or_update http://github.com/Khan/arcanist.git
+    clone_or_update http://github.com/Khan/libphutil.gitv
 }
 
 setup_sandcastle() {
@@ -44,8 +43,7 @@ setup_sandcastle() {
     rm -f sandcastle/*.sqlite3
     python sandcastle/manage.py syncdb
 
-    git clone http://github.com/Khan/khan-exercises.git sandcastle/media/repo || \
-        ( cd sandcastle/media/repo && git pull && git submodule update --init --recursive )
+    clone_or_update http://github.com/Khan/khan-exercises.git sandcastle/media/repo
 }
 
 install_apache() {

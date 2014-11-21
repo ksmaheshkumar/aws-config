@@ -19,8 +19,7 @@ cd "$HOME"
 install_repositories() {
     echo "Syncing youtube-export codebase"
     sudo apt-get install -y git
-    git clone git://github.com/Khan/youtube-export || \
-        ( cd youtube-export && git pull && git submodule update --init --recursive )
+    clone_or_update git://github.com/Khan/youtube-export
     # We don't set up virtualenv on this machine, so just install into /usr.
     sudo pip install -r youtube-export/requirements.txt
 }

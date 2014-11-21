@@ -24,6 +24,15 @@ add_ppa() {
    fi
  }
 
+# $1: the url of the repo to clone.  $2 (optional): dir to clone to.
+clone_or_update() {
+    dir="${2-"`basename $1`"}
+    if [ -d "$dir" ]; then
+        ( cd "$dir" && git pull && git submodule update --init --recursive )
+    else
+        git clone --recursive "$1" "$dir"
+    fi
+
 update_aws_config_env() {
     echo "Update aws-config codebase and installation environment"
     # To get the most recent git, later.

@@ -36,8 +36,7 @@ install_basic_packages_prodrpc() {
 install_udp_relay() {
     echo "Syncing udp-relay codebase"
     sudo apt-get install -y git
-    git clone git://github.com/Khan/udp-relay || \
-        ( cd udp-relay && git pull )
+    clone_or_update git://github.com/Khan/udp-relay
     # Now compile udp-relay
     ( cd udp-relay && make )
 
@@ -55,8 +54,7 @@ install_udp_relay() {
 install_error_monitor_db() {
     echo "Syncing error-monitor-db codebase"
     sudo apt-get install -y git
-    git clone git://github.com/Khan/error-monitor-db || \
-        ( cd error-monitor-db && git pull )
+    clone_or_update git://github.com/Khan/error-monitor-db
 
     sudo apt-get -y install redis-server
     sudo apt-get -y install python-pip python-dev python-numpy python-scipy
