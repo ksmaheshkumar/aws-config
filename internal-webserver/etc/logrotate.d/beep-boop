@@ -1,0 +1,8 @@
+/home/ubuntu/logs/beep-boop-zendesk.log {
+        monthly
+        missingok
+        rotate 3
+        compress
+        notifempty
+        copytruncate
+}

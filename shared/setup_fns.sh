@@ -252,6 +252,11 @@ install_nginx() {
         done
 
         sudo service nginx restart
+
+        # Finally, give nginx permission to see stuff in our repos.
+        # Our umask is all right, the only problem is the default
+        # permission on our homedir itself.
+        chmod a+rX "$HOME"
     fi
 }
 

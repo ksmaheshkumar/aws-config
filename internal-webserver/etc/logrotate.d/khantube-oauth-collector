@@ -1,0 +1,8 @@
+/home/ubuntu/logs/khantube-oauth-collector.log {
+        monthly
+        missingok
+        rotate 3
+        compress
+        notifempty
+        copytruncate
+}
