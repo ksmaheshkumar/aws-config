@@ -84,9 +84,9 @@ install_beep_boop() {
     sudo pip install -r beep-boop/requirements.txt
     # This uses alertlib, so make sure the secret is installed.
     install_alertlib_secret    # from setup_fns.sh
-    if [ ! -s "$HOME/beep-boop/uservoice.cfg" ]; then
-        echo "Put uservoice.cfg in $HOME/beep-boop/."
-        echo "This is a file with the contents '<uservoice_api_key>',"
+    if [ ! -s "$HOME/beep-boop/zendesk.cfg" ]; then
+        echo "Put zendesk.cfg in $HOME/beep-boop/."
+        echo "This is a file with the contents '<zendesk_api_key>',"
         echo "where the api key comes from secrets.py."
         echo "Hit <enter> when this is done:"
         read prompt
