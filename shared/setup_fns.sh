@@ -26,7 +26,7 @@ add_ppa() {
 
 # $1: the url of the repo to clone.  $2 (optional): dir to clone to.
 clone_or_update() {
-    dir="${2-"`basename $1`"}"
+    dir="${2-"`basename $1 .git`"}"
     if [ -d "$dir" ]; then
         ( cd "$dir" && git pull && git submodule update --init --recursive )
     else
