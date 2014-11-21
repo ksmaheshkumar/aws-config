@@ -113,7 +113,7 @@ install_gae_dashboard() {
     sudo pip install ez_setup              # needed to install bigquery
     sudo pip install bigquery              # to report from BigQuery
     khan_project_id=124072386181
-    bq_credential_file="$HOME/.bigquerv2.token"
+    bq_credential_file="$HOME/.bigquery.v2.token"
     if [ ! -s "$bq_credential_file" ]; then
         echo "Log into Google as the user prod-read@khanacademy.org,"
         echo "the password is in secrets.py."
