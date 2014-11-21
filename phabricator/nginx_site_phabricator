@@ -1,5 +1,4 @@
 server {
-	listen 80;
 	listen 443 ssl;
 
 	ssl_certificate /etc/nginx/ka-wild-13.crt;
@@ -40,6 +39,14 @@ server {
 		fastcgi_param PATH /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games;
 		include fastcgi_params;
 	}
+}
+
+server {
+	listen 80;
+
+	server_name phabricator.khanacademy.org;
+
+	return 301 https://phabricator.khanacademy.org$request_uri;
 }
 
 server {
