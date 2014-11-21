@@ -163,7 +163,7 @@ install_exercise_icons() {
             sudo ln -sf /usr/local/share/phantomjs-1.9.8-linux-x86_64/bin/phantomjs /usr/local/bin/phantomjs
         fi
         if [ ! -L "/usr/local/bin/casperjs" ]; then
-            sudo git clone git://github.com/n1k0/casperjs.git
+            sudo git clone git://github.com/n1k0/casperjs.git /usr/local/src/casperjs
             cd /usr/local/src/casperjs/
             sudo git fetch origin
             sudo git checkout tags/1.0.2
