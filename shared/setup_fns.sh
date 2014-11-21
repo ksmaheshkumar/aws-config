@@ -117,6 +117,16 @@ install_user_config_files() {
     fi
 }
 
+install_npm() {
+    # see https://github.com/joyent/node/wiki/Installing-Node.js-via-package-manager
+    add_ppa chris-lea/node.js        # in setup_fns.sh
+    sudo apt-get install -y nodejs
+    # If npm is not installed, log in to the jenkins machine and run this command:
+    # TODO(mattfaus): Automate this (ran into problems with /dev/tty)
+    # wget -q -O- https://npmjs.org/install.sh | sudo sh
+    sudo npm update
+}
+
 install_build_deps() {
     # Note this just installs the system deps.  You still need to
     # check out the webapp repo yourself, then run 'make deps' to
@@ -131,13 +141,7 @@ install_build_deps() {
     sudo pip install virtualenv
 
     # Node deps
-    # see https://github.com/joyent/node/wiki/Installing-Node.js-via-package-manager
-    add_ppa chris-lea/node.js        # in setup_fns.sh
-    sudo apt-get install -y nodejs
-    # If npm is not installed, log in to the jenkins machine and run this command:
-    # TODO(mattfaus): Automate this (ran into problems with /dev/tty)
-    # wget -q -O- https://npmjs.org/install.sh | sudo sh
-    sudo npm update
+    install_npm
 
     # Ruby deps
     sudo apt-get install -y ruby rubygems

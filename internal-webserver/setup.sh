@@ -70,6 +70,7 @@ install_culture_cow() {
     git clone git://github.com/Khan/culture-cow.git || \
         ( cd culture-cow && git pull && git submodule update --init --recursive )
     cd culture-cow
+    install_npm     # from setup_fns.sh
     npm install
     if [ ! -s "$HOME/culture-cow/bin/secrets" ]; then
         echo "Put secrets in $HOME/culture-cow/bin."
@@ -185,6 +186,7 @@ install_exercise_icons() {
         fi
         cd exercise-icons
         make
+        install_npm     # from setup_fns.sh
         npm install
     )
 }
