@@ -20,7 +20,7 @@ fi
 
 PATH="$PATH":/usr/bin       # for ec2-*.
 
-"$HOME/aws-config/internal-webserver/ec2-create-rolling-snapshot.py" \
+"$HOME/aws-config/phabricator/ec2-create-rolling-snapshot.py" \
     -m 16 \
     -d 'backup of phabricator data' \
     -v "$VOLUME" \
