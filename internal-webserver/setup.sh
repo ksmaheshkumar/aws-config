@@ -148,7 +148,7 @@ install_exercise_icons() {
     # A utility to generate exercise icons. Currently used at
     # http://khanacademy.org/commoncore/map.
     # https://github.com/Khan/exercise-icons/
-    sudo apt-get install -y gcc-multilib xdg-utils libxml2-dev libcurl4-openssl-dev imagemagick
+    sudo apt-get install -y gcc-multilib xdg-utils libxml2-dev libcurl4-openssl-dev imagemagick graphicsmagick
 
     if [ ! -e "/usr/bin/dmd" ]; then
         wget http://downloads.dlang.org/releases/2014/dmd_2.065.0-0_amd64.deb -O /tmp/dmd.deb
