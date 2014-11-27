@@ -1,4 +1,4 @@
-/opt/logs/phabricator*.log {
+/opt/logs/phabricator*.log /opt/logs/phd-daemons/daemons.log {
         daily
         missingok
         rotate 14
