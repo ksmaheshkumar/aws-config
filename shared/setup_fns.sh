@@ -80,6 +80,9 @@ install_basic_packages() {
     basename "$CONFIG_DIR" | sudo tee /etc/hostname
     echo "127.0.0.1 `basename "$CONFIG_DIR"`" | sudo tee -a /etc/hosts
 
+    # Restart cron to pick up the new timezeone.
+    sudo service cron restart
+
     # Not needed, but useful
     sudo apt-get install -y curl
 }
