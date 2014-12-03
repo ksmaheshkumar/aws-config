@@ -82,6 +82,16 @@ install_user_config_files() {
     sudo chown www-data.www-data /opt/logs
     ln -snf /opt/logs "$HOME/logs"
     ln -snf /var/log/nginx/error.log "$HOME/logs/nginx-error.log"
+
+    if [ ! -s "$HOME/github.repo_token" -o ! -s "$HOME/github.team_token" ]; then
+        echo "Install github.repo_token and github.team_token in $HOME."
+        echo "These files should each be one line long, with the line"
+        echo "containing the token values.  The tokens can be found at"
+        echo "in the 'description' field of"
+        echo "   https://phabricator.khanacademy.org/K15"
+        echo "Hit enter when this is done:"
+        read prompt
+    fi
 }
 
 install_phabricator() {
