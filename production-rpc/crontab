@@ -1,0 +1,8 @@
+# NOTE: make sure the google group is set up to have root@khanacademy.org
+#       as a member, or this mail will bounce!
+MAILTO = prod-rpc-admin+crontab@khanacademy.org
+PATH = /usr/local/bin:/usr/bin:/bin
+
+# Attempt to import AppEngine logs from BigQuery four times an hour so we get the logs as soon as they are
+# imported into BigQuery. This process is idempotent while there are no new logs so it's cheap to run frequently.
+  15 *  *   *   *     sh -c 'echo "--- `date`"; PYTHONPATH=/home/ubuntu/alertlib_secret /usr/bin/timeout 14m /usr/bin/python $HOME/error-monitor-db/bigquery_import.py -H "1s/0s: deploys"' >> $HOME/logs/bigquery_import.log || echo "bigquery_import run failed with error $?; see $HOME/logs/bigquery_import.log"

@@ -59,6 +59,24 @@ install_error_monitor_db() {
     sudo apt-get -y install redis-server
     sudo apt-get -y install python-pip python-dev python-numpy python-scipy
     sudo pip install -r "$HOME/error-monitor-db/requirements.txt"
+
+    if [ ! -s "$HOME/error-monitor-db/client_secrets.json" ]; then
+        echo "You must install $HOME/error-monitor-db/client_secrets.json."
+        echo "To get this, go here and click \"Download JSON\" on the "
+        echo "section labeled \"Client ID for native application\":"
+        echo "https://console.developers.google.com/project/124072386181/apiui/credential"
+        echo "Hit enter when done..."
+        read prompt
+    fi
+    if [ ! -s "$HOME/error-monitor-db/bigquery_credentials.dat" ]; then
+        echo "You must provide a login credentials for for BigQuery."
+        echo "To get the credentials: cd to $HOME/error-monitor-db,"
+        echo "run python bigquery_import.py and follow the instructions."
+        echo "(Be sure to login to Google as prod-read@ka.org first!)"
+        echo "Hit enter when done..."
+        read prompt
+    fi
+    install_alertlib_secret    # from setup_fns.sh
 }
 
 
@@ -71,6 +89,9 @@ install_root_config_files          # from setup_fns.sh
 install_user_config_files          # from setup_fns.sh
 # We have a script to start nginx so it can be run from vagrant as well
 sudo sh "$CONFIG_DIR"/scripts/install_nginx.sh
+
+# Finally, we can start the crontab!
+install_crontab    # from setup_fns.sh
 
 # Start the daemons!
 start_daemons                      # from setup_fns.sh
