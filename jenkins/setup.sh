@@ -203,8 +203,10 @@ install_jenkins_user_env() {
 
     # This is needed to fetch from private github repos
     if [ ! -e "$JENKINS_HOME/.ssh/id_rsa.ReadWriteKiln" ]; then
-        echo "Copy id_rsa.ReadWriteKiln* from the dropbox Secrets folder to"
-        echo "   $JENKINS_HOME/.ssh/"
+        echo "Copy the private key at https://phabricator.khanacademy.org/K38"
+        echo "to $JENKINS_HOME/.ssh/id_rsa.ReadWriteKiln"
+        echo "Copy the public key (in the 'description' field of K38)"
+        echo "to $JENKINS_HOME/.ssh/id_rsa.ReadWriteKiln.pub"
         echo "Hit enter when done"
         read prompt
     fi
@@ -215,7 +217,7 @@ install_jenkins_user_env() {
     if [ ! -e "$SECRETS_PW" ]; then
         echo "Put the password to decrypt secrets.py on the first line of"
         echo "   $SECRETS_PW"
-        echo "See https://www.dropbox.com/home/Khan%20Academy%20All%20Staff/Secrets"
+        echo "This password is 'secrets_secrets' from the top of secrets.py"
         echo "Hit enter when done"
         read prompt
     fi
