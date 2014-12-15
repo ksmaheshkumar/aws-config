@@ -4,6 +4,7 @@ server {
 	root /home/ubuntu/internal-webserver/gae_dashboard/webroot;
 	include mime.types;
 	access_log /home/ubuntu/logs/perf-access.log;
+	error_log /home/ubuntu/logs/perf-error.log;
 
 	server_name perf.khanacademy.org;
 

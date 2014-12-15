@@ -17,8 +17,8 @@ server {
   #this is the jenkins web root directory (mentioned in the /etc/default/jenkins file)
   root            /var/run/jenkins/war/;
 
-  access_log      /var/log/nginx/jenkins_access.log;
-  error_log       /var/log/nginx/jenkins_error.log;
+  access_log      /home/ubuntu/logs/jenkins-access.log;
+  error_log       /home/ubuntu/logs/jenkins-error.log;
 
   location ~ "^/static/[0-9a-fA-F]{8}\/(.*)$" {
 

@@ -87,6 +87,21 @@ install_basic_packages() {
     sudo apt-get install -y curl
 }
 
+setup_logs_dir() {
+    # By default, we put logs on an ephemeral disk if possible.
+    if [ ! -d "$HOME/logs" ]; then
+        echo "Making a logs directory to store logs (and symlinks to logs)"
+        rm -f "$HOME/logs"            # just in case it's a file or something
+        if [ -d "/mnt" ]; then        # this is the ephemeral disk
+            mkdir -p /mnt/logs
+            ln -snf /mnt/logs "$HOME/logs"
+        else
+            mkdir "$HOME/logs"
+        fi
+        sudo chmod 1777 "$HOME/logs"
+    fi
+}
+
 install_root_config_files() {
     echo "Updating config files on the root filesystem (using symlinks)"
 
@@ -107,9 +122,12 @@ install_root_config_files() {
     # Stuff in /etc/init needs to be owned by root, so we copy instead of
     # symlinking there.
     if [ -d "$CONFIG_DIR/etc/init" ]; then
+        # We also add a symlink to these guys' logs in our own logs dir.
+        setup_logs_dir
         for initfile in "$CONFIG_DIR"/etc/init/*; do
             rm -f "`_to_fs "$initfile"`"
             sudo install -m644 "$initfile" "`_to_fs "$initfile"`"
+            ln -snf /var/log/upstart/"`basename "$initfile" .conf`".log "$HOME"/logs/
         done
     fi
     # Same for stuff in /etc/cron.*
@@ -128,6 +146,7 @@ install_user_config_files() {
             ln -snfv "$dotfile"
         done
     fi
+    setup_logs_dir
 }
 
 install_npm() {
@@ -231,6 +250,9 @@ install_nginx() {
         add_ppa nginx/stable
         sudo apt-get install -y nginx
 
+        # Make sure there's a logs directory.
+        setup_logs_dir
+
         sudo rm -f /etc/nginx/sites-enabled/default
         for f in "${CONFIG_DIR}"/nginx_site_*; do
             site_name="`basename $f | sed s/nginx_site_//`"
@@ -239,7 +261,7 @@ install_nginx() {
 
             # Make sure that the server that we're using actually
             # resolve.
-            nginx_hostname=`sed -n 's/^ *server_name //p' $f | tr -d ';'`
+            nginx_hostname=`sed -n 's/^ *server_name //p' "$f" | tr -d ';'`
             if [ -n "$nginx_hostname" ]; then
                 host "$nginx_hostname" >/dev/null 2>&1 || {
                     echo "$f listens on $nginx_hostname but that host does not resolve."
@@ -248,7 +270,30 @@ install_nginx() {
                     read prompt
                 }
             fi
+
+            # Make sure that we log to our logs directory.
+            grep -q "access_log.* $HOME/logs/${site_name}-access.log" "$f" || {
+                echo "You must set an access_log directive in $f"
+                echo "that points to $HOME/logs/${site_name}-access.log"
+                echo "Fix $f and re-run setup.sh"
+                exit 1
+            }
+            grep -q "error_log.* $HOME/logs/${site_name}-error.log" "$f" || {
+                echo "You must set an error_log directive in $f"
+                echo "that points to $HOME/logs/${site_name}-error.log"
+                echo "Fix $f and re-run setup.sh"
+                exit 1
+            }
         done
+
+        # Make sure there's a logrotate script for the nginx logs,
+        # now that they're in a custom location.  We just copy
+        # the nginx one and modify it.  Main thing is we keep only
+        # a month's worth of logs, rather than a year.
+        sed \
+            -e "s@/var/log/nginx/\*.log@$HOME/logs/*-access.log $HOME/logs/*-error.log@" \
+            -e "s@rotate .*@rotate 4@" \
+            /etc/logrotate.d/nginx | sudo sh -c 'cat > /etc/logrotate.d/nginx_local'
 
         sudo service nginx restart
 

@@ -36,13 +36,13 @@ install_repositories() {
     clone_or_update git://github.com/Khan/internal-webserver
 }
 
-install_user_config_files() {
+install_user_config_files_toby() {
     echo "Creating logs directory (for misc service logs)"
-    sudo mkdir -p $HOME/logs
-    sudo chmod 1777 $HOME/logs
-    ln -snf /var/log/nginx/error.log "$HOME/logs/nginx-error.log"
-    ln -snf /var/log/upstart/culture-cow.log "$HOME/logs/"
-    ln -snf /var/log/upstart/gae-default-version-notifier.log "$HOME/logs/"
+    # We want to keep the toby logs around forever, not put them on
+    # ephemeral disk, so we do a mkdir ourselves before calling
+    # our parent.
+    mkdir -p $HOME/logs
+    install_user_config_files    # from setup_fns.sh
 }
 
 # TODO(csilvers): do we still need this?
@@ -195,7 +195,7 @@ update_aws_config_env     # from setup_fns.sh
 install_basic_packages    # from setup_fns.sh
 install_repositories
 install_root_config_files # from setup_fns.sh
-install_user_config_files
+install_user_config_files_toby
 install_nginx             # from setup_fns.sh
 install_appengine
 install_gae_default_version_notifier

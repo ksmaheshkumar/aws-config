@@ -3,7 +3,8 @@ server {
 
 	server_name youtube-uploader.khanacademy.org;
 	server_tokens off;
-	access_log /home/ubuntu/logs/khantube-oauth-collector.log;
+	access_log /home/ubuntu/logs/youtube-uploader-access.log;
+	error_log /home/ubuntu/logs/youtube-uploader-error.log;
 
 	location / {
 		proxy_pass http://127.0.0.1:7001;

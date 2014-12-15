@@ -1,8 +1,0 @@
-/home/ubuntu/logs/perf-access.log {
-        weekly
-        missingok
-        rotate 3
-        compress
-        notifempty
-        copytruncate
-}
