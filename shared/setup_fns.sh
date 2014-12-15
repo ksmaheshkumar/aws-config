@@ -70,6 +70,17 @@ install_basic_packages() {
                     -e 's/inet_interfaces = all/inet_interfaces = loopback-only/' \
                     /etc/postfix/main.cf
         sudo service postfix restart
+
+        # Make sure mail to root is sent to us admins.
+        if ! grep -q "root:" /etc/aliases; then
+            echo "root: ${hostname}-admin+root@khanacademy.org" | tee -a /etc/aliases
+            sudo newaliases
+            echo "Cron is set up to send mail to ${hostname}-admin@ka.org."
+            echo "Make sure that group exists (or else create it) at"
+            echo "https://groups.google.com/a/khanacademy.org/forum/#!myforums"
+            echo "Hit <enter> when this is done:"
+            read prompt
+        fi
     fi
 
     # Set the timezone to PST/PDT.  The 'tee' trick writes via sudo.
@@ -78,7 +89,9 @@ install_basic_packages() {
 
     # Let's make sure we have a reasonable hostname!
     basename "$CONFIG_DIR" | sudo tee /etc/hostname
-    echo "127.0.0.1 `basename "$CONFIG_DIR"`" | sudo tee -a /etc/hosts
+    if ! grep -q "`basename "$CONFIG_DIR"`" /etc/hosts; then
+        echo "127.0.0.1 `basename "$CONFIG_DIR"`" | sudo tee -a /etc/hosts
+    fi
 
     # Restart cron to pick up the new timezeone.
     sudo service cron restart

@@ -1,0 +1,31 @@
+#!/bin/sh
+
+# This cron job depends on that fact that cron sends mail whenever
+# cronjobs have output.
+#
+# Mail gets sent to 'root' by default, so it's helpful to have root
+# point somewhere useful in /etc/aliases.
+
+# Alert when disk is using more space than this, as a percent.
+THRESHOLD_PCT=90
+
+# Where we indicate we've complained (so we don't do it too often)
+COMPLAIN_FILE=/tmp/check-diskspace
+
+
+# Complain at most once a day.
+if [ -n "`find "$COMPLAIN_FILE" -mtime -1 2>/dev/null`" ]; then
+    exit 0
+fi
+
+df -hP | grep ^/dev | while read line; do
+    partition=`echo "$line" | cut -d" " -f1`
+    mountpoint=`echo "$line" | sed 's/.* //'`
+    # pct-used is the only thing on each line with a percent.
+    pct_used=`echo "$line" | grep -o '[0-9]*%' | tr -d %`
+    if [ "$pct_used" -ge "$THRESHOLD_PCT" ]; then
+        echo "[`date +%F\ %T`] `hostname`: " \
+             "$partition ($mountpoint) is ${pct_used}% full!" \
+            | tee "$COMPLAIN_FILE"
+    fi
+done
