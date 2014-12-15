@@ -10,6 +10,11 @@ if [ -z "$CONFIG_DIR" ]; then
    exit 1
 fi
 
+if ! expr "$CONFIG_DIR" : / 2>/dev/null; then
+   echo "CONFIG_DIR must be an absolute path, not '$CONFIG_DIR'."
+   exit 1
+fi
+
 # $1: an absolute file like $CONFIG_DIR/etc/foo.  Returns /etc/foo.
 _to_fs() {
    echo "$1" | sed "s,^$CONFIG_DIR,,"
