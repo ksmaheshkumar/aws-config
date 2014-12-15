@@ -3,8 +3,8 @@ server {
         ssl on;
         server_name kasandbox.org;
 
-	access_log /home/ubuntu/logs/kasandbox-access.log;
-	error_log /home/ubuntu/logs/kasandbox-error.log;
+	access_log /home/caching-proxy/logs/kasandbox-access.log;
+	error_log /home/caching-proxy/logs/kasandbox-error.log;
 
 	ssl_protocols TLSv1 TLSv1.1 TLSv1.2;
 	ssl_prefer_server_ciphers on;
