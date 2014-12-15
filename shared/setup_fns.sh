@@ -106,7 +106,7 @@ setup_logs_dir() {
         echo "Making a logs directory to store logs (and symlinks to logs)"
         rm -f "$HOME/logs"            # just in case it's a file or something
         if [ -d "/mnt" ]; then        # this is the ephemeral disk
-            mkdir -p /mnt/logs
+            sudo mkdir -p /mnt/logs
             ln -snf /mnt/logs "$HOME/logs"
         else
             mkdir "$HOME/logs"
