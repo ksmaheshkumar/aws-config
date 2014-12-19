@@ -79,12 +79,30 @@ install_error_monitor_db() {
     install_alertlib_secret    # from setup_fns.sh
 }
 
+install_graphie_to_png() {
+    echo "Syncing graphie-to-png codebase"
+    sudo apt-get install -y git
+    clone_or_update git://github.com/Khan/graphie-to-png
+
+    install_npm   # from setup_fns.sh
+    sudo pip install -r "$HOME/graphie-to-png/requirements.txt"
+    ( cd graphie-to-png && npm install )
+
+    if [ ! -s "$HOME/graphie-to-png/secrets.py" ]; then
+        echo "You must install $HOME/graphie-to-png/secrets.py."
+        echo "You can find them at https://www.dropbox.com/work/Khan%20Academy%20All%20Staff/Secrets/graphie-to-png"
+        echo "Hit enter when done..."
+        read prompt
+    fi
+}
+
 
 cd "$HOME"
 update_aws_config_env              # from setup_fns.sh
 install_basic_packages_prodrpc
 install_udp_relay
 install_error_monitor_db
+install_graphie_to_png
 install_root_config_files          # from setup_fns.sh
 install_user_config_files          # from setup_fns.sh
 # We have a script to start nginx so it can be run from vagrant as well

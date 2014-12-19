@@ -38,6 +38,10 @@ sed -e s,{{SECRET}},`cat "$HOME/cloudsearch_secret"`,g \
 	< "$REPO_ROOT/etc/nginx/sites-available/search.conf.in" \
 	> /etc/nginx/sites-available/search.conf
 
+sed -e s,{{HOME}},"$HOME", \
+    < "$REPO_ROOT/etc/nginx/sites-available/graphie-to-png.conf.in" \
+    > /etc/nginx/sites-available/graphie-to-png.conf
+
 # Set up the top-level nginx configuration
 ln -snf "$REPO_ROOT/etc/nginx/nginx.conf" /etc/nginx/nginx.conf
 

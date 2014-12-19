@@ -1,0 +1,14 @@
+server {
+   listen *:80;
+
+   server_name graphie-to-png.kasandbox.org;
+   root {{HOME}}/graphie-to-png/;
+
+   location / {
+       try_files $uri @proxy;
+   }
+   location @proxy {
+       proxy_pass http://127.0.0.1:8765;
+       proxy_set_header Host $http_host;
+   }
+}
