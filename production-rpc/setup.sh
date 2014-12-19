@@ -85,6 +85,8 @@ install_graphie_to_png() {
     clone_or_update git://github.com/Khan/graphie-to-png
 
     install_npm   # from setup_fns.sh
+    # These are needed by some of the pip modules.
+    sudo apt-get install -y libxml2-dev libxslt1-dev
     sudo pip install -r "$HOME/graphie-to-png/requirements.txt"
     ( cd graphie-to-png && npm install )
 

@@ -1,8 +1,0 @@
-/var/log/error-monitor-db.log {
-        daily
-        missingok
-        rotate 14
-        compress
-        notifempty
-        copytruncate
-}
