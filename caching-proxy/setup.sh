@@ -26,8 +26,15 @@ install_nginx               # from setup_fns.sh
 install_varnish             # from setup_fns.sh
 
 if [ ! -s /etc/nginx/ssl/kasandbox.key ]; then
-    echo "Install /etc/nginx/ssl/kasandbox.{crt,key}"
-    echo "You can get those from https://www.dropbox.com/home/Khan%20Academy%20All%20Staff/Secrets"
+    echo "To finish setting up nginx, copy the secret at"
+    echo "   https://phabricator.khanacademy.org/K37"
+    echo "to"
+    echo "   /etc/nginx/ssl/kasandbox.key"
+    echo "and from"
+    echo "   https://phabricator.khanacademy.org/F85625"
+    echo "(which is mentioned in the description of K37) to"
+    echo "   /etc/nginx/ssl/kasandbox.crt"
+    echo "(as root) and then chmod 600 /etc/nginx/ssl/*"
     echo "Hit enter when done:"
     read prompt
 fi

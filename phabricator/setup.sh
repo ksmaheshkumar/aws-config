@@ -180,6 +180,28 @@ EOF
     sudo service nginx start
     PHABRICATOR_ENV=khan "$HOME/internal-webserver/phabricator/bin/phd" start
 
+    if [ ! -s "/etc/nginx/ka-wild-13.key" ]; then
+        echo "To finish setting up nginx, copy the secret at"
+        echo "   https://phabricator.khanacademy.org/K35"
+        echo "to"
+        echo "   /etc/nginx/ka-wild-13.key"
+        echo "and from"
+        echo "   https://phabricator.khanacademy.org/F85633"
+        echo "(which is mentioned in the description of K35) to"
+        echo "   /etc/nginx/ka-wild-13.crt"
+        echo "(as root) and then chmod 600 /etc/nginx/ka-wild-13.*"
+        echo "Hit enter when done:"
+        read prompt
+    fi
+
+
+    if ! host "phabricator-files.khanacademy.org" >/dev/null 2>&1; then
+        echo "Set up phabricator-files.khanacademy.org as a CNAME to"
+        echo "phabricator.khanacademy.org (probably on AWS's route53)"
+        echo "Hit enter when done:"
+        read prompt
+    fi
+
     # TODO(csilvers): automate this.
     cat <<EOF
 To finish phabricator installation:
@@ -190,11 +212,6 @@ To finish phabricator installation:
    yourself, sign out, sign in as admin, and visit
    http://phabricator.khanacademy.org/people/edit/2/role/
    to make yourself an admin.
-3) On AWS's route53 (or whatever), add phabricator-files.khanacademy.org
-   as a CNAME to phabricator.khanacademy.org.
-4) Copy ka-wild-13.* from
-   https://www.dropbox.com/home/Khan%20Academy%20All%20Staff/Secrets
-   to /etc/nginx (as root) and chmod 600 /etc/nginx/ka-wild-13.*.
 EOF
 echo "Hit enter when this is done:"
 read prompt
