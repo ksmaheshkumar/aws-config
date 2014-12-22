@@ -24,16 +24,5 @@ install_basic_packages      # from setup_fns.sh
 install_root_config_files   # from setup_fns.sh
 install_nginx               # from setup_fns.sh
 
-if [ ! -s "/etc/nginx/ka-wild-13.key" ]; then
-    echo "To finish setting up nginx, copy the secret at"
-    echo "   https://phabricator.khanacademy.org/K35"
-    echo "to"
-    echo "   /etc/nginx/ka-wild-13.key"
-    echo "and from"
-    echo "   https://phabricator.khanacademy.org/F85633"
-    echo "(which is mentioned in the description of K35) to"
-    echo "   /etc/nginx/ka-wild-13.crt"
-    echo "(as root) and then chmod 600 /etc/nginx/ka-wild-13.*"
-    echo "Hit enter when done:"
-    read prompt
-fi
+install_secret /etc/nginx/ssl/ka-wild-13.key K35         # from setup_fns.sh
+install_multiline_secret /etc/nginx/ssl/ka-wild-31.crt F85633

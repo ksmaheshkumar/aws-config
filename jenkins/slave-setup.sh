@@ -45,15 +45,9 @@ install_jenkins_user_env() {
     sudo cp -av "$CONFIG_DIR/.ssh" "$JENKINS_HOME/"
     sudo chmod 600 "$JENKINS_HOME/.ssh/config"
 
-    # This is needed to fetch from private github repos
-    if [ ! -e "$JENKINS_HOME/.ssh/id_rsa.ReadWriteKiln" ]; then
-        echo "Copy id_rsa.ReadWriteKiln* from the dropbox Secrets folder "
-        echo "(or from jenkins:/var/lib/jenkins/.ssh/id_rsa.ReadWriteKiln*) to"
-        echo "   $JENKINS_HOME/.ssh/"
-        echo "Hit enter when done"
-        read prompt
-    fi
-    sudo chmod 600 "$JENKINS_HOME/.ssh/id_rsa.ReadWriteKiln"
+    # This is needed to fetch from private github repos.
+    install_secret "$JENKINS_HOME/.ssh/id_rsa.ReadWriteKiln" K38
+    install_multiline_secret "$JENKINS_HOME/.ssh/id_rsa.ReadWriteKiln.pub" F89990
 }
 
 install_jenkins_slave() {

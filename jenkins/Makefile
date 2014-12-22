@@ -3,3 +3,5 @@ symlinks: clean
 
 clean:
 	find . -maxdepth 1 -type l | xargs -r rm -v
+
+include ../shared/Makefile

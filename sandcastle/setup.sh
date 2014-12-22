@@ -44,6 +44,8 @@ setup_sandcastle() {
     python sandcastle/manage.py syncdb
 
     clone_or_update http://github.com/Khan/khan-exercises.git sandcastle/media/repo
+
+    install_multiline_secret "$HOME"/.arcrc settings/12/    # the sandcastle user page
 }
 
 install_apache() {
@@ -69,15 +71,5 @@ install_arcanist
 install_repositories
 setup_sandcastle
 install_apache
-
-if [ ! -s "$HOME"/.arcrc ]; then
-    echo "To finish setting up arc, copy sandcastle_dot_arcrc from"
-    echo "   https://www.dropbox.com/home/Khan%20Academy%20All%20Staff/Secrets"
-    echo "to"
-    echo "   $HOME/.arcrc"
-    echo "and then chmod to 600"
-    echo "Hit enter when done:"
-    read prompt
-fi
 
 # TODO(alpert): better sandcastle logging setup

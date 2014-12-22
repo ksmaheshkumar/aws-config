@@ -55,16 +55,8 @@ install_ec2_tools() {
     # Activate the multiverse!  Needed for ec2-api-tools
     activate_multiverse       # from setup_fns.sh
     sudo apt-get install -y ec2-api-tools
-    mkdir -p "$HOME/aws"
-    if [ ! -s "$HOME/aws/pk-backup-role-account.pem" ]; then
-        echo "Copy the pk-backup-role-account.pem and cert-backup-role-account.pem"
-        echo "files from dropbox to $HOME/aws:"
-        echo "   https://www.dropbox.com/home/Khan%20Academy%20All%20Staff/Secrets"
-        echo "Also, make sure there is an IAM user called 'backup-role-account"
-        echo "with permissions from 'backup-role-account-permissions'."
-        echo "Then hit enter to continue"
-        read prompt
-    fi
+    install_secret "$HOME/aws/pk-backup-role-account.pem" K44
+    install_multiline_secret "HOME/aws/cert-backup-role-account.pem" F89983
 }
 
 install_repositories() {
@@ -82,16 +74,8 @@ install_user_config_files() {
     sudo chown www-data.www-data /opt/logs
     ln -snf /opt/logs "$HOME/logs"
     ln -snf /var/log/nginx/error.log "$HOME/logs/nginx-error.log"
-
-    if [ ! -s "$HOME/github.repo_token" -o ! -s "$HOME/github.team_token" ]; then
-        echo "Install github.repo_token and github.team_token in $HOME."
-        echo "These files should each be one line long, with the line"
-        echo "containing the token values.  The tokens can be found at"
-        echo "in the 'description' field of"
-        echo "   https://phabricator.khanacademy.org/K15"
-        echo "Hit enter when this is done:"
-        read prompt
-    fi
+    install_secret "$HOME/github.repo_token" K45
+    install_secret "$HOME/github.team_token" K46
 }
 
 install_phabricator() {
@@ -180,20 +164,8 @@ EOF
     sudo service nginx start
     PHABRICATOR_ENV=khan "$HOME/internal-webserver/phabricator/bin/phd" start
 
-    if [ ! -s "/etc/nginx/ka-wild-13.key" ]; then
-        echo "To finish setting up nginx, copy the secret at"
-        echo "   https://phabricator.khanacademy.org/K35"
-        echo "to"
-        echo "   /etc/nginx/ka-wild-13.key"
-        echo "and from"
-        echo "   https://phabricator.khanacademy.org/F85633"
-        echo "(which is mentioned in the description of K35) to"
-        echo "   /etc/nginx/ka-wild-13.crt"
-        echo "(as root) and then chmod 600 /etc/nginx/ka-wild-13.*"
-        echo "Hit enter when done:"
-        read prompt
-    fi
-
+    install_secret /etc/nginx/ssl/ka-wild-13.key K35
+    install_multiline_secret /etc/nginx/ssl/ka-wild-13.crt F85633
 
     if ! host "phabricator-files.khanacademy.org" >/dev/null 2>&1; then
         echo "Set up phabricator-files.khanacademy.org as a CNAME to"
@@ -213,8 +185,8 @@ To finish phabricator installation:
    http://phabricator.khanacademy.org/people/edit/2/role/
    to make yourself an admin.
 EOF
-echo "Hit enter when this is done:"
-read prompt
+    echo "Hit enter when this is done:"
+    read prompt
 }
 
 

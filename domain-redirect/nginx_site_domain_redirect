@@ -8,8 +8,8 @@
 server {
     listen 80;
     listen 443 ssl;
-    ssl_certificate /etc/nginx/ka-wild-13.crt;
-    ssl_certificate_key /etc/nginx/ka-wild-13.key;
+    ssl_certificate /etc/nginx/ssl/ka-wild-13.crt;
+    ssl_certificate_key /etc/nginx/ssl/ka-wild-13.key;
     server_name khanacademy.org;
 
     access_log /home/ubuntu/logs/domain_redirect-access.log;

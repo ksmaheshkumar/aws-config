@@ -206,38 +206,19 @@ install_jenkins_user_env() {
     sudo cp -av "$CONFIG_DIR/.ssh" "$JENKINS_HOME/"
     sudo chmod 600 "$JENKINS_HOME/.ssh/config"
 
-    # This is needed to fetch from private github repos
-    if [ ! -e "$JENKINS_HOME/.ssh/id_rsa.ReadWriteKiln" ]; then
-        echo "Copy the private key at https://phabricator.khanacademy.org/K38"
-        echo "to $JENKINS_HOME/.ssh/id_rsa.ReadWriteKiln"
-        echo "Copy the public key (in the 'description' field of K38)"
-        echo "to $JENKINS_HOME/.ssh/id_rsa.ReadWriteKiln.pub"
-        echo "Hit enter when done"
-        read prompt
-    fi
-    sudo chmod 600 "$JENKINS_HOME/.ssh/id_rsa.ReadWriteKiln"
+    # We chown to ensure install_secret_* will work.  We'll change the
+    # owner (back) to jenkins below.
+    sudo mkdir -p "${SECRETS_DIR}" "$JENKINS_HOME"/.ssh
+    sudo chown -R ubuntu "${SECRETS_DIR}" "$JENKINS_HOME"/.ssh
 
+    # This is needed to fetch from private github repos.
+    install_secret "$JENKINS_HOME/.ssh/id_rsa.ReadWriteKiln" K38
+    install_multiline_secret "$JENKINS_HOME/.ssh/id_rsa.ReadWriteKiln.pub" F89990
     # secrets.py is needed by the translations build and deployment.
-    sudo -u jenkins mkdir -p "${SECRETS_DIR}"
-    if [ ! -e "$SECRETS_PW" ]; then
-        echo "Put the password to decrypt secrets.py on the first line of"
-        echo "   $SECRETS_PW"
-        echo "This password is 'secrets_secrets' from the top of secrets.py"
-        echo "Hit enter when done"
-        read prompt
-    fi
-    sudo chmod 600 "${SECRETS_PW}"
+    install_secret_from_secrets_py "$SECRETS_PW" secrets_secrets
+    install_secret "$PROD_SECRETS_PW" K43
 
-    # This is needed for the deploy jenkins jobs.
-    if [ ! -e "$PROD_SECRETS_PW" ]; then
-        echo "Put the prod-deploy secret in $PROD_SECRETS_PW"
-        echo "(If you don't know what it is, ask chris or kamens)."
-        echo "Hit enter when done"
-        read prompt
-    fi
-    sudo chmod 600 "${PROD_SECRETS_PW}"
-
-    # Make sure we own everything in our homedir
+    # Make sure we own everything in our homedir.
     sudo chown -R jenkins:nogroup "$JENKINS_HOME"
 }
 

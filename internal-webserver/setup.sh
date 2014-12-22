@@ -70,14 +70,7 @@ install_culture_cow() {
     clone_or_update git://github.com/Khan/culture-cow.git
     install_npm     # from setup_fns.sh
     ( cd culture-cow && npm install )
-    if [ ! -s "$HOME/culture-cow/bin/secrets" ]; then
-        echo "Put secrets in $HOME/culture-cow/bin."
-        echo "This is a shell script that lives in dropbox:"
-        echo "   https://www.dropbox.com/home/Khan%20Academy%20All%20Staff/Secrets/culture%20cow"
-        echo "and contains keys for connecting to hipchat and trello."
-        echo "Hit <enter> when this is done:"
-        read prompt
-    fi
+    decrypt_secret "$HOME/culture-cow/bin/secrets" "$CONFIG_DIR/secrets.culture_cow.cast5" K40
 }
 
 install_beep_boop() {
@@ -86,13 +79,7 @@ install_beep_boop() {
     sudo pip install -r beep-boop/requirements.txt
     # This uses alertlib, so make sure the secret is installed.
     install_alertlib_secret    # from setup_fns.sh
-    if [ ! -s "$HOME/beep-boop/zendesk.cfg" ]; then
-        echo "Put zendesk.cfg in $HOME/beep-boop/."
-        echo "This is a file with the contents '<zendesk_api_key>',"
-        echo "where the api key comes from secrets.py."
-        echo "Hit <enter> when this is done:"
-        read prompt
-    fi
+    install_secret "$HOME/beep-boop/zendesk.cfg" K20
 }
 
 install_gae_dashboard() {
@@ -100,18 +87,8 @@ install_gae_dashboard() {
     sudo apt-get install -y python-dev libxml2-dev libxslt1-dev gnuplot
     sudo pip install lxml cssselect        # to parse GAE dashboard output
     sudo pip install GChartWrapper
-    if [ ! -s "$HOME/hostedgraphite_secret" ]; then
-        echo "Put the value of hostedgraphite_api_key from secrets.py"
-        echo "in $HOME/hostedgraphite_secret"
-        echo "Hit <enter> when this is done:"
-        read prompt
-    fi
-    if [ ! -s "$HOME/private_pw" ]; then
-        echo "Put the password for khanbackups@gmail.com"
-        echo "in $HOME/private_pw"
-        echo "Hit <enter> when this is done:"
-        read prompt
-    fi
+    install_secret_from_secrets_py "$HOME/hostedgraphite_secret" hostedgraphite_api_key
+    install_secret "$HOME/private_pw" K41  # kabackups@gmail.com password
 
     sudo pip install ez_setup              # needed to install bigquery
     sudo pip install bigquery              # to report from BigQuery
@@ -119,7 +96,7 @@ install_gae_dashboard() {
     bq_credential_file="$HOME/.bigquery.v2.token"
     if [ ! -s "$bq_credential_file" ]; then
         echo "Log into Google as the user prod-read@khanacademy.org,"
-        echo "the password is in secrets.py."
+        echo "the password is at https://phabricator.khanacademy.org/K7."
         echo "Hit <enter> when this is done.  The next prompt will"
         echo "have you visit a URL as prod-read and get an auth code."
         read prompt
@@ -135,12 +112,10 @@ install_khantube_ouath_collector() {
     sudo update-rc.d -f khantube-oauth-collector-daemon remove
     sudo ln -snf "${HOME}"/aws-config/internal-webserver/etc/init.d/khantube-oauth-collector-daemon /etc/init.d
     sudo update-rc.d khantube-oauth-collector-daemon defaults
-    if [ ! -e "$HOME/internal-webserver/khantube-oauth-collector/secrets.py" ]; then
-        echo "Add $HOME/internal-webserver/khantube-oauth-collector/secrets.py "
-        echo "according to the secrets_example.py in the same directory."
-        echo "Hit <enter> when this is done:"
-        read prompt
-    fi
+
+    install_secret_from_secrets_py "$HOME/internal-webserver/khantube-oauth-collector/secrets.py" khantube_client_id
+    install_secret_from_secrets_py "$HOME/internal-webserver/khantube-oauth-collector/secrets.py" khantube_client_secret
+
     sudo service khantube-oauth-collector-daemon restart
 }
 
@@ -175,13 +150,7 @@ install_exercise_icons() {
 
         cd "$HOME"
         clone_or_update http://github.com/Khan/exercise-icons
-        if [ ! -e "$HOME/exercise-icons/full-run.sh" ]; then
-            echo "Add $HOME/exercise-icons/full-run.sh by copying and modifying"
-            echo "$HOME/exercise-icons/full-run.sh.example."
-            echo "S3_BUCKET should be set to 'ka-exercise-screenshots-3'."
-            echo "Hit <enter> when this is done:"
-            read prompt
-        fi
+        decrypt_secret "$HOME/exercise-icons/secrets.sh" "$CONFIG_DIR/secrets.exercise_icons.cast5" K42
         cd exercise-icons
         make
         install_npm     # from setup_fns.sh

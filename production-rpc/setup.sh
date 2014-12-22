@@ -39,16 +39,7 @@ install_udp_relay() {
     clone_or_update git://github.com/Khan/udp-relay
     # Now compile udp-relay
     ( cd udp-relay && make )
-
-    # Make sure the necessary secrets file is there
-    if [ ! -s "$HOME/relay.secret" ]; then
-        echo "You must install $HOME/relay.secret.  To do this, do"
-        echo "   echo <hostedgraphite_api_key> > $HOME/relay.secret"
-        echo "   chmod 600 $HOME/relay.secret"
-        echo "Where <hostedcrowdin-api-key> is from webapp's secrets.py."
-        echo "Hit enter when done..."
-        read prompt
-    fi
+    install_secret_from_secrets_py "$HOME/relay.secret" hostedgraphite_api_key
 }
 
 install_error_monitor_db() {
@@ -72,7 +63,8 @@ install_error_monitor_db() {
         echo "You must provide a login credentials for for BigQuery."
         echo "To get the credentials: cd to $HOME/error-monitor-db,"
         echo "run python bigquery_import.py and follow the instructions."
-        echo "(Be sure to login to Google as prod-read@ka.org first!)"
+        echo "(Be sure to login to Google as prod-read@ka.org first!"
+        echo "Password is at https://phabricator.khanacademy.org/K7.)"
         echo "Hit enter when done..."
         read prompt
     fi
@@ -90,12 +82,7 @@ install_graphie_to_png() {
     sudo pip install -r "$HOME/graphie-to-png/requirements.txt"
     ( cd graphie-to-png && npm install )
 
-    if [ ! -s "$HOME/graphie-to-png/secrets.py" ]; then
-        echo "You must install $HOME/graphie-to-png/secrets.py."
-        echo "You can find them at https://www.dropbox.com/work/Khan%20Academy%20All%20Staff/Secrets/graphie-to-png"
-        echo "Hit enter when done..."
-        read prompt
-    fi
+    decrypt_secret "$HOME/graphie-to-png/secrets.py" "$CONFIG_DIR/secret.graphie-to-png.cast5" K47
 }
 
 

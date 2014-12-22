@@ -31,14 +31,6 @@ install_user_config_files      # from setup_fns.sh
 install_repositories
 install_crontab                # from setup_fns.sh
 
-if [ ! -s "$HOME"/s3_secret_key ]; then
-    echo "Run the following commands to set up the s3 secrets,"
-    echo "where the values in braces are taken from webapp's secrets.py."
-    echo "   echo '<youtube_export_s3_access_key>' > ~/s3_access_key"
-    echo "   echo '<youtube_export_s3_secret_key>' > ~/s3_secret_key"
-    echo "   echo '<zencoder_api_key>' > ~/zencoder_api_key"
-    echo "   chmod 600 ~/s3_*"
-    echo "Hit <enter> when this is done:"
-    read prompt
-fi
-
+install_secret_from_secrets_py "$HOME/s3_access_key" youtube_export_s3_access_key
+install_secret_from_secrets_py "$HOME/s3_secret_key" youtube_export_s3_secret_key
+install_secret_from_secrets_py "$HOME/zencoder_api_key" zencoder_api_key

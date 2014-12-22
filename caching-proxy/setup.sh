@@ -25,16 +25,5 @@ install_user_config_files   # from setup_fns.sh
 install_nginx               # from setup_fns.sh
 install_varnish             # from setup_fns.sh
 
-if [ ! -s /etc/nginx/ssl/kasandbox.key ]; then
-    echo "To finish setting up nginx, copy the secret at"
-    echo "   https://phabricator.khanacademy.org/K37"
-    echo "to"
-    echo "   /etc/nginx/ssl/kasandbox.key"
-    echo "and from"
-    echo "   https://phabricator.khanacademy.org/F85625"
-    echo "(which is mentioned in the description of K37) to"
-    echo "   /etc/nginx/ssl/kasandbox.crt"
-    echo "(as root) and then chmod 600 /etc/nginx/ssl/*"
-    echo "Hit enter when done:"
-    read prompt
-fi
+install_secret /etc/nginx/ssl/kasandbox.key K37         # from setup_fns.sh
+install_multiline_secret /etc/nginx/ssl/kasandbox.crt F85625

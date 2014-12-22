@@ -233,21 +233,105 @@ activate_multiverse() {
         /etc/apt/sources.list
 }
 
-install_alertlib_secret() {
-    if [ ! -s "$HOME/alertlib_secret/secrets.py" ]; then
-        echo "Run:"
-        echo "---"
-        echo "mkdir -p ~/alertlib_secret"
-        echo "chmod 700 ~/alertlib_secret"
-        echo "cat <<EOF > ~/alertlib_secret/secrets.py"
-        echo 'hipchat_alertlib_token = "<value>"'
-        echo 'hostedgraphite_api_key = "<value>"'
-        echo 'EOF'
-        echo "---"
-        echo "where these lines are taken from secrets.py."
-        echo "Hit <enter> when this is done:"
-        read prompt
+
+# Decrypt a secrets file whose encrypted form lives in the aws-config repo.
+# The main argument is the password to use for decryption.
+# $1: Decrypted secret filename (should be an absolute filename)
+# $2: Encrypted secret filename, should end in .cast5 (absolute filename)
+# $3: The phabricator passphrase url where the password is stored, e.g. "K5"
+decrypt_secret() {
+    decrypted_name="`echo "$2" | sed 's/\.cast5$//'`"
+    if [ "$decrypted_name" = "$2" ]; then
+        echo "Second argument to install_secret ($2) must end in '.cast5'."
+        exit 1
     fi
+    if [ ! -s "$1" ]; then
+        echo "-- You need to decrypt the secrets at $1."
+        echo "-- To do this, enter the password from https://phabricator.khanacademy.org/$3"
+        make -f "$CONFIG_DIR/Makefile" "$decrypted_name"
+        # If "$1" is someplace like /etc, we'll retry as root.
+        mkdir -p "`dirname "$1"`" || sudo mkdir -p "`dirname "$1"`"
+        install -m 600 "$decrypted_name" "$1" || \
+            sudo install -m 600 "$decrypted_name" "$1"
+        rm -f "$decrypted_name"
+    fi
+}
+
+
+# Have the user install a secret that lives on phabricator.  The main
+# argument is the url of that secret.
+# $1: secret filename (should be an absolute filename)
+# $2: The phabricator passphrase url where this secret is stored (e.g. "K5")
+install_secret() {
+    if [ ! -s "$1" ]; then
+        echo "You need to install a secret into $1."
+        echo "To do this, cut and paste the secret from"
+        echo "   https://phabricator.khanacademy.org/$2"
+        read -p "Paste the secret here: " prompt
+        mkdir -p "`dirname "$1"`"
+        # If "$1" is someplace like /etc, we'll retry as root.
+        echo "$prompt" | tee -a "$1" >/dev/null \
+            echo "$prompt" | sudo tee -a "$1" >/dev/null
+        sudo chmod 600 "$1"
+    fi
+}
+
+# Have the user install a secret that lives on phabricator.  The main
+# argument is the url of that secret.
+# $1: secret filename (should be an absolute filename)
+# $2: The phabricator file url where this secret is stored (e.g. "F1234")
+install_multiline_secret() {
+    if [ ! -s "$1" ]; then
+        echo "You need to install a secret into $1."
+        echo "To do this, cut and paste the secret from"
+        echo "   https://phabricator.khanacademy.org/$2"
+        echo "Paste the secret contents here, then hit control-D:"
+        prompt=`cat`
+
+        mkdir -p "`dirname "$1"`"
+        # If "$1" is someplace like /etc, we'll retry as root.
+        echo "$prompt" | tee -a "$1" >/dev/null \
+            echo "$prompt" | sudo tee -a "$1" >/dev/null
+        sudo chmod 600 "$1"
+    fi
+}
+
+# Have the user enter a secret from secrets.py, which we will save
+# in a local file.
+# $1: secret filename (should be an absolute filename)
+# $2: The name of the variable in webapp's secrets.py.
+# $3: If specified and is "python", emit the secret as a python line
+#     (e.g. 'mysecret = "secret-value"'.)  The secret must not contain
+#     single-quotes or double-quotes.
+install_secret_from_secrets_py() {
+    if [ "$3" = "python" ]; then
+        if [ -s "$1" ] || ! grep -q "^$2 = " "$1"; then
+            echo "You need to install a secret into $1."
+            echo "To do this, cut and paste the value of '$2'"
+            echo "from webapp's secrets.py."
+            read -p "Paste the secret here: " prompt
+            prompt="$2 = "\""$prompt"\"
+        fi
+    else
+        if [ ! -s "$1" ]; then
+            echo "You need to install a secret into $1."
+            echo "To do this, cut and paste the value of '$2'"
+            echo "from webapp's secrets.py."
+            read -p "Paste the secret here: " prompt
+        fi
+    fi
+    if [ -n "$prompt" ]; then
+        mkdir -p "`dirname "$1"`"
+        # If "$1" is someplace like /etc, we'll retry as root.
+        echo "$prompt" | tee -a "$1" >/dev/null \
+            echo "$prompt" | sudo tee -a "$1" >/dev/null
+        sudo chmod 600 "$1"
+    fi
+}
+
+install_alertlib_secret() {
+    install_secret_from_secrets_py "$HOME/alertlib_secret/secrets.py" hipchat_alertlib_token python
+    install_secret_from_secrets_py "$HOME/alertlib_secret/secrets.py" hostedgraphite_api_key python
 }
 
 install_varnish() {
