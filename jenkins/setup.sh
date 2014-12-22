@@ -55,6 +55,11 @@ install_root_config_files_jenkins() {
     # http://stackoverflow.com/questions/15608347/fork-failing-with-out-of-memory-error
     sudo sysctl vm.overcommit_memory=1
 
+    # Our Jenkins scripts use the 'git new-workdir' command.
+    # Until it's standard in git (if ever) we have to install it ourselves.
+    wget -O"$HOME/git-new-workdir" https://raw.githubusercontent.com/git/git/master/contrib/workdir/git-new-workdir
+    sudo install -m 755 "$HOME/git-new-workdir" /usr/local/bin
+
     # Rest is standard.
     install_root_config_files   # from setup_fns.sh
 }
@@ -269,7 +274,6 @@ update_aws_config_env    # from setup_fns.sh
 install_basic_packages_jenkins
 install_root_config_files_jenkins
 install_build_deps       # from setup_fns.sh
-install_image_tools
 install_jenkins
 install_jenkins_user_env
 install_ubuntu_user_env   # should happen after jenkins jobs dir is set up
