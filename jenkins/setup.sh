@@ -248,6 +248,11 @@ install_jenkins_home() {
     sudo -u jenkins ln -snf /mnt/jenkins/jobs "${JENKINS_HOME}/jobs"
     sudo rsync -av "jenkins_home/jobs/" "${JENKINS_HOME}/jobs/"
     sudo chown -R jenkins:nogroup "${JENKINS_HOME}"/jobs/*
+
+    # We also set up jenkins_home/repositories, which will be the home
+    # of the git repositories that our jobs use.
+    sudo -u jenkins mkdir -p /mnt/jenkins/repositories
+    sudo -u jenkins ln -snf /mnt/jenkins/repositories "${JENKINS_HOME}/repositories"
 }
 
 
