@@ -57,8 +57,8 @@ install_root_config_files_jenkins() {
 
     # Our Jenkins scripts use the 'git new-workdir' command.
     # Until it's standard in git (if ever) we have to install it ourselves.
-    wget -O"$HOME/git-new-workdir" https://raw.githubusercontent.com/git/git/master/contrib/workdir/git-new-workdir
-    sudo install -m 755 "$HOME/git-new-workdir" /usr/local/bin
+    clone_or_update https://github.com/Khan/git
+    sudo ln -snf "$HOME/git/contrib/workdir/git-new-workdir" /usr/local/bin
 
     # Rest is standard.
     install_root_config_files   # from setup_fns.sh
