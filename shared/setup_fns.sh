@@ -271,7 +271,7 @@ install_secret() {
         mkdir -p "`dirname "$1"`"
         # If "$1" is someplace like /etc, we'll retry as root.
         echo "$prompt" | tee -a "$1" >/dev/null \
-            echo "$prompt" | sudo tee -a "$1" >/dev/null
+            || echo "$prompt" | sudo tee -a "$1" >/dev/null
         sudo chmod 600 "$1"
     fi
 }
@@ -291,7 +291,7 @@ install_multiline_secret() {
         mkdir -p "`dirname "$1"`"
         # If "$1" is someplace like /etc, we'll retry as root.
         echo "$prompt" | tee -a "$1" >/dev/null \
-            echo "$prompt" | sudo tee -a "$1" >/dev/null
+            || echo "$prompt" | sudo tee -a "$1" >/dev/null
         sudo chmod 600 "$1"
     fi
 }
@@ -324,7 +324,7 @@ install_secret_from_secrets_py() {
         mkdir -p "`dirname "$1"`"
         # If "$1" is someplace like /etc, we'll retry as root.
         echo "$prompt" | tee -a "$1" >/dev/null \
-            echo "$prompt" | sudo tee -a "$1" >/dev/null
+            || echo "$prompt" | sudo tee -a "$1" >/dev/null
         sudo chmod 600 "$1"
     fi
 }
