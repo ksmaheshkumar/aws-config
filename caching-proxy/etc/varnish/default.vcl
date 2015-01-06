@@ -68,7 +68,7 @@ sub vcl_recv {
 
     } else if (req.http.Host ~ "(?:^|\.)kasandbox\.org$" && req.url ~ "^/programming-sounds") {
         # We want the first to proxy to the second
-        # http://kasandbox.org/programming-sounds/rpg/battle-swing.png
+        # http://kasandbox.org/programming-sounds/rpg/battle-swing.mp3
         # https://s3.amazonaws.com/ka-cs-programming-sounds/rpg/battle-swing.mp3
         set req.http.Host = "ka-cs-programming-sounds.s3.amazonaws.com";
         set req.backend = cs_sounds;
