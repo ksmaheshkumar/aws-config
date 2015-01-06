@@ -26,6 +26,11 @@ backend cs_images {
     .port = "80";
 }
 
+backend cs_sounds {
+    .host = "ka-cs-programming-sounds.s3.amazonaws.com";
+    .port = "80";
+}
+
 sub vcl_recv {
     if (req.url ~ "\?(.*&)?clearcache([=&].*)?$") {
         ban("req.url ~ /");
@@ -60,6 +65,14 @@ sub vcl_recv {
         set req.http.Host = "ka-cs-programming-images.s3.amazonaws.com";
         set req.backend = cs_images;
         set req.url = regsub(req.url, "/programming-images", "");
+
+    } else if (req.http.Host ~ "(?:^|\.)kasandbox\.org$" && req.url ~ "^/programming-sounds") {
+        # We want the first to proxy to the second
+        # http://kasandbox.org/programming-sounds/rpg/battle-swing.png
+        # https://s3.amazonaws.com/ka-cs-programming-sounds/rpg/battle-swing.mp3
+        set req.http.Host = "ka-cs-programming-sounds.s3.amazonaws.com";
+        set req.backend = cs_sounds;
+        set req.url = regsub(req.url, "/programming-sounds", "");
 
     } else if (req.http.Host ~ "(?:^|\.)kasandbox\.org$") {
         if (req.url ~ "(\?|&)host=([a-zA-Z0-9-_.]*)") {
