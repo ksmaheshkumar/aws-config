@@ -47,6 +47,9 @@ install_error_monitor_db() {
     sudo apt-get install -y git
     clone_or_update git://github.com/Khan/error-monitor-db
 
+    # Need the PPA to get the latest redis-server
+    add_ppa chris-lea/redis-server
+
     sudo apt-get -y install redis-server
     sudo apt-get -y install python-pip python-dev python-numpy python-scipy
     sudo pip install -r "$HOME/error-monitor-db/requirements.txt"
