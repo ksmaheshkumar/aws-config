@@ -45,6 +45,11 @@ install_jenkins_user_env() {
     sudo cp -av "$CONFIG_DIR/.ssh" "$JENKINS_HOME/"
     sudo chmod 600 "$JENKINS_HOME/.ssh/config"
 
+    # Our Jenkins scripts use the 'git new-workdir' command.
+    # Until it's standard in git (if ever) we have to install it ourselves.
+    clone_or_update https://github.com/Khan/git
+    sudo ln -snf "$HOME/git/contrib/workdir/git-new-workdir" /usr/local/bin
+
     # This is needed to fetch from private github repos.
     install_secret "$JENKINS_HOME/.ssh/id_rsa.ReadWriteKiln" K38
     install_multiline_secret "$JENKINS_HOME/.ssh/id_rsa.ReadWriteKiln.pub" F89990
@@ -58,17 +63,43 @@ install_jenkins_slave() {
     sudo ln -snf /usr/lib/jvm/java-6-openjdk /usr/lib/jvm/default-java
 
     mkdir -p webapp-workspace
+
+    # This is the 'canonical' home for webapp (using the git
+    # new-workdir structure).
+    sudo mkdir -p /var/lib/jenkins
+    sudo chown ubuntu.ubuntu /var/lib/jenkins
+    mkdir -p /var/lib/jenkins/repositories
 }
 
 # This isn't strictly necessary, but it's nice to do before making an
 # AMI since it speeds up slave startup time.
 setup_webapp() {
     (
-        cd webapp-workspace
+        cd /var/lib/jenkins/repositories
         clone_or_update git://github.com/Khan/webapp
-        . env/bin/activate
-        cd webapp
+
+        if [ ! -d "$HOME/webapp-workspace/webapp" ]; then
+            git new-workdir /var/lib/jenkins/repositories/webapp \
+                            "$HOME/webapp-workspace/webapp" \
+                            master
+        fi
+        cd "$HOME/webapp-workspace/webapp"
+
+        git submodule sync
+        git submodule init
+        # We can't use 'git submodule foreach' because that only
+        # works on 'checked out' submodules.
+        submodules="`git submodule status | cut -d" " -f2`"
+        for path in $submodules; do
+            [ -f "$path/.git" ] || git new-workdir /var/lib/jenkins/repositories/webapp/"$path" "$path"
+        done
+
+        git pull
+        git submodule update
+
+        . ../env/bin/activate
         make deps
+        make lint      # generate some useful genfiles
     )
 }
 
