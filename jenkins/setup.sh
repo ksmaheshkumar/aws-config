@@ -255,6 +255,27 @@ install_jenkins_home() {
     sudo -u jenkins ln -snf /mnt/jenkins/repositories "${JENKINS_HOME}/repositories"
 }
 
+install_dropbox() {
+    cd ~ && wget -O - "https://www.dropbox.com/download?plat=lnx.x86_64" | tar xzf -
+    # Get the cli that we can use to check the status of dropbox to make sure 
+    # files are up-to-date
+    wget https://linux.dropbox.com/packages/dropbox.py
+    chmod 0755 dropbox.py
+    sudo mv dropbox.py /bin/
+
+    # Set up a dropbox directory on mnt as the partition home is in is too small.
+    sudo mkdir -p /mnt/dropbox
+    sudo chown -R ubuntu:ubuntu /mnt/dropbox
+    
+    # If this computer hasn't been synched yet with dropbox, dropboxd outputs:
+    # Please visit https://www.dropbox.com/cli_link_nonce?nonce=26... to link this device
+    echo "Follow the instructions from dropbox below to link this account to jenkins@khanacademy.org"
+    echo "The password can be found at https://phabricator.khanacademy.org/K51"
+    echo "If you don't see a message then this computer has already been linked to the dropbox account and you can just press enter to continue."
+    HOME=/mnt/dropbox ~/.dropbox-dist/dropboxd &
+    read prompt
+    HOME=/mnt/dropbox dropbox.py status
+}
 
 update_aws_config_env    # from setup_fns.sh
 install_basic_packages_jenkins
@@ -266,6 +287,7 @@ install_ubuntu_user_env   # should happen after jenkins jobs dir is set up
 install_nginx   # from setup_fns.sh
 install_redis
 install_jenkins_home
+install_dropbox
 
 echo " TODO: Once restarted, add HIPCHAT_AUTH_TOKEN as a global password:"
 echo "       1) Visit http://jenkins.khanacademy.org/configure"
