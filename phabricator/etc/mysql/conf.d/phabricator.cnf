@@ -1,5 +1,21 @@
 [mysqld]
+# https://phabricator.khanacademy.org/config/issue/mysql.mode/
 sql_mode=STRICT_ALL_TABLES
+
+# Avoid this error: "Got a packet bigger than 'max_allowed_packet' bytes"
 max_allowed_packet=999999999999
+
+# http://phabricator.khanacademy.org/config/issue/mysql.innodb_buffer_pool_size/
 innodb_buffer_pool_size=1024M
 
+# https://phabricator.khanacademy.org/config/issue/mysql.ft_boolean_syntax/
+# (use AND for searching rather than OR)
+ft_boolean_syntax=' |-><()~*:""&^'
+
+# https://phabricator.khanacademy.org/config/issue/mysql.ft_stopword_file/
+# (use a smaller stopword list)
+ft_stopword_file=/home/ubuntu/internal-webserver/phabricator/resources/sql/stopwords.txt
+
+# https://phabricator.khanacademy.org/config/issue/mysql.ft_min_word_len/
+# (allow searching for words like 'web', 'DOS', 'SMS', etc.
+ft_min_word_len=3
