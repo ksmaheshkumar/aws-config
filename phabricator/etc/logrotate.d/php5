@@ -1,0 +1,8 @@
+/var/log/php5-fpm.log {
+        daily
+        missingok
+        rotate 14
+        compress
+        notifempty
+        copytruncate
+}
