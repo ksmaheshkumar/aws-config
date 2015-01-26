@@ -1,12 +1,15 @@
 server {
-    listen *:80;
-
-    server_name error-monitor-db.khanacademy.org;
-    server_tokens off;
-    client_max_body_size 4M;
-
-    location / {
-        proxy_pass http://127.0.0.1:9340;
-        proxy_set_header Host $http_host;
-    }
+	listen *:80;
+	
+	access_log /home/ubuntu/logs/error-monitor-db-access.log;
+	error_log /home/ubuntu/logs/error-monitor-db-error.log;
+	
+	server_name error-monitor-db.khanacademy.org;
+	server_tokens off;
+	client_max_body_size 4M;
+	
+	location / {
+		proxy_pass http://127.0.0.1:9340;
+		proxy_set_header Host $http_host;
+	}
 }
