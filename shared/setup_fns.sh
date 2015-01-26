@@ -305,7 +305,7 @@ install_multiline_secret() {
 #     single-quotes or double-quotes.
 install_secret_from_secrets_py() {
     if [ "$3" = "python" ]; then
-        if [ -s "$1" ] || ! grep -q "^$2 = " "$1"; then
+        if [ ! -s "$1" ] || ! grep -q "^$2 = " "$1"; then
             echo "You need to install a secret into $1."
             echo "To do this, cut and paste the value of '$2'"
             echo "from webapp's secrets.py."
