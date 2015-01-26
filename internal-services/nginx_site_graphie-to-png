@@ -2,7 +2,7 @@ server {
    listen *:80;
 
    server_name graphie-to-png.kasandbox.org;
-   root {{HOME}}/graphie-to-png/;
+   root /home/ubuntu/graphie-to-png/;
 
    location / {
        try_files $uri @proxy;
