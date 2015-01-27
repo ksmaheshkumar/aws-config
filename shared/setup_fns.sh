@@ -70,6 +70,7 @@ install_basic_packages() {
 
         echo "(Finishing up postfix config)"
         hostname=`env LC_ALL=C grep -o '[!-~]*.khanacademy.org' "$CONFIG_DIR"/postfix.preseed`
+        hostbase=`basename "${hostname} .khanacademy.org"`
         sudo sed -i -e 's/myorigin = .*/myorigin = khanacademy.org/' \
                     -e 's/myhostname = .*/myhostname = '"$hostname"'/' \
                     -e 's/inet_interfaces = all/inet_interfaces = loopback-only/' \
@@ -78,9 +79,9 @@ install_basic_packages() {
 
         # Make sure mail to root is sent to us admins.
         if ! grep -q "root:" /etc/aliases; then
-            echo "root: `basename ${hostname} .khanacademy.org`-admin+root@khanacademy.org" | sudo tee -a /etc/aliases
+            echo "root: ${hostbase}-admin+root@khanacademy.org" | sudo tee -a /etc/aliases
             sudo newaliases
-            echo "Cron is set up to send mail to ${hostname}-admin@ka.org."
+            echo "Cron is set up to send mail to ${hostbase}-admin@ka.org."
             echo "Make sure that group exists (or else create it) at"
             echo "https://groups.google.com/a/khanacademy.org/forum/#!myforums"
             echo "Hit <enter> when this is done:"
