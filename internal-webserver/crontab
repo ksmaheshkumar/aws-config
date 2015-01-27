@@ -6,6 +6,9 @@ PATH = /usr/local/bin:/usr/bin:/bin
 # Check for elevated issue rates on Zendesk
   10 *  *   *   *     sh -c '/usr/bin/timeout 55m env PYTHONPATH=$HOME/beep-boop/alertlib:$HOME/alertlib_secret python $HOME/beep-boop/zendesk_reports.py' >> $HOME/logs/beep-boop-zendesk.log || echo "Failed to run beep-boop for Zendesk; see $HOME/logs/beep-boop-zendesk.log"
 
+# Check for elevated issue rates on JIRA
+  10 *  *   *   *     sh -c '/usr/bin/timeout 55m env PYTHONPATH=$HOME/beep-boop/alertlib:$HOME/alertlib_secret python $HOME/beep-boop/jira_reports.py' >> $HOME/logs/beep-boop-jira.log || echo "Failed to run beep-boop for JIRA; see $HOME/logs/beep-boop-jira.log"
+
 # Fetch stats and send them to graphite
 # Fetch GAE usage reports every day. Reports are generated at about 1430 PST.
 00 15 * * * sh -c 'echo "--- `date`"; /usr/bin/timeout 55m $HOME/internal-webserver/gae_dashboard/fetch_usage.sh' >> $HOME/logs/gae_dashboard_usage.log || echo "gae_dashboard_usage run failed with error $?; see $HOME/logs/gae_dashboard_usage.log"

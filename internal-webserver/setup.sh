@@ -80,6 +80,7 @@ install_beep_boop() {
     # This uses alertlib, so make sure the secret is installed.
     install_alertlib_secret    # from setup_fns.sh
     install_secret "$HOME/beep-boop/zendesk.cfg" K20
+    install_secret_from_secrets_py "$HOME/beep-boop/jira.cfg" khanbugz_password
 }
 
 install_gae_dashboard() {
