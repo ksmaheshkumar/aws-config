@@ -98,6 +98,7 @@ install_basic_packages() {
     if ! grep -q "`basename "$CONFIG_DIR"`" /etc/hosts; then
         echo "127.0.0.1 `basename "$CONFIG_DIR"`" | sudo tee -a /etc/hosts
     fi
+    sudo hostname `cat /etc/hostname`
 
     # Restart cron to pick up the new timezeone.
     sudo service cron restart
