@@ -70,7 +70,7 @@ install_basic_packages() {
 
         echo "(Finishing up postfix config)"
         hostname=`env LC_ALL=C grep -o '[!-~]*.khanacademy.org' "$CONFIG_DIR"/postfix.preseed`
-        hostbase=`basename "${hostname} .khanacademy.org"`
+        hostbase=`basename "${hostname}" .khanacademy.org`
         sudo sed -i -e 's/myorigin = .*/myorigin = khanacademy.org/' \
                     -e 's/myhostname = .*/myhostname = '"$hostname"'/' \
                     -e 's/inet_interfaces = all/inet_interfaces = loopback-only/' \

@@ -25,4 +25,4 @@ install_root_config_files   # from setup_fns.sh
 install_nginx               # from setup_fns.sh
 
 install_secret /etc/nginx/ssl/ka-wild-13.key K35         # from setup_fns.sh
-install_multiline_secret /etc/nginx/ssl/ka-wild-31.crt F85633
+install_multiline_secret /etc/nginx/ssl/ka-wild-13.crt F85633
