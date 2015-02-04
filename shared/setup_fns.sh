@@ -156,13 +156,13 @@ install_root_config_files() {
             rm -f "`_to_fs "$cronfile"`"
             # If it's a .tpl file, expand the macro first.
             if expr "$cronfile" : ".*\.tpl$" >/dev/null; then
-                cronbase=`basename "$cronfile" .tpl`
+                cronbase=`echo "$cronfile" | sed "s/.tpl$//"`
                 # Right now we only have one var we need to expand.
                 mailname=`cat /etc/mailname`
                 hostname=`basename "$mailname" .khanacademy.org`
                 sed "s/{{hostname}}/$hostname/g" "$cronfile" \
                     | sudo tee "`_to_fs "$cronbase"`" >/dev/null
-                chmod 755 "`_to_fs "$cronbase"`"
+                sudo chmod 755 "`_to_fs "$cronbase"`"
             else
                 sudo install -m755 "$cronfile" "`_to_fs "$cronfile"`"
             fi
