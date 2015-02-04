@@ -130,7 +130,7 @@ EOF
 Enter this info:
     * username: admin
     * real name: Admin Admin
-    * email: toby-admin+phabricator@khanacademy.org
+    * email: phabricator-admin+phabricator@khanacademy.org
     * password: <see secrets.py>
     * system agent: n
     * admin: y
