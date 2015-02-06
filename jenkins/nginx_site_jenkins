@@ -1,13 +1,5 @@
 # I (chris) took the original config for running Jenkins behind Nginx from:
 #   https://wiki.jenkins-ci.org/display/JENKINS/Running+Hudson+behind+Nginx
-#
-# NOTE: the Nginx proxy module doesn't support keep-alive connexions, which
-# means the above configuration will break interactive things like the console
-# output. See http://wiki.nginx.org/HttpProxyModule for more information.
-#
-# If there is trouble using this, say with the keep-alive issue, perhaps
-# try using lighttpd instead.  There was a previous config when Jenkins
-# lived on internal-webserver, see internal-webserver/etc/lighttpd/lighttpd.conf 
 
 server {
   listen          80;       # Listen on port 80 for IPv4 requests

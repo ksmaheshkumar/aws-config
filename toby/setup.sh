@@ -3,7 +3,7 @@
 # This has files that are used on our internal webserver, that runs on
 # ec2.  It has misc services that run for us, such as culture-cow.
 #
-# This sets up packages needed on an EC2 machine for
+# This sets up packages needed on an EC2 machine for toby, our
 # internal-webserver.  This is based on an Ubuntu12.04 AMI.  It is
 # idempotent.
 #
@@ -25,7 +25,7 @@
 # Bail on any errors
 set -e
 
-CONFIG_DIR="$HOME/aws-config/internal-webserver"
+CONFIG_DIR="$HOME/aws-config/toby"
 . "$HOME/aws-config/shared/setup_fns.sh"
 
 
@@ -111,7 +111,6 @@ install_khantube_ouath_collector() {
     # youtube accounts
     sudo pip install -r "${HOME}"/internal-webserver/khantube-oauth-collector/requirements.txt
     sudo update-rc.d -f khantube-oauth-collector-daemon remove
-    sudo ln -snf "${HOME}"/aws-config/internal-webserver/etc/init.d/khantube-oauth-collector-daemon /etc/init.d
     sudo update-rc.d khantube-oauth-collector-daemon defaults
 
     install_secret_from_secrets_py "$HOME/internal-webserver/khantube-oauth-collector/secrets.py" khantube_client_id
