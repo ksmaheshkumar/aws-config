@@ -4,28 +4,28 @@ MAILTO = toby-admin+crontab@khanacademy.org
 PATH = /usr/local/bin:/usr/bin:/bin
 
 # Check for elevated issue rates on Zendesk
-  10 *  *   *   *     sh -c '/usr/bin/timeout 55m env PYTHONPATH=$HOME/beep-boop/alertlib:$HOME/alertlib_secret python $HOME/beep-boop/zendesk_reports.py' >> $HOME/logs/beep-boop-zendesk.log || echo "Failed to run beep-boop for Zendesk; see $HOME/logs/beep-boop-zendesk.log"
+  10 *  *   *   *     sh -c '/usr/bin/timeout 55m env PYTHONPATH=$HOME/beep-boop/alertlib:$HOME/alertlib_secret python $HOME/beep-boop/zendesk_reports.py' >> $HOME/logs/beep-boop-zendesk.log || echo "beep-boop for Zendesk failed with error $? [124==timeout]; see $HOME/logs/beep-boop-zendesk.log"
 
 # Check for elevated issue rates on JIRA
-  10 *  *   *   *     sh -c '/usr/bin/timeout 55m env PYTHONPATH=$HOME/beep-boop/alertlib:$HOME/alertlib_secret python $HOME/beep-boop/jira_reports.py' >> $HOME/logs/beep-boop-jira.log || echo "Failed to run beep-boop for JIRA; see $HOME/logs/beep-boop-jira.log"
+  10 *  *   *   *     sh -c '/usr/bin/timeout 55m env PYTHONPATH=$HOME/beep-boop/alertlib:$HOME/alertlib_secret python $HOME/beep-boop/jira_reports.py' >> $HOME/logs/beep-boop-jira.log || echo "beep-boop for JIRA failed with error $? [124==timeout]; see $HOME/logs/beep-boop-jira.log"
 
 # Fetch stats and send them to graphite
 # Fetch GAE usage reports every day. Reports are generated at about 1430 PST.
-00 15 * * * sh -c 'echo "--- `date`"; /usr/bin/timeout 55m $HOME/internal-webserver/gae_dashboard/fetch_usage.sh' >> $HOME/logs/gae_dashboard_usage.log || echo "gae_dashboard_usage run failed with error $?; see $HOME/logs/gae_dashboard_usage.log"
+00 15 * * * sh -c 'echo "--- `date`"; /usr/bin/timeout 55m $HOME/internal-webserver/gae_dashboard/fetch_usage.sh' >> $HOME/logs/gae_dashboard_usage.log || echo "gae_dashboard_usage run failed with error $? [124==timeout]; see $HOME/logs/gae_dashboard_usage.log"
 
-# Fetch GAE admin UI stats every 7 minutes.
-*/7 * * * * sh -c 'echo "--- `date`"; /usr/bin/timeout 6m $HOME/internal-webserver/gae_dashboard/fetch_stats.sh' >> $HOME/logs/gae_dashboard_stats.log
+# Fetch GAE admin UI stats every 5 minutes.
+*/5 * * * * sh -c 'echo "--- `date`"; /usr/bin/timeout 4m $HOME/internal-webserver/gae_dashboard/fetch_stats.py >> $HOME/logs/gae_dashboard_stats.log
 # Once a day, don't write to the datastore but email on failure to
 # keep a pulse on this process.
-00 23 * * * sh -c 'echo "--- `date`"; /usr/bin/timeout 6m $HOME/internal-webserver/gae_dashboard/fetch_stats.sh -n' >> $HOME/logs/gae_dashboard_stats.log || echo "gae_dashboard_stats run failed with error $?; see $HOME/logs/gae_dashboard_stats.log"
+00 23 * * * sh -c 'echo "--- `date`"; /usr/bin/timeout 4m $HOME/internal-webserver/gae_dashboard/fetch_stats.py -n' >> $HOME/logs/gae_dashboard_stats.log || echo "gae_dashboard_stats run failed with error $? [124==timeout]; see $HOME/logs/gae_dashboard_stats.log"
 
 # Fetch bigquery stats every day, and send them via email. 7pm Pacific time is
 # 2am or 3am UTC, which gives LogToBigQuery enough time to finish.
-00 19 * * * sh -c 'echo "--- `date`"; /usr/bin/timeout 30m $HOME/internal-webserver/gae_dashboard/email_bq_data.py' >> $HOME/logs/email_bq_data.log || echo "email_bq_data run failed with error $?; see $HOME/logs/email_bq_data.log"
+00 19 * * * sh -c 'echo "--- `date`"; /usr/bin/timeout 30m $HOME/internal-webserver/gae_dashboard/email_bq_data.py' >> $HOME/logs/email_bq_data.log || echo "email_bq_data run failed with error $? [124==timeout]; see $HOME/logs/email_bq_data.log"
 
 # Update latency chart data retrieved from bigquery every day, to be displayed
 # on an in-browser dashboard.
-00 2 * * * sh -c 'echo "--- `date`"; /usr/bin/timeout 60m $HOME/internal-webserver/gae_dashboard/generate_perf_chart_json.py' >> $HOME/logs/generate_perf_chart_json.log || echo "email_bq_data run failed with error $?; see $HOME/logs/generate_perf_chart_json.log"
+00 2 * * * sh -c 'echo "--- `date`"; /usr/bin/timeout 60m $HOME/internal-webserver/gae_dashboard/generate_perf_chart_json.py' >> $HOME/logs/generate_perf_chart_json.log || echo "email_bq_data run failed with error $? [124==timeout]; see $HOME/logs/generate_perf_chart_json.log"
 
 # Update exercise screenshots every night
-00 1 * * * sh -c '$HOME/exercise-icons/full-run.sh' >> $HOME/logs/exercise-screenshots.log || echo "exercise-icons run failed; see $HOME/logs/exercise-screenshots.log"
+00 1 * * * sh -c '$HOME/exercise-icons/full-run.sh' >> $HOME/logs/exercise-screenshots.log || echo "exercise-icons run failed with error $? [124==timeout]; see $HOME/logs/exercise-screenshots.log"
