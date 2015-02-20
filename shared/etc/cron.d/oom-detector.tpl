@@ -10,4 +10,4 @@ PATH = /usr/local/bin:/usr/bin:/bin
 # oom-killer' and ends with 'Killed process <something>'.  This will
 # print all OOM messages in the logfile, even rather old ones.
 # TODO(csilvers): only print OOM's that ended within the last minute.
-* * * * *       root    find /var/log -name 'kern.log.*' -mmin -2 -print0 | xargs -0 -r sed -ne '/invoked oom-killer/,/Killed process/p'
+* * * * *       root    find /var/log -name 'kern.log*' -mmin -2 -print0 | xargs -0 -r sed -ne '/invoked oom-killer/,/Killed process/p'
