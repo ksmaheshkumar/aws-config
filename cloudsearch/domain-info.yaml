@@ -135,14 +135,16 @@ fields:
 locales:
     # Maps the locale name (with any non-alphanumeric character transformed
     # into an underscore and all alphabetic characters converted to lowercase)
-    # to the analysis scheme we'll use for it.
+    # to the analysis scheme we'll use for it.  The locales are the 
+    # locale_for_mo (same as ka_locale, expect he), and need to match what is 
+    # at the top of search/server.py:INDEXED_LOCALES
 
     bg: ka_bulgarian
     da: ka_danish
     en: ka_english
     fr: ka_french
     he: ka_hebrew
-    pt_br: ka_portuguese
-    es_es: ka_spanish
+    pt: ka_portuguese
+    es: ka_spanish
     tr: ka_turkish
 
