@@ -53,6 +53,13 @@ update_aws_config_env() {
 }
 
 install_basic_packages() {
+    # To make life easier, let's set up our hostname first.
+    ec2_hostbase | sudo tee /etc/hostname
+    if ! grep -q "`ec2_hostbase`" /etc/hosts; then
+        echo "127.0.0.1 `ec2_hostbase`" | sudo tee -a /etc/hosts
+    fi
+    sudo hostname `cat /etc/hostname`
+
     echo "Installing packages: Basic setup"
     sudo apt-get install -y git
     sudo apt-get install -y python-pip
@@ -60,51 +67,42 @@ install_basic_packages() {
     sudo apt-get install -y ntp
     sudo apt-get install -y aptitude  # used by our cron.daily script
 
+    # Not needed, but useful
+    sudo apt-get install -y curl
+
     # This is needed so installing postfix doesn't prompt.  See
     # http://www.ossramblings.com/preseed_your_apt_get_for_unattended_installs
     # If it prompts anyway, type in the stuff from postfix.preseed manually.
-    if [ -s "$CONFIG_DIR"/postfix.preseed ]; then
-        sudo apt-get install -y debconf-utils
-        sudo debconf-set-selections "$CONFIG_DIR"/postfix.preseed
-        sudo apt-get install -y postfix
+    echo "postfix postfix/mailname string `hostname`.khanacademy.org" > /tmp/postfix.preseed
+    echo "postfix postfix/main_mailer_type select Internet Site" >> /tmp/postfix.preseed
+    sudo apt-get install -y debconf-utils
+    sudo debconf-set-selections /tmp/postfix.preseed
+    sudo apt-get install -y postfix
 
-        echo "(Finishing up postfix config)"
-        hostname=`env LC_ALL=C grep -o '[!-~]*.khanacademy.org' "$CONFIG_DIR"/postfix.preseed`
-        hostbase=`basename "${hostname}" .khanacademy.org`
-        sudo sed -i -e 's/myorigin = .*/myorigin = khanacademy.org/' \
-                    -e 's/myhostname = .*/myhostname = '"$hostname"'/' \
-                    -e 's/inet_interfaces = all/inet_interfaces = loopback-only/' \
-                    /etc/postfix/main.cf
-        sudo service postfix restart
+    echo "(Finishing up postfix config)"
+    sudo sed -i -e 's/myorigin = .*/myorigin = khanacademy.org/' \
+                -e 's/myhostname = .*/myhostname = '"`hostname`"'.khanacademy.org/' \
+                -e 's/inet_interfaces = all/inet_interfaces = loopback-only/' \
+                /etc/postfix/main.cf
+    sudo service postfix restart
 
-        # Make sure mail to root is sent to us admins.
-        if ! grep -q "root:" /etc/aliases; then
-            echo "root: ${hostbase}-admin+root@khanacademy.org" | sudo tee -a /etc/aliases
-            sudo newaliases
-            echo "Cron is set up to send mail to ${hostbase}-admin@ka.org."
-            echo "Make sure that group exists (or else create it) at"
-            echo "https://groups.google.com/a/khanacademy.org/forum/#!myforums"
-            echo "Hit <enter> when this is done:"
-            read prompt
-        fi
+    # Make sure mail to root is sent to us admins.
+    if ! grep -q "root:" /etc/aliases; then
+        echo "root: `hostname`-admin+root@khanacademy.org" | sudo tee -a /etc/aliases
+        sudo newaliases
+        echo "Cron is set up to send mail to `hostname`-admin@ka.org."
+        echo "Make sure that group exists (or else create it) at"
+        echo "https://groups.google.com/a/khanacademy.org/forum/#!myforums"
+        echo "Hit <enter> when this is done:"
+        read prompt
     fi
 
     # Set the timezone to PST/PDT.  The 'tee' trick writes via sudo.
     echo "America/Los_Angeles" | sudo tee /etc/timezone
     sudo dpkg-reconfigure -f noninteractive tzdata
 
-    # Let's make sure we have a reasonable hostname!
-    basename "$CONFIG_DIR" | sudo tee /etc/hostname
-    if ! grep -q "`basename "$CONFIG_DIR"`" /etc/hosts; then
-        echo "127.0.0.1 `basename "$CONFIG_DIR"`" | sudo tee -a /etc/hosts
-    fi
-    sudo hostname `cat /etc/hostname`
-
     # Restart cron to pick up the new timezeone.
     sudo service cron restart
-
-    # Not needed, but useful
-    sudo apt-get install -y curl
 }
 
 setup_logs_dir() {
@@ -246,7 +244,6 @@ activate_multiverse() {
         /etc/apt/sources.list
 }
 
-
 # Decrypt a secrets file whose encrypted form lives in the aws-config repo.
 # The main argument is the password to use for decryption.
 # $1: Decrypted secret filename (should be an absolute filename)
@@ -269,7 +266,6 @@ decrypt_secret() {
         rm -f "$decrypted_name"
     fi
 }
-
 
 # Have the user install a secret that lives on phabricator.  The main
 # argument is the url of that secret.
