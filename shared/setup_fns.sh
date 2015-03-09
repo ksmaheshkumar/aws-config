@@ -16,8 +16,9 @@ if ! expr "$CONFIG_DIR" : / 2>/dev/null; then
 fi
 
 # $1: an absolute file like $CONFIG_DIR/etc/foo.  Returns /etc/foo.
+# $2 (optional): Value to use instead of CONFIG_DIR
 _to_fs() {
-   echo "$1" | sed "s,^$CONFIG_DIR,,"
+   echo "$1" | sed "s,^${2-$CONFIG_DIR},,"
 }
 
 
@@ -120,11 +121,20 @@ setup_logs_dir() {
     fi
 }
 
-install_root_config_files() {
-    echo "Updating config files on the root filesystem (using symlinks)"
+# $1: the root where you'll be copying files from (eg $CONFIG_DIR)
+# $2: a list of filenames to exclude from installing (e.g. "/etc/rc.local")
+_install_root_config_files() {
+    echo "Updating config files on the root filesystem (using symlinks to $1)"
+    ROOT="$1"
+    excludes=" $2 "
 
-    if [ -d "$CONFIG_DIR"/etc ]; then
-        sudo cp -sav --backup=numbered "$CONFIG_DIR"/etc/ /
+    if [ -d "$ROOT"/etc ]; then
+        find "$ROOT"/etc ! -type d -print | while read etcfile; do
+            dest=`_to_fs "$etcfile" "$ROOT"`
+            # If the user doesn't want to install this file, respect that
+            echo "$excludes" | grep -q " $dest " && continue
+            ln -snfv --backup=numbered "$etcfile" "$dest"
+        done
         sudo chown root:root /etc
     fi
     # Make sure that we've added the info we need to the fstab.
@@ -139,33 +149,47 @@ install_root_config_files() {
 
     # Stuff in /etc/init needs to be owned by root, so we copy instead of
     # symlinking there.
-    if [ -d "$CONFIG_DIR/etc/init" ]; then
+    if [ -d "$ROOT/etc/init" ]; then
         # We also add a symlink to these guys' logs in our own logs dir.
         setup_logs_dir
-        for initfile in "$CONFIG_DIR"/etc/init/*; do
-            rm -f "`_to_fs "$initfile"`"
-            sudo install -m644 "$initfile" "`_to_fs "$initfile"`"
+        for initfile in "$ROOT"/etc/init/*; do
+            dest=`_to_fs "$initfile" "$ROOT"`
+            # If the user doesn't want to install this file, respect that
+            echo "$excludes" | grep -q " $dest " && continue
+            rm -f "$dest"
+            sudo install -m644 "$initfile" "$dest"
             ln -snf /var/log/upstart/"`basename "$initfile" .conf`".log "$HOME"/logs/
         done
     fi
     # Same for stuff in /etc/cron.*
-    if [ -n "`ls "$CONFIG_DIR"/etc/cron.*`" ]; then
-        for cronfile in "$CONFIG_DIR"/etc/cron.*/*; do
-            rm -f "`_to_fs "$cronfile"`"
+    if [ -n "`ls "$ROOT"/etc/cron.*`" ]; then
+        for cronfile in "$ROOT"/etc/cron.*/*; do
+            dest=`_to_fs "$cronfile" "$ROOT"`
+            echo "$excludes" | grep -q " $dest " && continue
+            rm -f "$dest"
             # If it's a .tpl file, expand the macro first.
             if expr "$cronfile" : ".*\.tpl$" >/dev/null; then
                 cronbase=`echo "$cronfile" | sed "s/.tpl$//"`
+                dest=`_to_fs "$cronbase" "$ROOT"`
                 # Right now we only have one var we need to expand.
                 mailname=`cat /etc/mailname`
                 hostname=`basename "$mailname" .khanacademy.org`
                 sed "s/{{hostname}}/$hostname/g" "$cronfile" \
-                    | sudo tee "`_to_fs "$cronbase"`" >/dev/null
-                sudo chmod 755 "`_to_fs "$cronbase"`"
+                    | sudo tee "$dest" >/dev/null
+                sudo chmod 755 "$dest"
             else
-                sudo install -m755 "$cronfile" "`_to_fs "$cronfile"`"
+                sudo install -m755 "$cronfile" "$dest"
             fi
         done
     fi
+}
+
+
+install_root_config_files() {
+    _install_root_config_files "$CONFIG_DIR" ""
+    # We also install all the shared files from ../shared/.
+    # SHARED_EXCLUDE_FILES is (optionally) defined in a config-dir's setup.sh
+    _install_root_config_files "`dirname $CONFIG_DIR`/shared" "$SHARED_FILE_EXCLUDES"
 }
 
 install_user_config_files() {

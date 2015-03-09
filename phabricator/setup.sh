@@ -50,6 +50,12 @@ set -e
 CONFIG_DIR="$HOME/aws-config/phabricator"
 . "$HOME/aws-config/shared/setup_fns.sh"
 
+# These are files that would be installed because they live in
+# ../shared, that you don't want installed on this machine.  e.g.
+# if you really didn't want the OOM detector or foo cronjobs running
+# on this machine, you could list "etc/cron.d/oom-detector.tpl etc/cron.d/foo"
+SHARED_FILE_EXCLUDES=""
+
 
 install_ec2_tools() {
     # Activate the multiverse!  Needed for ec2-api-tools
