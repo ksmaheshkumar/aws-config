@@ -60,7 +60,7 @@ Next steps:
 10) Once the AMI is finished building, terminate the ec2 instance you
     used for this, if you created a new one just for this purpose.
 
-11) [optional] Go to the ec2 instances page, select all existing jenkins
+11) Go to the ec2 instances page, select all existing jenkins
     slave instances, and terminate them.  This will force the next
     deploy to use the new ami, allowing you to test everything!
 EOF
