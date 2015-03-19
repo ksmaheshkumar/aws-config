@@ -92,13 +92,12 @@ install_beep_boop() {
 install_gae_dashboard() {
     # gnuplot is used in email_bq_data
     sudo apt-get install -y python-dev libxml2-dev libxslt1-dev gnuplot
-    sudo pip install lxml cssselect        # to parse GAE dashboard output
-    sudo pip install GChartWrapper
     install_secret_from_secrets_py "$HOME/hostedgraphite_secret" hostedgraphite_api_key
     install_secret "$HOME/private_pw" K41  # kabackups@gmail.com password
 
-    sudo pip install ez_setup              # needed to install bigquery
-    sudo pip install bigquery              # to report from BigQuery
+    sudo pip install -r "${HOME}"/internal-webserver/gae_dashboard/requirements.txt
+    sudo pip install GChartWrapper
+
     khan_project_id=124072386181
     bq_credential_file="$HOME/.bigquery.v2.token"
     if [ ! -s "$bq_credential_file" ]; then
