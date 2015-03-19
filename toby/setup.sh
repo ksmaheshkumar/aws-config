@@ -96,7 +96,6 @@ install_gae_dashboard() {
     install_secret "$HOME/private_pw" K41  # kabackups@gmail.com password
 
     sudo pip install -r "${HOME}"/internal-webserver/gae_dashboard/requirements.txt
-    sudo pip install GChartWrapper
 
     khan_project_id=124072386181
     bq_credential_file="$HOME/.bigquery.v2.token"
