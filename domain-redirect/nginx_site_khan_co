@@ -1,0 +1,18 @@
+# Redirect khan.co to goo.gl to have our very own url shortener:
+# http://www.createdbypete.com/articles/personalise-the-google-url-shortening-service-with-your-own-domain/
+#
+# To actually create a short url, go to bit.ly and create it (logging
+# in via https://phabricator.khanacademy.org/K60 if you want
+# analytics), and then adverise the resulting url, but using 'khan.co'
+# instead of 'bit.ly'.
+
+
+server {
+    listen 80;
+    server_name khan.co;
+
+    access_log /home/ubuntu/logs/khan-co-access.log;
+    error_log /home/ubuntu/logs/khan-co-error.log;
+
+    rewrite ^ http://bit.ly$request_uri permanent;
+}
