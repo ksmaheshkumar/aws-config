@@ -11,8 +11,8 @@ server {
     listen 80;
     server_name khan.co;
 
-    access_log /home/ubuntu/logs/khan-co-access.log;
-    error_log /home/ubuntu/logs/khan-co-error.log;
+    access_log /home/ubuntu/logs/khan_co-access.log;
+    error_log /home/ubuntu/logs/khan_co-error.log;
 
     rewrite ^ http://bit.ly$request_uri permanent;
 }
