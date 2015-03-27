@@ -133,7 +133,7 @@ _install_root_config_files() {
             dest=`_to_fs "$etcfile" "$ROOT"`
             # If the user doesn't want to install this file, respect that
             echo "$excludes" | grep -q " $dest " && continue
-            ln -snfv --backup=numbered "$etcfile" "$dest"
+            sudo ln -snfv --backup=numbered "$etcfile" "$dest"
         done
         sudo chown root:root /etc
     fi
