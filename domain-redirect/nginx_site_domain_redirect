@@ -15,5 +15,15 @@ server {
     access_log /home/ubuntu/logs/domain_redirect-access.log;
     error_log /home/ubuntu/logs/domain_redirect-error.log;
 
-    return 301 $scheme://www.khanacademy.org$request_uri;
+    # The homepage is always safe to redirect to https, so do it here to save a
+    # request.
+    location = / {
+      return 301 https://www.khanacademy.org$request_uri;
+    }
+
+    # Keep the scheme for other requests since some URLs need to return 2xx
+    # responses even for insecure requests.
+    location / {
+      return 301 $scheme://www.khanacademy.org$request_uri;
+    }
 }
