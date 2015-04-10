@@ -48,6 +48,16 @@ install_basic_packages_jenkins() {
     install_basic_packages   # from setup_fns.sh
 }
 
+install_repositories() {
+    echo "Syncing git-bigfiles codebase"
+    sudo apt-get install -y git
+    clone_or_update git://github.com/Khan/aws-config
+    clone_or_update git://github.com/Khan/git-bigfile
+
+    # We also need this python file to use git-bigfile
+    sudo pip install boto
+}
+
 install_root_config_files_jenkins() {
     # Deploys and tests regularly run out of memory because they do
     # fork+exec (to run nodejs, etc), and the process they are forking
@@ -207,6 +217,7 @@ install_jenkins() {
 }
 
 install_jenkins_user_env() {
+    sudo cp -av "$CONFIG_DIR/.profile" "$JENKINS_HOME/"
     sudo cp -av "$CONFIG_DIR/.gitconfig" "$JENKINS_HOME/"
     sudo cp -av "$CONFIG_DIR/.gitignore_global" "$JENKINS_HOME/"
     sudo cp -av "$CONFIG_DIR/.ssh" "$JENKINS_HOME/"
@@ -220,6 +231,8 @@ install_jenkins_user_env() {
     # This is needed to fetch from private github repos.
     install_secret "$JENKINS_HOME/.ssh/id_rsa.ReadWriteKiln" K38
     install_multiline_secret "$JENKINS_HOME/.ssh/id_rsa.ReadWriteKiln.pub" F89990
+    # This is needed to use git-bigfile.
+    install_secret "$JENKINS_HOME/git-bigfile-storage.secret" K65
     # secrets.py is needed by the translations build and deployment.
     install_secret_from_secrets_py "$SECRETS_PW" secrets_secrets
     install_secret "$PROD_SECRETS_PW" K43
@@ -285,6 +298,7 @@ install_dropbox() {
 
 update_aws_config_env    # from setup_fns.sh
 install_basic_packages_jenkins
+install_repositories
 install_root_config_files_jenkins
 install_build_deps       # from setup_fns.sh
 install_jenkins
