@@ -53,6 +53,11 @@ install_repositories() {
     sudo apt-get install -y git
     clone_or_update git://github.com/Khan/aws-config
     clone_or_update git://github.com/Khan/git-bigfile
+    # git-bigfile is run by jenkins, so we need to install it as the
+    # jenkins user so it can auto-update.
+    sudo rm -rf "$JENKINS_HOME/git-bigfile"
+    sudo mv git-bigfile "$JENKINS_HOME/"
+    sudo chown -R jenkins:nogroup "$JENKINS_HOME/git-bigfile"
 
     # We also need this python file to use git-bigfile
     sudo pip install boto

@@ -1,2 +1,2 @@
 # Add git-bigfiles to PATH
-export PATH="/home/ubuntu/git-bigfile/bin:$PATH"
+export PATH="$HOME/git-bigfile/bin:$PATH"
