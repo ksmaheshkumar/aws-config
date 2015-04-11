@@ -48,6 +48,14 @@ install_basic_packages_jenkins() {
     install_basic_packages   # from setup_fns.sh
 }
 
+install_ec2_tools() {
+    # Activate the multiverse!  Needed for ec2-api-tools
+    activate_multiverse       # from setup_fns.sh
+    sudo apt-get install -y ec2-api-tools
+    install_multiline_secret "$HOME/aws/pk-backup-role-account.pem" K44
+    install_multiline_secret "$HOME/aws/cert-backup-role-account.pem" F89983
+}
+
 install_repositories() {
     echo "Syncing git-bigfiles codebase"
     sudo apt-get install -y git
@@ -304,6 +312,7 @@ install_dropbox() {
 
 update_aws_config_env    # from setup_fns.sh
 install_basic_packages_jenkins
+install_ec2_tools
 install_repositories
 install_root_config_files_jenkins
 install_build_deps       # from setup_fns.sh

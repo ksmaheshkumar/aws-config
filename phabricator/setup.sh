@@ -61,8 +61,8 @@ install_ec2_tools() {
     # Activate the multiverse!  Needed for ec2-api-tools
     activate_multiverse       # from setup_fns.sh
     sudo apt-get install -y ec2-api-tools
-    install_secret "$HOME/aws/pk-backup-role-account.pem" K44
-    install_multiline_secret "HOME/aws/cert-backup-role-account.pem" F89983
+    install_multiline_secret "$HOME/aws/pk-backup-role-account.pem" K44
+    install_multiline_secret "$HOME/aws/cert-backup-role-account.pem" F89983
 }
 
 install_repositories() {

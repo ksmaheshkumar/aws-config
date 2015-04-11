@@ -266,6 +266,7 @@ install_build_deps() {
 activate_multiverse() {
     sudo perl -pi~ -e 'next if /-backports/; s/^# (deb .* multiverse)$/$1/' \
         /etc/apt/sources.list
+    sudo apt-get update
 }
 
 # Decrypt a secrets file whose encrypted form lives in the aws-config repo.
