@@ -39,8 +39,20 @@ install_basic_packages_jenkins() {
     install_basic_packages   # from setup_fns.sh
 }
 
+install_repositories() {
+    echo "Syncing git-bigfiles codebase"
+    sudo apt-get install -y git
+    clone_or_update git://github.com/Khan/aws-config
+    clone_or_update git://github.com/Khan/git-bigfile
+
+    # We also need this python file to use git-bigfile
+    sudo pip install boto
+}
+
 install_jenkins_user_env() {
-    cp -av "$CONFIG_DIR/.gitconfig" "$JENKINS_HOME/.gitconfig"
+    sudo cp -av "$CONFIG_DIR/.profile" "$JENKINS_HOME/"
+    sudo cp -av "$CONFIG_DIR/.bashrc" "$JENKINS_HOME/"
+    sudo cp -av "$CONFIG_DIR/.gitconfig" "$JENKINS_HOME/"
     sudo cp -av "$CONFIG_DIR/.gitignore_global" "$JENKINS_HOME/"
     sudo cp -av "$CONFIG_DIR/.ssh" "$JENKINS_HOME/"
     sudo chmod 600 "$JENKINS_HOME/.ssh/config"
@@ -53,6 +65,9 @@ install_jenkins_user_env() {
     # This is needed to fetch from private github repos.
     install_secret "$JENKINS_HOME/.ssh/id_rsa.ReadWriteKiln" K38
     install_multiline_secret "$JENKINS_HOME/.ssh/id_rsa.ReadWriteKiln.pub" F89990
+
+    # This is needed to use git-bigfile.
+    install_secret "$JENKINS_HOME/git-bigfile-storage.secret" K65
 }
 
 install_jenkins_slave() {
@@ -106,6 +121,7 @@ setup_webapp() {
 
 update_aws_config_env            # from setup_fns.sh
 install_basic_packages_jenkins
+install_repositories
 install_root_config_files        # from setup_fns.sh
 install_build_deps               # from setup_fns.sh
 install_jenkins_user_env
