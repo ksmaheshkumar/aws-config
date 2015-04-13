@@ -93,6 +93,8 @@ install_gae_dashboard() {
     # gnuplot is used in email_bq_data
     sudo apt-get install -y python-dev libxml2-dev libxslt1-dev gnuplot
     install_secret_from_secrets_py "$HOME/hostedgraphite_secret" hostedgraphite_api_key
+    install_secret_from_secrets_py "$HOME/hostedgraphite_access_secret" hostedgraphite_access_key
+    install_multiline_secret "$HOME/cloudmonitoring_secret.json" F127454
     install_secret "$HOME/private_pw" K41  # kabackups@gmail.com password
 
     sudo pip install -r "${HOME}"/internal-webserver/gae_dashboard/requirements.txt
