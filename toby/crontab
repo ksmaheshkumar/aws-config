@@ -22,7 +22,7 @@ PATH = /usr/local/bin:/usr/bin:/bin
 # Export graphite metrics to Google Cloud Monitoring every 5 minutes.
 # Offset by a few minutes to pick up the data scraped into graphite on
 # each 5-minute mark.
-3-59/5 * * * * sh -c 'echo "--- `date`"; /usr/bin/timeout 4m $HOME/internal-webserver/gae_dashboard/graphite_bridge.py' >> $HOME/logs/graphite_bridge.log
+3-59/5 * * * * sh -c 'echo "--- `date`"; /usr/bin/timeout 4m $HOME/internal-webserver/gae_dashboard/graphite_bridge.py' >> $HOME/logs/graphite_bridge.log || echo "graphite_bridge run failed with error $? [124==timeout]; see $HOME/logs/graphite_bridge.log"
 
 # Fetch bigquery stats every day, and send them via email. 7pm Pacific time is
 # 2am or 3am UTC, which gives LogToBigQuery enough time to finish.
