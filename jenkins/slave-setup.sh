@@ -111,7 +111,7 @@ setup_webapp() {
         done
 
         git pull
-        git submodule update
+        git submodule update --init --recursive
 
         . ../env/bin/activate
         make deps
