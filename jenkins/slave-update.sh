@@ -31,7 +31,8 @@ Next steps:
 
 3) From the 'Actions' menu at the top, select "Image -> Create Image"
 
-4) Name the image: jenkins-slave-`date +%Y%m%d`
+4) Name the image: jenkins-slave-`date +%Y%m%d`.
+   For description, put: jenkins slave
 
 5) Click "Create Image".  The resulting pop-up will say:
    "View pending image ami-XXXXXXXX".  Record (cut-and-paste) that ami-ID.
