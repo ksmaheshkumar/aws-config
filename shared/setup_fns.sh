@@ -157,7 +157,7 @@ _install_root_config_files() {
             dest=`_to_fs "$initfile" "$ROOT"`
             # If the user doesn't want to install this file, respect that
             echo "$excludes" | grep -q " $dest " && continue
-            rm -f "$dest"
+            sudo rm -f "$dest"
             sudo install -m644 "$initfile" "$dest"
             ln -snf /var/log/upstart/"`basename "$initfile" .conf`".log "$HOME"/logs/
         done
@@ -168,17 +168,7 @@ _install_root_config_files() {
             dest=`_to_fs "$cronfile" "$ROOT"`
             echo "$excludes" | grep -q " $dest " && continue
             sudo rm -f "$dest"
-            # If it's a .tpl file, expand the macro first.
-            if expr "$cronfile" : ".*\.tpl$" >/dev/null; then
-                cronbase=`echo "$cronfile" | sed "s/.tpl$//"`
-                dest=`_to_fs "$cronbase" "$ROOT"`
-                # Right now we only have one var we need to expand.
-                sed "s/{{hostname}}/`hostname`/g" "$cronfile" \
-                    | sudo tee "$dest" >/dev/null
-                sudo chmod 755 "$dest"
-            else
-                sudo install -m755 "$cronfile" "$dest"
-            fi
+            sudo install -m755 "$cronfile" "$dest"
         done
     fi
 }
