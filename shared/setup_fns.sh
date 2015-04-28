@@ -55,9 +55,10 @@ update_aws_config_env() {
 
 install_basic_packages() {
     # To make life easier, let's set up our hostname first.
-    ec2_hostbase | sudo tee /etc/hostname
-    if ! grep -q "`ec2_hostbase`" /etc/hosts; then
-        echo "127.0.0.1 `ec2_hostbase`" | sudo tee -a /etc/hosts
+    ec2_hostname=`basename "$CONFIG_DIR"`
+    echo "$ec2_hostname" | sudo tee /etc/hostname
+    if ! grep -q "$ec2_hostname" /etc/hosts; then
+        echo "127.0.0.1 $ec2_hostname" | sudo tee -a /etc/hosts
     fi
     sudo hostname `cat /etc/hostname`
 
