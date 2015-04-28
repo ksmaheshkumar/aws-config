@@ -102,9 +102,10 @@ setup_webapp() {
 
         git submodule sync
         git submodule init
-        # We can't use 'git submodule foreach' because that only
-        # works on 'checked out' submodules.
-        submodules="`git submodule status | cut -d" " -f2`"
+        # Use new-workdir only for subrepos we know are old and won't
+        # be deleted anytime soon; 'new-workdir' doesn't do well with
+        # submodules being added and deleted.
+        submodules="intl/translations khan-exercises"
         for path in $submodules; do
             [ -f "$path/.git" ] || git new-workdir /var/lib/jenkins/repositories/webapp/"$path" "$path"
         done
