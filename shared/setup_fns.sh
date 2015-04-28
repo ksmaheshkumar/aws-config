@@ -173,9 +173,7 @@ _install_root_config_files() {
                 cronbase=`echo "$cronfile" | sed "s/.tpl$//"`
                 dest=`_to_fs "$cronbase" "$ROOT"`
                 # Right now we only have one var we need to expand.
-                mailname=`cat /etc/mailname`
-                hostname=`basename "$mailname" .khanacademy.org`
-                sed "s/{{hostname}}/$hostname/g" "$cronfile" \
+                sed "s/{{hostname}}/`hostname`/g" "$cronfile" \
                     | sudo tee "$dest" >/dev/null
                 sudo chmod 755 "$dest"
             else
