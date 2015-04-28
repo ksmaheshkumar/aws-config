@@ -13,19 +13,8 @@
 # a good way to get the latter is to go to the ec2 console, select an
 # existing jenkins slave machine, and run 'Launch more like this').
 
-# $1: directory to update
-git_update() {
-    (
-    cd $1
-    git pull
-    git submodule sync
-    git submodule update --init --recursive
-    )
-}
-
-git_update /var/lib/jenkins/repositories/webapp
-git_update ~/webapp-workspace/jenkins-tools
-git_update ~/webapp-workspace/webapp
+git pull                 # make sure slave-setup.sh is up to date
+. ./slave-setup.sh       # update the repos and also any other config files
 
 instance_id=`curl http://169.254.169.254/latest/meta-data/instance-id`
 

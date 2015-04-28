@@ -90,7 +90,7 @@ install_basic_packages() {
 
     # Make sure mail to root is sent to us admins.
     if ! grep -q "root:" /etc/aliases; then
-        echo "root: `hostname`-admin+root@khanacademy.org" | sudo tee -a /etc/aliases
+        echo "root: `hostname`-admin+${mailsuffix-root}@khanacademy.org" | sudo tee -a /etc/aliases
         sudo newaliases
         echo "Cron is set up to send mail to `hostname`-admin@ka.org."
         echo "Make sure that group exists (or else create it) at"

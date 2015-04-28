@@ -36,6 +36,11 @@ install_basic_packages_jenkins() {
     sudo apt-get install -y ncurses-dev
     sudo apt-get install -y unzip
 
+    # Make sure mail from us is marked as coming from the
+    # jenkins-slave, even though our hostname will be 'jenkins' (since
+    # this script is run from the 'jenkins' directory).
+    export mailsuffix='jenkins-slave-root'
+
     install_basic_packages   # from setup_fns.sh
 }
 
@@ -116,6 +121,13 @@ setup_webapp() {
         . ../env/bin/activate
         make deps
         make lint      # generate some useful genfiles
+    )
+
+    # This also isn't strictly necessary since the jenkins job does it
+    # for us, but it's nice to do.
+    (
+        cd "$HOME/webapp-workspace"
+        clone_or_update git://github.com/Khan/jenkins-tools
     )
 }
 
