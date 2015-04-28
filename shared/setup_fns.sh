@@ -167,7 +167,7 @@ _install_root_config_files() {
         for cronfile in "$ROOT"/etc/cron.*/*; do
             dest=`_to_fs "$cronfile" "$ROOT"`
             echo "$excludes" | grep -q " $dest " && continue
-            rm -f "$dest"
+            sudo rm -f "$dest"
             # If it's a .tpl file, expand the macro first.
             if expr "$cronfile" : ".*\.tpl$" >/dev/null; then
                 cronbase=`echo "$cronfile" | sed "s/.tpl$//"`
