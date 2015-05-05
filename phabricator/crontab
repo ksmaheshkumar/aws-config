@@ -15,4 +15,10 @@ PATH = /usr/local/bin:/usr/bin:/bin
 # Make sure that the only password that's marked 'world readable'
 # in phabricator is the public wifi password.
 # If this emits anything, change access to 'project fulltime + project interns'
-  0  3  *   *   *     sh -c 'bad=`mysql -u root --batch -e "SELECT name FROM phabricator_passphrase.passphrase_credential WHERE editPolicy = "\""users"\" | tail -n+2 | grep -v -e "public Wi-Fi"`; [ -z "$bad" ] || echo "Restrict permissions for these passphrase entries to fulltime + interns:\n$bad"'
+  0  3  *   *   *     sh -c 'bad=`mysql -u root --batch -e "SELECT id, name FROM phabricator_passphrase.passphrase_credential WHERE editPolicy = "\""users"\" | tail -n+2 | grep -v -e "public Wi-Fi"`; [ -z "$bad" ] || echo "Restrict permissions for these passphrase entries to fulltime + interns:\n$bad"'
+
+# On the other side, make sure that every secret is listed in the
+# "index" (list of secrets we have) except for the phabricator
+# passphrases.  (Those could be in the index too, I just make it so
+# they're not because they're super-sensitive and I'm paranoid.)
+ 10  3  *   *   *     sh -c 'bad=`mysql -u root --batch -e "SELECT id, name FROM phabricator_passphrase.passphrase_credential WHERE viewPolicy != "\""users"\" | tail -n+2 | grep -v -e "phabricator.khanacademy.org"`; [ -z "$bad" ] || echo "Loosen view permissions for these passphrase entries to all users:\n$bad"'
