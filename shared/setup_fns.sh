@@ -86,18 +86,28 @@ install_basic_packages() {
                 -e 's/myhostname = .*/myhostname = '"`hostname`"'.khanacademy.org/' \
                 -e 's/inet_interfaces = all/inet_interfaces = loopback-only/' \
                 /etc/postfix/main.cf
-    sudo service postfix restart
 
     # Make sure mail to root is sent to us admins.
-    if ! grep -q "root:" /etc/aliases; then
-        echo "root: `hostname`-admin+${mailsuffix-root}@khanacademy.org" | sudo tee -a /etc/aliases
-        sudo newaliases
+    if ! grep -q "root:" /etc/postfix/canonical 2>/dev/null; then
+        mailto="`hostname`-admin+${mailsuffix-root}@khanacademy.org"
+        echo "root $mailto" | sudo tee -a /etc/postfix/canonical
+        # For some reason sometimes I need this name as well.
+        echo "root@`hostname` $mailto" | sudo tee -a /etc/postfix/canonical
+        sudo postmap /etc/postfix/canonical
+
+        # Make sure we know to look in at this file we just wrote.
+        if ! grep -q /etc/postfix/canonical /etc/postfix/main.cf; then
+            echo "canonical_maps = hash:/etc/postfix/canonical" | sudo tee -a /etc/postfix/main.cf
+        fi
+
         echo "Cron is set up to send mail to `hostname`-admin@ka.org."
         echo "Make sure that group exists (or else create it) at"
         echo "https://groups.google.com/a/khanacademy.org/forum/#!myforums"
         echo "Hit <enter> when this is done:"
         read prompt
     fi
+
+    sudo service postfix restart
 
     # Set the timezone to PST/PDT.  The 'tee' trick writes via sudo.
     echo "America/Los_Angeles" | sudo tee /etc/timezone
