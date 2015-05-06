@@ -7,7 +7,7 @@ aptitude=/usr/bin/aptitude
 # We need to do an apt update to get the newest security updates.
 apt-get update >/dev/null
 
-"$aptitude" safe-upgrade -o Aptitude::Delete-Unused=false \
+"$aptitude" safe-upgrade -o Aptitude::Delete-Unused=true \
     --assume-yes --target-release `lsb_release -cs`-security
 
 exit 0
