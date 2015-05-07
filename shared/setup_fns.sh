@@ -88,7 +88,7 @@ install_basic_packages() {
                 /etc/postfix/main.cf
 
     # Make sure mail to root is sent to us admins.
-    if ! grep -q "root:" /etc/postfix/canonical 2>/dev/null; then
+    if ! grep -q "root " /etc/postfix/canonical 2>/dev/null; then
         mailto="`hostname`-admin+${mailsuffix-root}@khanacademy.org"
         echo "root $mailto" | sudo tee -a /etc/postfix/canonical
         # For some reason sometimes I need this name as well.
