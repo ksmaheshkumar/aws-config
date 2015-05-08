@@ -9,5 +9,4 @@ PATH = /usr/local/bin:/usr/bin:/bin
 # mail.)  The OOM message in kern.log starts with '<something> invoked
 # oom-killer' and ends with 'Killed process <something>'.  This will
 # print all OOM messages in the logfile, even rather old ones.
-# TODO(csilvers): only print OOM's that ended within the last minute.
-* * * * *       root    find /var/log -name 'kern.log*' -mmin -2 -print0 | xargs -0 -r sed -ne '/invoked oom-killer/,/Killed process/p'
+* * * * *       root    m0=`date +"\%b \%e \%H:\%M"`; m1=`date -d "now -1 min" +"\%b \%e \%H:\%M"`; m2=`date -d "now -2 min" +"\%b \%e \%H:\%M"`; find /var/log -name 'kern.log*' -mmin -2 -print0 | xargs -0 -r sed -ne "/\($m0\|$m1\|$m2\).*invoked oom-killer/,/\($m0\|$m1\|$m2\).*Killed process/p"
