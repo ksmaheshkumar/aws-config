@@ -208,7 +208,7 @@ install_jenkins() {
     sudo apt-get install -y maven
     (
         cd /tmp
-        clone_or_update https://github.com/chrisklaiber/jenkins-hipchat-plugin.git
+        clone_or_update https://github.com/Khan/jenkins-hipchat-plugin.git
         cd jenkins-hipchat-plugin && git checkout khan-custom-plugin
         mkdir -p target/classes
         mvn hpi:hpi -DskipTests
