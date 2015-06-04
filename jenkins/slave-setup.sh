@@ -78,9 +78,13 @@ install_jenkins_user_env() {
 install_jenkins_slave() {
     echo "Installing Jenkins Slave"
 
+    # get rid of older java
+    sudo apt-get purge -y openjdk-6-\*
     # Set up a compatible Java.
-    sudo apt-get install -y openjdk-6-jre openjdk-6-jdk
-    sudo ln -snf /usr/lib/jvm/java-6-openjdk /usr/lib/jvm/default-java
+    sudo apt-get install -y openjdk-7-jre openjdk-7-jdk
+    #ubuntu doesn't use 'default-java' as its way of deciding what
+    #java gets used.
+    sudo rm /usr/lib/jvm/default-java
 
     mkdir -p webapp-workspace
 

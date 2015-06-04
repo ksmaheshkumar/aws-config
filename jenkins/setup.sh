@@ -101,9 +101,6 @@ install_ubuntu_user_env() {
 install_jenkins() {
     echo "Installing Jenkins"
 
-    # Set up a compatible Java.
-    sudo apt-get install -y openjdk-6-jre openjdk-6-jdk
-    sudo ln -snf /usr/lib/jvm/java-6-openjdk /usr/lib/jvm/default-java
 
     jenkins_cli_jar="${HOME}"/bin/jenkins-cli.jar
     jenkins_plugin_url=http://updates.jenkins-ci.org/download/plugins
@@ -113,6 +110,10 @@ install_jenkins() {
     sudo apt-key add "${CONFIG_DIR}"/jenkins-ci.org.key
     sudo sh -c 'echo deb http://pkg.jenkins-ci.org/debian binary/ >/etc/apt/sources.list.d/jenkins.list'
     sudo apt-get update
+
+
+    # Set up a compatible Java.
+    sudo apt-get install -y openjdk-7-jre openjdk-7-jdk
 
     sudo apt-get install -y jenkins     # http://jenkins-ci.org
 
@@ -290,7 +291,7 @@ install_jenkins_home() {
 
 install_dropbox() {
     cd ~ && wget -O - "https://www.dropbox.com/download?plat=lnx.x86_64" | tar xzf -
-    # Get the cli that we can use to check the status of dropbox to make sure 
+    # Get the cli that we can use to check the status of dropbox to make sure
     # files are up-to-date
     wget https://linux.dropbox.com/packages/dropbox.py
     chmod 0755 dropbox.py
@@ -299,7 +300,7 @@ install_dropbox() {
     # Set up a dropbox directory on mnt as the partition home is in is too small.
     sudo mkdir -p /mnt/dropbox
     sudo chown -R ubuntu:ubuntu /mnt/dropbox
-    
+
     # If this computer hasn't been synched yet with dropbox, dropboxd outputs:
     # Please visit https://www.dropbox.com/cli_link_nonce?nonce=26... to link this device
     echo "Follow the instructions from dropbox below to link this account to jenkins@khanacademy.org"
@@ -329,4 +330,3 @@ echo "       1) Visit http://jenkins.khanacademy.org/configure"
 echo "       2) Scroll to 'Global Passwords' section and click 'add'."
 echo "       3) Name is 'HIPCHAT_AUTH_TOKEN',"
 echo "          password is 'hipchat_notify_token' from secrets.py."
-
