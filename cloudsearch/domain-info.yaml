@@ -132,6 +132,13 @@ fields:
       type: int
       traits: [sort]
 
+    # This field stores a list of the curricula that this content is a part of
+    # (for example, ['us-cc', 'fr-fr']). The default is ['None'] (not the empty
+    # list).
+    - name: curriculum_keys
+      type: literal-array
+      traits: [search, facet, return]
+
 locales:
     # Maps the locale name (with any non-alphanumeric character transformed
     # into an underscore and all alphabetic characters converted to lowercase)
