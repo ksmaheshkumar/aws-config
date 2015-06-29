@@ -139,6 +139,11 @@ fields:
       type: literal-array
       traits: [search, facet, return]
 
+    # This field indicates when the content was created.
+    - name: date_added
+      type: date
+      traits: [return, sort]
+
 locales:
     # Maps the locale name (with any non-alphanumeric character transformed
     # into an underscore and all alphabetic characters converted to lowercase)
