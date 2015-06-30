@@ -65,6 +65,11 @@ install_apache() {
     sudo a2enmod rewrite
     sudo a2dissite default
     sudo a2ensite sandcastle
+
+    # Quiet the warning that apache can't resolve localhost.
+    # cf. http://askubuntu.com/questions/256013/could-not-reliably-determine-the-servers-fully-qualified-domain-name
+    echo "ServerName localhost" | sudo tee /etc/apache2/conf.d/fqdn.conf
+
     sudo service apache2 restart
 }
 

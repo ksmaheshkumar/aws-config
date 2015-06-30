@@ -72,6 +72,12 @@ install_basic_packages() {
     # Not needed, but useful
     sudo apt-get install -y curl
 
+    # Here are some packages we *don't* want installed.
+    # popularity-contest gives a cron.daily error on some machines
+    # since popularity.conf isn't installed; this gets rid of that
+    # error.
+    sudo apt-get remove -y popularity-contest
+
     # This is needed so installing postfix doesn't prompt.  See
     # http://www.ossramblings.com/preseed_your_apt_get_for_unattended_installs
     # If it prompts anyway, type in the stuff from postfix.preseed manually.
@@ -427,7 +433,7 @@ install_nginx() {
         # a month's worth of logs, rather than a year.
         sed \
             -e "s@/var/log/nginx/\*.log@$HOME/logs/*-access.log $HOME/logs/*-error.log@" \
-            -e "s@rotate .*@rotate 4@" \
+            -e 's@rotate [0-9][0-9]*$@rotate 4@' \
             /etc/logrotate.d/nginx | sudo sh -c 'cat > /etc/logrotate.d/nginx_local'
 
         sudo service nginx restart

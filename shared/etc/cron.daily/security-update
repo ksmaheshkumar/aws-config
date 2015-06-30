@@ -8,6 +8,7 @@ aptitude=/usr/bin/aptitude
 apt-get update >/dev/null
 
 "$aptitude" safe-upgrade -o Aptitude::Delete-Unused=true \
-    --assume-yes --target-release `lsb_release -cs`-security
+    --assume-yes --target-release `lsb_release -cs`-security \
+    >/dev/null
 
 exit 0
