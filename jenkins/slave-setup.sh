@@ -86,6 +86,9 @@ install_jenkins_slave() {
     #java gets used.
     sudo rm /usr/lib/jvm/default-java
 
+    # install a font library needed for some PIL operations
+    sudo apt-get install -y libfreetype6 libfreetype6-dev
+
     mkdir -p webapp-workspace
 
     # This is the 'canonical' home for webapp (using the git

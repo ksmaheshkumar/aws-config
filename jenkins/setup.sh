@@ -117,6 +117,9 @@ install_jenkins() {
 
     sudo apt-get install -y jenkins     # http://jenkins-ci.org
 
+    # install a font library needed for some PIL operations
+    sudo apt-get install -y libfreetype6 libfreetype6-dev
+
     # We don't want the security cronjob to automatically update
     # jenkins whenever there's a reported security hole (updating
     # jenkins, along with its plugins, is a delicate process, and we
