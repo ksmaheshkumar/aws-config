@@ -144,11 +144,15 @@ fields:
       type: date
       traits: [return, sort]
 
+    - name: popularity
+      type: int
+      traits: [sort, return]
+
 locales:
     # Maps the locale name (with any non-alphanumeric character transformed
     # into an underscore and all alphabetic characters converted to lowercase)
-    # to the analysis scheme we'll use for it.  The locales are the 
-    # locale_for_mo (same as ka_locale, expect he), and need to match what is 
+    # to the analysis scheme we'll use for it.  The locales are the
+    # locale_for_mo (same as ka_locale, expect he), and need to match what is
     # at the top of search/server.py:INDEXED_LOCALES
 
     bg: ka_bulgarian
