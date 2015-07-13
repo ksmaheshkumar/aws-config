@@ -3,6 +3,12 @@
 MAILTO = internal-services-admin+crontab@khanacademy.org
 PATH = /usr/local/bin:/usr/bin:/bin
 
-# Attempt to import AppEngine logs from BigQuery four times an hour so we get the logs as soon as they are
-# imported into BigQuery. This process is idempotent while there are no new logs so it's cheap to run frequently.
-*/15 *  *   *   *     sh -c 'echo "--- `date`"; PYTHONPATH=/home/ubuntu/alertlib_secret /usr/bin/timeout 14m /usr/bin/python $HOME/error-monitor-db/bigquery_import.py -H "1s/0s: deploys"' >> $HOME/logs/bigquery_import.log || echo "bigquery_import run failed with error $?; see $HOME/logs/bigquery_import.log"
+# Attempt to import AppEngine logs from BigQuery four times an hour so
+# we get the logs as soon as they are imported into BigQuery. This
+# process is idempotent while there are no new logs so it's cheap to
+# run frequently.
+*/15 *  *   *   *     sh -c 'echo "--- `date`"; /usr/bin/timeout 14m /usr/bin/python $HOME/error-monitor-db/bigquery_import.py >> $HOME/logs/bigquery_import.log || echo "bigquery_import run failed with error $?; see $HOME/logs/bigquery_import.log"
+
+# Once a day, at the start of the day, report the state of the
+# error-world to the hipchat Support room.
+0 6  *   *   *     sh -c 'echo "--- `date`"; PYTHONPATH=/home/ubuntu/alertlib_secret /usr/bin/timeout 14m /usr/bin/python $HOME/error-monitor-db/report_errors.py -H "Support"' >> $HOME/logs/report_errors.log || echo "report_errors run failed with error $?; see $HOME/logs/report_errors.log"
