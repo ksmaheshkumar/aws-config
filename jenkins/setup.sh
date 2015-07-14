@@ -314,6 +314,24 @@ install_dropbox() {
     HOME=/mnt/dropbox dropbox.py status
 }
 
+install_gsutil() {
+    sudo pip install gsutil
+
+    # If there is already a configuration file for gsutil, skip this step.
+    # Note that `gsutil config` writes its config file to ~/.boto by default.
+    if [ ! -e ~/.boto ]; then
+        echo "The following steps allow Jenkins to be authenticated to Google"
+        echo "Cloud Storage via gsutil."
+
+        echo "When creating your gsutil credentials, use the"
+        echo "prod-deploy@khanacademy.org account:"
+        echo "    https://phabricator.khanacademy.org/K43"
+
+        # Interactive prompt which creates a config file at ~/.boto
+        gsutil config
+    fi
+}
+
 update_aws_config_env    # from setup_fns.sh
 install_basic_packages_jenkins
 install_ec2_tools
@@ -327,6 +345,7 @@ install_nginx   # from setup_fns.sh
 install_redis
 install_jenkins_home
 install_dropbox
+install_gsutil
 
 echo " TODO: Once restarted, add HIPCHAT_AUTH_TOKEN as a global password:"
 echo "       1) Visit http://jenkins.khanacademy.org/configure"
