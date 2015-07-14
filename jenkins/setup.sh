@@ -315,20 +315,24 @@ install_dropbox() {
 }
 
 install_gsutil() {
-    sudo pip install gsutil
-
     # If there is already a configuration file for gsutil, skip this step.
     # Note that `gsutil config` writes its config file to ~/.boto by default.
-    if [ ! -e ~/.boto ]; then
+    if [ ! -e "$JENKINS_HOME"/.boto ]; then
+        sudo apt-get install libffi-dev    # needed by gsutil
+        sudo pip install gsutil
+
+        echo "---------------------------------------------------------------"
         echo "The following steps allow Jenkins to be authenticated to Google"
         echo "Cloud Storage via gsutil."
 
         echo "When creating your gsutil credentials, use the"
         echo "prod-deploy@khanacademy.org account:"
         echo "    https://phabricator.khanacademy.org/K43"
+        echo "The project-id is: 124072386181"
+        echo "---------------------------------------------------------------"
 
         # Interactive prompt which creates a config file at ~/.boto
-        gsutil config
+        sudo -u jenkins -i gsutil config
     fi
 }
 
