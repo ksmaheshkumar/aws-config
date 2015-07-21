@@ -83,9 +83,9 @@ install_jenkins_worker() {
     sudo apt-get purge -y openjdk-6-\*
     # Set up a compatible Java.
     sudo apt-get install -y openjdk-7-jre openjdk-7-jdk
-    #ubuntu doesn't use 'default-java' as its way of deciding what
-    #java gets used.
-    sudo rm /usr/lib/jvm/default-java
+    # Ubuntu doesn't use 'default-java' as its way of deciding what
+    # java gets used.
+    sudo rm -f /usr/lib/jvm/default-java
 
     # install a font library needed for some PIL operations
     sudo apt-get install -y libfreetype6 libfreetype6-dev
