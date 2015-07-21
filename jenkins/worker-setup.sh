@@ -123,6 +123,12 @@ setup_webapp() {
             [ -f "$path/.git" ] || git new-workdir /var/lib/jenkins/repositories/webapp/"$path" "$path"
         done
 
+        # Get us back to a pristine 'master'
+        git reset --hard
+        git submodule foreach --recursive git reset --hard
+        git clean -ffd
+        git submodule foreach --recursive git clean -ffd
+
         git pull
         git submodule update --init --recursive
 
