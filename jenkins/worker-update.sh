@@ -1,25 +1,25 @@
 #!/bin/sh -e
 
-# This updates a Jenkins slave machine.
+# This updates a Jenkins worker (what Jenkins calls 'slave') machine.
 #
-# Jenkins starts up slave machines automatically, when needed, by
+# Jenkins starts up worker machines automatically, when needed, by
 # starting a new ec2 instance using an AMI that we provide.  You can
-# (should) update the slave AMI every few months to include the latest
-# git revisions.  This makes starting up a new slave faster since it
+# (should) update the worker AMI every few months to include the latest
+# git revisions.  This makes starting up a new worker faster since it
 # doesn't need to fetch as much from git.  This script helps with that.
 #
-# You should run it on a jenkins slave-like machine (that is, either
-# a jenkins slave machine or one that was started using the same AMI;
+# You should run it on a jenkins worker-like machine (that is, either
+# a jenkins worker machine or one that was started using the same AMI;
 # a good way to get the latter is to go to the ec2 console, select an
-# existing jenkins slave machine, and run 'Launch more like this').
+# existing jenkins worker machine, and run 'Launch more like this').
 
-git pull                 # make sure slave-setup.sh is up to date
-. ./slave-setup.sh       # update the repos and also any other config files
+git pull                 # make sure worker-setup.sh is up to date
+. ./worker-setup.sh       # update the repos and also any other config files
 
 instance_id=`curl http://169.254.169.254/latest/meta-data/instance-id`
 
 # TODO(csilvers): automate the AMI-creation part of this (but not sure
-# I can do that from the ec2-slave machine itself?)
+# I can do that from the ec2-worker machine itself?)
 
 cat<<EOF
 Next steps:
@@ -31,8 +31,8 @@ Next steps:
 
 3) From the 'Actions' menu at the top, select "Image -> Create Image"
 
-4) Name the image: jenkins-slave-`date +%Y%m%d`.
-   For description, put: jenkins slave
+4) Name the image: jenkins-worker-`date +%Y%m%d`.
+   For description, put: jenkins worker
 
 5) Click "Create Image".  The resulting pop-up will say:
    "View pending image ami-XXXXXXXX".  Record (cut-and-paste) that ami-ID.
@@ -51,7 +51,7 @@ Next steps:
     used for this, if you created a new one just for this purpose.
 
 11) Go to the jenkins 'nodes' page at http://jenkins.khanacademy.org/computer/
-    and delete all the slaves.  (If a deploy is currently running, you'll
+    and delete all the workers.  (If a deploy is currently running, you'll
     want to wait until it's done.)  This will force the next deploy
     to use the new ami!
 EOF

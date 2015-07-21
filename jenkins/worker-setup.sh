@@ -1,10 +1,11 @@
 #!/bin/sh
 
-# This sets up a Jenkins slave machine on an EC2 Ubuntu12 AMI.
+# This sets up a Jenkins worker machine (what Jenkins calls 'slave'
+# machines) on an EC2 Ubuntu12 AMI.
 #
 # Most likely, this will only be used to create a customized AMI
 # (based on the standard ubuntu12 AMI) that the jenkins ec2 plugin
-# will use when creating slaves on the fly for us.
+# will use when creating workers on the fly for us.
 #
 # This can be run like
 #
@@ -37,9 +38,9 @@ install_basic_packages_jenkins() {
     sudo apt-get install -y unzip
 
     # Make sure mail from us is marked as coming from the
-    # jenkins-slave, even though our hostname will be 'jenkins' (since
-    # this script is run from the 'jenkins' directory).
-    export mailsuffix='jenkins-slave-root'
+    # jenkins-worker, even though our hostname will be 'jenkins'
+    # (since this script is run from the 'jenkins' directory).
+    export mailsuffix='jenkins-worker-root'
 
     install_basic_packages   # from setup_fns.sh
 }
@@ -75,8 +76,8 @@ install_jenkins_user_env() {
     install_secret "$JENKINS_HOME/git-bigfile-storage.secret" K65
 }
 
-install_jenkins_slave() {
-    echo "Installing Jenkins Slave"
+install_jenkins_worker() {
+    echo "Installing Jenkins Worker"
 
     # get rid of older java
     sudo apt-get purge -y openjdk-6-\*
@@ -99,7 +100,7 @@ install_jenkins_slave() {
 }
 
 # This isn't strictly necessary, but it's nice to do before making an
-# AMI since it speeds up slave startup time.
+# AMI since it speeds up worker startup time.
 setup_webapp() {
     (
         cd /var/lib/jenkins/repositories
@@ -145,5 +146,5 @@ install_repositories
 install_root_config_files        # from setup_fns.sh
 install_build_deps               # from setup_fns.sh
 install_jenkins_user_env
-install_jenkins_slave
+install_jenkins_worker
 setup_webapp

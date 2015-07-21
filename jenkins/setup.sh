@@ -206,9 +206,7 @@ install_jenkins() {
         sudo -u jenkins sh -c "cd \"${JENKINS_HOME}\"/plugins && rm -rf \"${plugin_file}\" \"${plugin_dir}\" && wget \"${plugin_url}\""
     done
 
-    # We have a custom hipchat plugin, so do that separately.  We also
-    # use a custom version of the ec2 plugin, that is modified to
-    # (correctly) support infinite waiting for slaves to come up.
+    # We have a custom hipchat plugin, so do that separately.
     sudo apt-get install -y maven
     (
         cd /tmp
@@ -218,14 +216,6 @@ install_jenkins() {
         mvn hpi:hpi -DskipTests
         sudo cp target/hipchat.hpi "${JENKINS_HOME}/plugins/"
         sudo chown jenkins:nogroup "${JENKINS_HOME}/plugins/hipchat.hpi"
-
-        cd /tmp
-        clone_or_update https://github.com/Khan/ec2-plugin
-        cd ec2-plugin
-        mkdir -p target/classes
-        mvn package -DskipTests
-        sudo cp target/ec2.hpi "${JENKINS_HOME}/plugins/"
-        sudo chown jenkins:nogroup "${JENKINS_HOME}/plugins/ec2.hpi"
     )
 
     # Start the daemon
