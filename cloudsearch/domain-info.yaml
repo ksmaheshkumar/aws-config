@@ -121,6 +121,14 @@ fields:
       type: literal-array
       traits: [return]
 
+    # The set of slugs of topics containing this content item. Note that this
+    # may not exactly match the breadcrumbs since it includes all topic paths.
+    # Example value:
+    # ["science", "biology", "chemistry--of-life", "elements-and-atoms"]
+    - name: ancestor_slugs
+      type: literal-array
+      traits: [search]
+
     # This is a hash of all of the search data used when updating the search
     # index. It should not be used outside of the publish process.
     - name: hash
