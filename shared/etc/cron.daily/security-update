@@ -11,4 +11,6 @@ apt-get update >/dev/null
     --assume-yes --target-release `lsb_release -cs`-security \
     >/dev/null
 
+apt-get autoremove -y >/dev/null
+
 exit 0
