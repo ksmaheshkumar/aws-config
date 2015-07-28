@@ -431,10 +431,18 @@ install_nginx() {
         # now that they're in a custom location.  We just copy
         # the nginx one and modify it.  Main thing is we keep only
         # a month's worth of logs, rather than a year.
+        # While in the area, we also fix a bug in our nginx version:
+        #    https://bugs.launchpad.net/nginx/+bug/1450770
         sed \
             -e "s@/var/log/nginx/\*.log@$HOME/logs/*-access.log $HOME/logs/*-error.log@" \
             -e 's@rotate [0-9][0-9]*$@rotate 4@' \
+            -e 's@invoke-rc.d nginx rotate.*@[ -f /var/run/nginx.pid ] \&\& kill -USR1 `cat /var/run/nginx.pid`@' \
             /etc/logrotate.d/nginx | sudo sh -c 'cat > /etc/logrotate.d/nginx_local'
+
+        # We also need to fix the 'nginx rotate' bug on the main nginx config
+        sudo sed -i \
+            -e 's@invoke-rc.d nginx rotate.*@[ -f /var/run/nginx.pid ] \&\& kill -USR1 `cat /var/run/nginx.pid`@' \
+            /etc/logrotate.d/nginx
 
         sudo service nginx restart
 
