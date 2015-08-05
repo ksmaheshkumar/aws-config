@@ -320,7 +320,7 @@ install_dropbox() {
     HOME=/mnt/dropbox dropbox.py status
 }
 
-install_gsutil() {
+install_gsutil_and_gcloud() {
     # If there is already a configuration file for gsutil, skip this step.
     # Note that `gsutil config` writes its config file to ~/.boto by default.
     if [ ! -e "$JENKINS_HOME"/.boto ]; then
@@ -340,7 +340,33 @@ install_gsutil() {
         # Interactive prompt which creates a config file at ~/.boto
         sudo -u jenkins -i gsutil config
     fi
+
+    if [ ! -e "$HOME/google-cloud-sdk" ]; then
+        # Sadly the pip package for gcloud doesn't install the binary :-(
+        wget https://dl.google.com/dl/cloudsdk/release/google-cloud-sdk.tar.gz
+        tar xfz google-cloud-sdk.tar.gz
+        chmod -R a+rX google-cloud-sdk
+        yes | ./google-cloud-sdk/install.sh
+        GCLOUD="$HOME/google-cloud-sdk/bin/gcloud"
+        yes | "$GCLOUD" preview app || true
+    fi
+
+    if [ ! -d "$JENKINS_HOME/.config/gcloud" ]; then
+        echo "---------------------------------------------------------------"
+        echo "The following steps allow Jenkins to be authenticated to Google"
+        echo "Cloud via gcloud."
+
+        echo "When creating your gcloud credentials, use the"
+        echo "prod-deploy@khanacademy.org account:"
+        echo "    https://phabricator.khanacademy.org/K43"
+        echo "---------------------------------------------------------------"
+
+        # Interactive prompt which creates a config file at ~/.config/gcloud
+        sudo -u jenkins -i gcloud auth login
+    fi
 }
+
+
 
 update_aws_config_env    # from setup_fns.sh
 install_basic_packages_jenkins
@@ -355,7 +381,7 @@ install_nginx   # from setup_fns.sh
 install_redis
 install_jenkins_home
 install_dropbox
-install_gsutil
+install_gsutil_and_gcloud
 
 echo " TODO: Once restarted, add HIPCHAT_AUTH_TOKEN as a global password:"
 echo "       1) Visit http://jenkins.khanacademy.org/configure"
