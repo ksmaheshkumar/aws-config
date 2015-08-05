@@ -3,6 +3,11 @@
 aptitude=/usr/bin/aptitude
 [ -x "$aptitude" ]     # -e causes us to exit if this test fails
 
+# This should keep apt-get autoremove from complaining that we don't
+# have a terminal.  See
+#    http://askubuntu.com/questions/506158/unable-to-initialize-frontend-dialog-when-using-ssh
+export DEBIAN_FRONTEND=noninteractive
+
 # Automatically do all 'safe' security updates once a day.
 # We need to do an apt update to get the newest security updates.
 apt-get update >/dev/null
