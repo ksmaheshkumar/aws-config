@@ -33,4 +33,4 @@ install_nginx               # from setup_fns.sh
 install_varnish             # from setup_fns.sh
 
 install_secret /etc/nginx/ssl/kasandbox.key K37         # from setup_fns.sh
-install_multiline_secret /etc/nginx/ssl/kasandbox.crt F85625
+install_multiline_secret /etc/nginx/ssl/kasandbox.crt F166379
