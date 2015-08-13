@@ -2,7 +2,10 @@
 #   https://wiki.jenkins-ci.org/display/JENKINS/Running+Hudson+behind+Nginx
 
 server {
-  listen          80;       # Listen on port 80 for IPv4 requests
+  listen 443 ssl;
+  
+  ssl_certificate /etc/nginx/ka-wild-13.crt;
+  ssl_certificate_key /etc/nginx/ka-wild-13.key;
 
   server_name jenkins.khanacademy.org;
 
@@ -41,6 +44,8 @@ server {
       proxy_set_header   Host             $host;
       proxy_set_header   X-Real-IP        $remote_addr;
       proxy_set_header   X-Forwarded-For  $proxy_add_x_forwarded_for;
+      # Change the Location field, if it's returned.
+      proxy_redirect http:// https://
       proxy_max_temp_file_size 0;
 
       #this is the maximum upload size
@@ -61,3 +66,12 @@ server {
       try_files $uri @jenkins;
    }
 }
+
+server {
+	listen 80;
+
+	server_name jenkins.khanacademy.org;
+
+	return 301 https://jenkins.khanacademy.org$request_uri;
+}
+

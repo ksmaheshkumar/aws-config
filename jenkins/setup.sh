@@ -228,6 +228,9 @@ install_jenkins() {
     # Start the daemon
     sudo update-rc.d jenkins defaults
     sudo service jenkins restart || sudo service jenkins start
+
+    install_secret /etc/nginx/ssl/ka-wild-13.key K35
+    install_multiline_secret /etc/nginx/ssl/ka-wild-13.crt F85633
 }
 
 install_jenkins_user_env() {
