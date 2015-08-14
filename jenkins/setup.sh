@@ -222,18 +222,6 @@ install_jenkins() {
         sudo -u jenkins sh -c "cd \"${JENKINS_HOME}\"/plugins && rm -rf \"${plugin_file}\" \"${plugin_dir}\" && wget \"${plugin_url}\""
     done
 
-    # We have a custom hipchat plugin, so do that separately.
-    sudo apt-get install -y maven
-    (
-        cd /tmp
-        clone_or_update https://github.com/Khan/jenkins-hipchat-plugin.git
-        cd jenkins-hipchat-plugin && git checkout khan-custom-plugin
-        mkdir -p target/classes
-        mvn hpi:hpi -DskipTests
-        sudo cp target/hipchat.hpi "${JENKINS_HOME}/plugins/"
-        sudo chown jenkins:nogroup "${JENKINS_HOME}/plugins/hipchat.hpi"
-    )
-
     # Start the daemon
     sudo update-rc.d jenkins defaults
     sudo service jenkins restart || sudo service jenkins start
@@ -382,9 +370,3 @@ install_redis
 install_jenkins_home
 install_dropbox
 install_gsutil_and_gcloud
-
-echo " TODO: Once restarted, add HIPCHAT_AUTH_TOKEN as a global password:"
-echo "       1) Visit http://jenkins.khanacademy.org/configure"
-echo "       2) Scroll to 'Global Passwords' section and click 'add'."
-echo "       3) Name is 'HIPCHAT_AUTH_TOKEN',"
-echo "          password is 'hipchat_notify_token' from secrets.py."
