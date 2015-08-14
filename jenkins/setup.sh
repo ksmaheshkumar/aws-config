@@ -129,10 +129,10 @@ install_jenkins() {
     # Ensure plugins directory exists.
     sudo -u jenkins mkdir -p "${JENKINS_HOME}"/plugins
 
-    # I created this on a running jenkins install like so (on 7/21/2015):
+    # I created this on a running jenkins install like so (on 8/13/2015):
     # find /var/lib/jenkins/plugins/ -name 'MANIFEST.MF' | xargs grep -h -e Extension-Name -e Plugin-Version | tr -d '\015' | awk 'NR % 2 { n=$2 } NR % 2 == 0 { printf("        \"%s/%s/%s.hpi\" \\\n", n, $2, n) }' | grep -v SNAPSHOT | sort
     for plugin in \
-        "ansicolor/0.3.1/ansicolor.hpi" \
+        "ansicolor/0.4.1/ansicolor.hpi" \
         "ant/1.2/ant.hpi" \
         "antisamy-markup-formatter/1.3/antisamy-markup-formatter.hpi" \
         "any-buildstep/0.1/any-buildstep.hpi" \
@@ -140,8 +140,8 @@ install_jenkins() {
         "build-flow-plugin/0.18/build-flow-plugin.hpi" \
         "build-name-setter/1.3/build-name-setter.hpi" \
         "build-pipeline-plugin/1.4.7/build-pipeline-plugin.hpi" \
-        "build-timeout/1.14.1/build-timeout.hpi" \
-        "build-token-root/1.2/build-token-root.hpi" \
+        "build-timeout/1.15/build-timeout.hpi" \
+        "build-token-root/1.3/build-token-root.hpi" \
         "build-user-vars-plugin/1.4/build-user-vars-plugin.hpi" \
         "build-with-parameters/1.3/build-with-parameters.hpi" \
         "changes-since-last-success/0.5/changes-since-last-success.hpi" \
@@ -149,33 +149,35 @@ install_jenkins() {
         "conditional-buildstep/1.3.3/conditional-buildstep.hpi" \
         "credentials/1.22/credentials.hpi" \
         "cvs/2.12/cvs.hpi" \
-        "disk-usage/0.23/disk-usage.hpi" \
-        "durable-task/1.5/durable-task.hpi" \
+        "disk-usage/0.25/disk-usage.hpi" \
+        "durable-task/1.6/durable-task.hpi" \
+        "ec2/1.29/ec2.hpi" \
         "email-ext/2.40.5/email-ext.hpi" \
-        "envinject/1.91.3/envinject.hpi" \
+        "envinject/1.91.4/envinject.hpi" \
         "external-monitor-job/1.4/external-monitor-job.hpi" \
         "flexible-publish/0.15.2/flexible-publish.hpi" \
-        "git/2.3.5/git.hpi" \
-        "git-client/1.17.1/git-client.hpi" \
-        "github/1.11.3/github.hpi" \
-        "github-api/1.68/github-api.hpi" \
+        "git/2.4.0/git.hpi" \
+        "git-client/1.18.0/git-client.hpi" \
+        "github/1.12.1/github.hpi" \
+        "github-api/1.69/github-api.hpi" \
         "git-server/1.6/git-server.hpi" \
         "google-login/1.1/google-login.hpi" \
-        "groovy/1.25/groovy.hpi" \
+        "groovy/1.27/groovy.hpi" \
         "groovy-postbuild/2.2/groovy-postbuild.hpi" \
-        "htmlpublisher/1.4/htmlpublisher.hpi" \
+        "hipchat/0.1.9/hipchat.hpi" \
+        "htmlpublisher/1.5/htmlpublisher.hpi" \
         "javadoc/1.3/javadoc.hpi" \
         "jclouds-jenkins/2.8/jclouds-jenkins.hpi" \
         "jenkins-multijob-plugin/1.16/jenkins-multijob-plugin.hpi" \
         "job-poll-action-plugin/1.0/job-poll-action-plugin.hpi" \
         "jquery/1.11.2-0/jquery.hpi" \
-        "junit/1.6/junit.hpi" \
+        "junit/1.8/junit.hpi" \
         "ldap/1.11/ldap.hpi" \
         "mailer/1.15/mailer.hpi" \
         "mapdb-api/1.0.6.0/mapdb-api.hpi" \
         "matrix-auth/1.2/matrix-auth.hpi" \
         "matrix-project/1.6/matrix-project.hpi" \
-        "maven-plugin/2.10/maven-plugin.hpi" \
+        "maven-plugin/2.11/maven-plugin.hpi" \
         "mercurial/1.54/mercurial.hpi" \
         "monitoring/1.56.0/monitoring.hpi" \
         "node-iterator-api/1.5/node-iterator-api.hpi" \
@@ -183,36 +185,37 @@ install_jenkins() {
         "openid4java/0.9.8.0/openid4java.hpi" \
         "pam-auth/1.2/pam-auth.hpi" \
         "parallel-test-executor/1.7/parallel-test-executor.hpi" \
-        "parameterized-trigger/2.27/parameterized-trigger.hpi" \
+        "parameterized-trigger/2.28/parameterized-trigger.hpi" \
         "pollscm/1.2/pollscm.hpi" \
         "postbuild-task/1.8/postbuild-task.hpi" \
         "promoted-builds/2.21/promoted-builds.hpi" \
-        "rebuild/1.19/rebuild.hpi" \
+        "rebuild/1.25/rebuild.hpi" \
         "role-strategy/2.2.0/role-strategy.hpi" \
         "run-condition/1.0/run-condition.hpi" \
         "scm-api/0.2/scm-api.hpi" \
+        "scm-sync-configuration/0.0.8/scm-sync-configuration.hpi" \
         "script-security/1.14/script-security.hpi" \
         "simple-theme-plugin/0.3/simple-theme-plugin.hpi" \
-        "ssh-agent/1.7/ssh-agent.hpi" \
+        "ssh-agent/1.8/ssh-agent.hpi" \
         "ssh-credentials/1.11/ssh-credentials.hpi" \
-        "ssh-slaves/1.9/ssh-slaves.hpi" \
-        "subversion/2.5/subversion.hpi" \
+        "ssh-slaves/1.10/ssh-slaves.hpi" \
+        "subversion/2.5.1/subversion.hpi" \
         "throttle-concurrents/1.8.4/throttle-concurrents.hpi" \
-        "timestamper/1.6.2/timestamper.hpi" \
+        "timestamper/1.7.1/timestamper.hpi" \
         "token-macro/1.10/token-macro.hpi" \
         "translation/1.12/translation.hpi" \
         "windows-slaves/1.1/windows-slaves.hpi" \
-        "workflow-aggregator/1.8/workflow-aggregator.hpi" \
-        "workflow-api/1.8/workflow-api.hpi" \
-        "workflow-basic-steps/1.8/workflow-basic-steps.hpi" \
-        "workflow-cps/1.8/workflow-cps.hpi" \
-        "workflow-cps-global-lib/1.8/workflow-cps-global-lib.hpi" \
-        "workflow-durable-task-step/1.8/workflow-durable-task-step.hpi" \
-        "workflow-job/1.8/workflow-job.hpi" \
-        "workflow-scm-step/1.8/workflow-scm-step.hpi" \
-        "workflow-step-api/1.8/workflow-step-api.hpi" \
+        "workflow-aggregator/1.9/workflow-aggregator.hpi" \
+        "workflow-api/1.9/workflow-api.hpi" \
+        "workflow-basic-steps/1.9/workflow-basic-steps.hpi" \
+        "workflow-cps/1.9/workflow-cps.hpi" \
+        "workflow-cps-global-lib/1.9/workflow-cps-global-lib.hpi" \
+        "workflow-durable-task-step/1.9/workflow-durable-task-step.hpi" \
+        "workflow-job/1.9/workflow-job.hpi" \
+        "workflow-scm-step/1.9/workflow-scm-step.hpi" \
+        "workflow-step-api/1.9/workflow-step-api.hpi" \
         "workflow-stm/0.1-beta-3/workflow-stm.hpi" \
-        "workflow-support/1.8/workflow-support.hpi" \
+        "workflow-support/1.9/workflow-support.hpi" \
         ; \
     do
         plugin_url="${jenkins_plugin_url}/${plugin}"
