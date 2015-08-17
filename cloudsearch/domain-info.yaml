@@ -156,6 +156,23 @@ fields:
       type: int
       traits: [sort, return]
 
+    # Text-form breadcrumbs and ancestor slugs that are used to broaden
+    # the number of textual triggers an object has when it is being
+    # searched for. Goal is to improve the performance of AND searches
+    # through the addition of more keywords and searchable text.
+    - name: breadcrumb_keywords
+      type: text-array
+      traits: [search, highlight]
+      analysis_scheme: ka_english
+
+    # This contains the description of the tutorial the search item is in.
+    # For a tutorial, this will contain its own description, and for a subject,
+    # this will contain the subject description.
+    - name: tutorial_text
+      type: text
+      traits: [search, highlight]
+      analysis_scheme: ka_english
+
 locales:
     # Maps the locale name (with any non-alphanumeric character transformed
     # into an underscore and all alphabetic characters converted to lowercase)
