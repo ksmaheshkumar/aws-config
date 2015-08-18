@@ -41,6 +41,12 @@ analysis_schemes:
         AlgorithmicStemming: full
         Stopwords: dictionaries/he-stopwords.yaml
 
+    - AnalysisSchemeName: ka_hindi
+      AnalysisSchemeLanguage: hi
+      AnalysisOptions:
+        AlgorithmicStemming: full
+        Stopwords: dictionaries/hi-stopwords.yaml
+
     - AnalysisSchemeName: ka_portuguese
       AnalysisSchemeLanguage: pt
       AnalysisOptions:
@@ -185,6 +191,7 @@ locales:
     en: ka_english
     fr: ka_french
     he: ka_hebrew
+    hi: ka_hindi
     pt: ka_portuguese
     es: ka_spanish
     tr: ka_turkish
