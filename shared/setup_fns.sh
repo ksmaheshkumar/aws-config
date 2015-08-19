@@ -371,6 +371,7 @@ install_secret_from_secrets_py() {
 install_alertlib_secret() {
     install_secret_from_secrets_py "$HOME/alertlib_secret/secrets.py" hipchat_alertlib_token python
     install_secret_from_secrets_py "$HOME/alertlib_secret/secrets.py" hostedgraphite_api_key python
+    install_secret_from_secrets_py "$HOME/alertlib_secret/secrets.py" slack_alertlib_webhook_url python
 }
 
 install_varnish() {
