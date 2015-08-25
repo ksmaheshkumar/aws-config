@@ -195,6 +195,10 @@ install_root_config_files() {
     # We also install all the shared files from ../shared/.
     # SHARED_EXCLUDE_FILES is (optionally) defined in a config-dir's setup.sh
     _install_root_config_files "`dirname $CONFIG_DIR`/shared" "$SHARED_FILE_EXCLUDES"
+
+    # Something makes /etc group-writable sometimes, which ssh doesn't
+    # like.  Let's fix that.
+    sudo chmod 755 /etc
 }
 
 install_user_config_files() {
