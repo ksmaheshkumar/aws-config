@@ -23,7 +23,7 @@ server {
   }
 
   location /favicon.ico { alias /var/lib/jenkins/userContent/favicon.ico; }
-  location /deploy-state.json { alias /mnt/jenkins_jobs/deploy-via-multijob/tmp/deploy.lockdir/deploy.json; }
+  location /deploy-state.json { alias /mnt/jenkins_jobs/deploy-via-multijob/workspace/tmp/deploy.lockdir/deploy.json; }
 
   location /userContent {
         #have nginx handle all the static requests to the userContent folder files
