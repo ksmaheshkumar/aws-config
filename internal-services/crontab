@@ -11,4 +11,4 @@ PATH = /usr/local/bin:/usr/bin:/bin
 
 # Once a day, at the start of the day, report the state of the
 # error-world to the hipchat Support room.
-0 6  *   *   *     sh -c 'echo "--- `date`"; PYTHONPATH=/home/ubuntu/alertlib_secret /usr/bin/timeout 14m /usr/bin/python $HOME/error-monitor-db/report_errors.py -H "Support"' >> $HOME/logs/report_errors.log || echo "report_errors run failed with error $?; see $HOME/logs/report_errors.log"
+0 6  *   *   *     sh -c 'echo "--- `date`"; PYTHONPATH=/home/ubuntu/alertlib_secret /usr/bin/timeout 14m /usr/bin/python $HOME/error-monitor-db/report_errors.py -H "Support" -S "#support"' >> $HOME/logs/report_errors.log || echo "report_errors run failed with error $?; see $HOME/logs/report_errors.log"
